@@ -3300,7 +3300,7 @@
     const drawIconIfReady = (ctx, img, x, y, size) => { if (img.complete && img.naturalWidth !== 0) { ctx.drawImage(img, x - size/2, y - size/2, size, size); return true; } return false; };
     const fmtTime = s => { const m = String(Math.floor(s / 60)).padStart(2, '0'); const ss = String(s % 60).padStart(2, '0'); return `${m}:${ss}`; };
 
-    function getHeroIconUrl(heroid) { return `${HERO_IMAGE_PATH}${heroid}_CIRCLE.PNG`; }
+    function getHeroIconUrl(heroid) { return `${HERO_IMAGE_PATH}${heroid}_CIRCLE.png`; }
     function getRuneIconUrl(id) { return `${RUNE_IMAGE_PATH}${id}_RUNES.png`; }
     function getSkillIconUrl(skillid) { return `${SKILL_IMAGE_PATH}${skillid}.png`; }
     function getItemIconUrl(itemId) { return `${ITEM_IMAGE_PATH}${itemId}.png`; }
@@ -5967,7 +5967,7 @@ function renderTimeline() {
                 iconsContainer.appendChild(icon);
             }
             icon.className = `tf-icon ${player.dead ? 'dead' : ''}`;
-            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.PNG')`;
+            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.png')`;
             icon.style.left = `calc(${cum + (pct / 2)}%)`;
 
             cum += pct;
@@ -5996,7 +5996,7 @@ function renderTimeline() {
                 iconsContainer.appendChild(icon);
             }
             icon.className = `tf-icon ${player.dead ? 'dead' : ''}`;
-            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.PNG')`;
+            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.png')`;
             icon.style.left = `calc(${cum + (pct / 2)}%)`;
 
             cum += pct;
