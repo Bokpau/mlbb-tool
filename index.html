@@ -6538,15 +6538,39 @@ async function startAutoRefresh(battleId) {
                     prevItemsObj[key] = value;
                 });
 
-                const resItems = await fetch('/api/items', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        players,
-                        prevItemsMap: prevItemsObj,
-                        currentTime
-                    })
-                });
+                let resItems;
+
+                try {
+                    resItems = await fetch('/api/items', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            players,
+                            prevItemsMap: prevItemsObj,
+                            currentTime
+                        })
+                    });
+
+                    if (!resItems.ok) {
+                        throw new Error("API not found");
+                    }
+
+                    const text = await resItems.text();
+
+                    let data;
+                    try {
+                        data = JSON.parse(text);
+                    } catch (e) {
+                        console.error("❌ Not JSON:", text);
+                        return; // 🔥 STOP here, avoid crash
+                    }
+
+                    // ✅ USE YOUR DATA HERE
+                    processItems(data);
+
+                } catch (err) {
+                    console.error("Items API Error:", err.message);
+                }
 
                 const result = await resItems.json();
 
