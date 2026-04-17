@@ -911,6 +911,30 @@
             pointer-events: none;
         }
 
+        /* 🔥 BROADCAST MODE (ITEMS) */
+        body.overlay-mode {
+            margin: 0 !important;
+            overflow: hidden !important;
+            background: transparent !important;
+        }
+
+        #itemTimingModal.overlay-mode {
+            position: fixed;
+            inset: 0;
+            background: transparent !important;
+            padding: 0 !important;
+        }
+
+        #itemTimingModal.overlay-mode > div {
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            border-radius: 0 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+        }
+
         /* =========================
         🔥 ANIMATION (SUBTLE LIVE FEEL)
         ========================= */
@@ -1407,6 +1431,16 @@
     </div>
 </div>
 <script>
+
+    const path = window.location.pathname;
+
+    if (path.includes('/overlay/items')) {
+    window.addEventListener('load', () => {
+        document.body.classList.add('overlay-mode');
+        document.getElementById('itemTimingModal').classList.add('overlay-mode');
+        toggleItemTimingModal(true);
+    });
+    }
     const HERO_IMAGE_PATH = './hero/';
     const ITEM_IMAGE_PATH = './items/';
     const RUNE_IMAGE_PATH = './Rune/';
@@ -5618,18 +5652,40 @@ function renderTimeline() {
         }
     }
 
-    function toggleItemTimingModal() {
+    function toggleItemTimingModal(isBroadcast = false) {
         const modal = document.getElementById('itemTimingModal');
-        modal.classList.toggle('hidden');
 
-        if (!modal.classList.contains('hidden')) {
-            setTimeout(renderItemTimings, 100);                    // first draw
-            if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
-            window.itemTimingInterval = setInterval(renderItemTimings, 1500); // live update
+        // toggle logic
+        const isHidden = modal.classList.contains('hidden');
+
+        if (isHidden) {
+            modal.classList.remove('hidden');
         } else {
-            if (window.itemTimingInterval) {
-                clearInterval(window.itemTimingInterval);
-                window.itemTimingInterval = null;
+            modal.classList.add('hidden');
+        }
+
+        // ✅ BROADCAST MODE
+        if (isBroadcast) {
+            modal.classList.remove('hidden');
+
+            // Hide EVERYTHING except modal
+            document.querySelectorAll('body > *:not(#itemTimingModal)').forEach(el => {
+                el.style.display = 'none';
+            });
+
+            // Force transparent background
+            document.body.style.background = 'transparent';
+            document.body.style.margin = '0';
+            document.body.style.overflow = 'hidden';
+
+            // Remove modal padding/background
+            modal.style.background = 'transparent';
+
+            const inner = modal.querySelector('div');
+            if (inner) {
+                inner.style.background = 'transparent';
+                inner.style.border = 'none';
+                inner.style.boxShadow = 'none';
             }
         }
     }
