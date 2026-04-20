@@ -911,30 +911,6 @@
             pointer-events: none;
         }
 
-        /* 🔥 BROADCAST MODE (ITEMS) */
-        body.overlay-mode {
-            margin: 0 !important;
-            overflow: hidden !important;
-            background: transparent !important;
-        }
-
-        #itemTimingModal.overlay-mode {
-            position: fixed;
-            inset: 0;
-            background: transparent !important;
-            padding: 0 !important;
-        }
-
-        #itemTimingModal.overlay-mode > div {
-            width: 100% !important;
-            height: 100% !important;
-            max-width: 100% !important;
-            border-radius: 0 !important;
-            background: transparent !important;
-            box-shadow: none !important;
-            border: none !important;
-        }
-
         /* =========================
         🔥 ANIMATION (SUBTLE LIVE FEEL)
         ========================= */
@@ -1431,22 +1407,25 @@
     </div>
 </div>
 <script>
-
-    const path = window.location.pathname;
-
-    if (path.includes('/overlay/items')) {
-    window.addEventListener('load', () => {
-        document.body.classList.add('overlay-mode');
-        document.getElementById('itemTimingModal').classList.add('overlay-mode');
-        toggleItemTimingModal(true);
-    });
-    }
     const HERO_IMAGE_PATH = './hero/';
     const ITEM_IMAGE_PATH = './items/';
     const RUNE_IMAGE_PATH = './Rune/';
     const SKILL_IMAGE_PATH = './SKILL/';
     let apiData = null;
     let lastTime = 0;
+
+    async function autoLoadLiveGame() {
+        let battleId = localStorage.getItem('lastBattleId');
+
+        if (!battleId) {
+            console.warn("No saved battle ID");
+            return;
+        }
+
+        document.getElementById('battleIdInput').value = battleId;
+
+        await loadBattle();
+    }
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
     let pollInterval = null;
     let player1 = null;
@@ -5652,40 +5631,18 @@ function renderTimeline() {
         }
     }
 
-    function toggleItemTimingModal(isBroadcast = false) {
+    function toggleItemTimingModal() {
         const modal = document.getElementById('itemTimingModal');
+        modal.classList.toggle('hidden');
 
-        // toggle logic
-        const isHidden = modal.classList.contains('hidden');
-
-        if (isHidden) {
-            modal.classList.remove('hidden');
+        if (!modal.classList.contains('hidden')) {
+            setTimeout(renderItemTimings, 100);                    // first draw
+            if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
+            window.itemTimingInterval = setInterval(renderItemTimings, 1500); // live update
         } else {
-            modal.classList.add('hidden');
-        }
-
-        // ✅ BROADCAST MODE
-        if (isBroadcast) {
-            modal.classList.remove('hidden');
-
-            // Hide EVERYTHING except modal
-            document.querySelectorAll('body > *:not(#itemTimingModal)').forEach(el => {
-                el.style.display = 'none';
-            });
-
-            // Force transparent background
-            document.body.style.background = 'transparent';
-            document.body.style.margin = '0';
-            document.body.style.overflow = 'hidden';
-
-            // Remove modal padding/background
-            modal.style.background = 'transparent';
-
-            const inner = modal.querySelector('div');
-            if (inner) {
-                inner.style.background = 'transparent';
-                inner.style.border = 'none';
-                inner.style.boxShadow = 'none';
+            if (window.itemTimingInterval) {
+                clearInterval(window.itemTimingInterval);
+                window.itemTimingInterval = null;
             }
         }
     }
@@ -6538,39 +6495,15 @@ async function startAutoRefresh(battleId) {
                     prevItemsObj[key] = value;
                 });
 
-                let resItems;
-
-                try {
-                    resItems = await fetch('/api/items', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            players,
-                            prevItemsMap: prevItemsObj,
-                            currentTime
-                        })
-                    });
-
-                    if (!resItems.ok) {
-                        throw new Error("API not found");
-                    }
-
-                    const text = await resItems.text();
-
-                    let data;
-                    try {
-                        data = JSON.parse(text);
-                    } catch (e) {
-                        console.error("❌ Not JSON:", text);
-                        return; // 🔥 STOP here, avoid crash
-                    }
-
-                    // ✅ USE YOUR DATA HERE
-                    processItems(data);
-
-                } catch (err) {
-                    console.error("Items API Error:", err.message);
-                }
+                const resItems = await fetch('/api/items', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        players,
+                        prevItemsMap: prevItemsObj,
+                        currentTime
+                    })
+                });
 
                 const result = await resItems.json();
 
@@ -6604,6 +6537,7 @@ async function startAutoRefresh(battleId) {
 
 async function loadBattle() {
     const battleId = document.getElementById('battleIdInput').value.trim();
+    localStorage.setItem('lastBattleId', battleId);
     if (!battleId) return alert("Enter Battle ID");
     resetAllEventData();
     goldDiffHistory = []; 
@@ -6846,6 +6780,20 @@ const APP_PASSWORD = "mpl2026"; // 🔑 change this
         if (localStorage.getItem("loggedIn") === "true") {
             document.getElementById('loginScreen').style.display = "none";
             document.getElementById('appContent').style.display = "block";
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', async () => {
+        const mode = getViewMode();
+
+        if (mode === 'pvp') {
+            await autoLoadLiveGame();
+            launchStandalonePvP();
+
+            setInterval(async () => {
+                await loadBattle();
+                renderPlayerComparison('standalonePlayerCompareContent');
+            }, 3000);
         }
     });
 
