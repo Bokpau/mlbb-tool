@@ -1409,6 +1409,15 @@
 <script>
     const HERO_IMAGE_PATH = './hero/';
     const ITEM_IMAGE_PATH = './items/';
+
+    function getViewMode() {
+        const params = new URLSearchParams(window.location.search);
+        const view = params.get('view');
+
+        if (view === 'pvp') return 'pvp';
+
+        return 'main';
+    }
     const RUNE_IMAGE_PATH = './Rune/';
     const SKILL_IMAGE_PATH = './SKILL/';
     let apiData = null;
