@@ -1409,32 +1409,10 @@
 <script>
     const HERO_IMAGE_PATH = './hero/';
     const ITEM_IMAGE_PATH = './items/';
-
-    function getViewMode() {
-        const params = new URLSearchParams(window.location.search);
-        const view = params.get('view');
-
-        if (view === 'pvp') return 'pvp';
-
-        return 'main';
-    }
     const RUNE_IMAGE_PATH = './Rune/';
     const SKILL_IMAGE_PATH = './SKILL/';
     let apiData = null;
     let lastTime = 0;
-
-    async function autoLoadLiveGame() {
-        let battleId = localStorage.getItem('lastBattleId');
-
-        if (!battleId) {
-            console.warn("No saved battle ID");
-            return;
-        }
-
-        document.getElementById('battleIdInput').value = battleId;
-
-        await loadBattle();
-    }
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
     let pollInterval = null;
     let player1 = null;
@@ -6546,7 +6524,6 @@ async function startAutoRefresh(battleId) {
 
 async function loadBattle() {
     const battleId = document.getElementById('battleIdInput').value.trim();
-    localStorage.setItem('lastBattleId', battleId);
     if (!battleId) return alert("Enter Battle ID");
     resetAllEventData();
     goldDiffHistory = []; 
@@ -6789,20 +6766,6 @@ const APP_PASSWORD = "mpl2026"; // 🔑 change this
         if (localStorage.getItem("loggedIn") === "true") {
             document.getElementById('loginScreen').style.display = "none";
             document.getElementById('appContent').style.display = "block";
-        }
-    });
-
-    window.addEventListener('DOMContentLoaded', async () => {
-        const mode = getViewMode();
-
-        if (mode === 'pvp') {
-            await autoLoadLiveGame();
-            launchStandalonePvP();
-
-            setInterval(async () => {
-                await loadBattle();
-                renderPlayerComparison('standalonePlayerCompareContent');
-            }, 3000);
         }
     });
 
