@@ -6564,6 +6564,24 @@ async function loadBattle() {
         alert("Failed to load: " + e.message); 
     }
 }
+async function loadLatestBattle() {
+    try {
+        const res = await fetch("/api/latestBattle");
+        const data = await res.json();
+
+        if (!data.battleId) throw new Error("No battle ID");
+
+        const battleId = data.battleId;
+
+        document.getElementById('battleIdInput').value = battleId;
+
+        await loadBattle();
+
+    } catch (err) {
+        console.error("Failed to load latest battle:", err);
+        alert("Failed to auto load latest match");
+    }
+}
 
 window.onload = () => {
     document.getElementById('battleIdInput').value = "733833342261468941";
@@ -6746,6 +6764,10 @@ window.onload = () => {
             renderMapModal();
         }
     }, 500);
+
+    window.addEventListener("load", () => {
+    loadLatestBattle();
+    });
 
     // ================= LOGIN SYSTEM =================
 const APP_PASSWORD = "mpl2026"; // 🔑 change this
