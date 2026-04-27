@@ -6566,7 +6566,7 @@ async function loadBattle() {
 }
 async function loadLatestBattle() {
     try {
-        const res = await fetch("/api/latestBattle");
+        const res = await fetch("/api/latestbattle");
         const data = await res.json();
 
         if (!data.battleId) throw new Error("No battle ID");
