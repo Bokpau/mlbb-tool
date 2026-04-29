@@ -6061,6 +6061,8 @@ async function loadBattle() {
         alert("Failed to load: " + e.message); 
     }
 }
+window.loadBattle = loadBattle;
+
 async function loadLatestBattle() {
     try {
         const res = await fetch("/api/latestbattle");
