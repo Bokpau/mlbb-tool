@@ -6264,6 +6264,72 @@ window.onload = () => {
         }
     }, 500);
 
+    // ====================== GLOBAL MODAL TOGGLES ======================
+
+    window.toggleDraftModal = function () {
+        const modal = document.getElementById('draftModal');
+        if (!modal) return;
+
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            if (typeof renderDraftResults === 'function') {
+                renderDraftResults();
+            }
+        }
+    };
+
+    window.togglePlayerCompareModal = function () {
+        const modal = document.getElementById('playerCompareModal');
+        if (!modal) return;
+
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            if (typeof renderPlayerComparison === 'function') {
+                renderPlayerComparison();
+            }
+        }
+    };
+
+    window.toggleGoldDistributionModal = function () {
+        const modal = document.getElementById('goldDistributionModal');
+        if (!modal) return;
+
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            if (typeof renderGoldDistribution === 'function') {
+                renderGoldDistribution();
+            }
+        }
+    };
+
+    window.toggleMapModal = function () {
+        const modal = document.getElementById('mapModal');
+        if (!modal) return;
+
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            if (typeof resizeMapModalCanvas === 'function') resizeMapModalCanvas();
+            if (typeof redrawMapModal === 'function') redrawMapModal();
+        }
+    };
+
+    window.toggleItemTimingModal = function () {
+        const modal = document.getElementById('itemTimingModal');
+        if (!modal) return;
+
+        modal.classList.toggle('hidden');
+
+        if (!modal.classList.contains('hidden')) {
+            if (typeof renderItemTiming === 'function') {
+                renderItemTiming();
+            }
+        }
+};
+
     window.addEventListener("load", () => {
     loadLatestBattle();
     });
