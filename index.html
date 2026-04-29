@@ -6769,25 +6769,43 @@ window.onload = () => {
     loadLatestBattle();
     });
 
-    // ================= LOGIN SYSTEM =================
-const APP_PASSWORD = "mpl2026"; // 🔑 change this
+    async function checkLogin() {
+        const password = document.getElementById("passwordInput").value;
 
-    function checkLogin() {
-        const input = document.getElementById('passwordInput').value;
+        try {
+            const res = await fetch("/api/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({ password })
+            });
 
-        if (input === APP_PASSWORD) {
-            document.getElementById('loginScreen').style.display = "none";
-            document.getElementById('appContent').style.display = "block";
-            localStorage.setItem("loggedIn", "true");
-        } else {
-            document.getElementById('loginError').classList.remove('hidden');
+            const data = await res.json();
+
+            if (data.success) {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("appContent").style.display = "block";
+                document.getElementById("loginError").classList.add("hidden");
+
+                // optional session
+                localStorage.setItem("loggedIn", "true");
+            } else {
+                document.getElementById("loginError").classList.remove("hidden");
+            }
+
+        } catch (err) {
+            console.error("Login error:", err);
+            document.getElementById("loginError").textContent = "Server error";
+            document.getElementById("loginError").classList.remove("hidden");
         }
     }
 
-    window.addEventListener('load', () => {
+    // Auto-login if already authenticated
+    window.addEventListener("load", async () => {
         if (localStorage.getItem("loggedIn") === "true") {
-            document.getElementById('loginScreen').style.display = "none";
-            document.getElementById('appContent').style.display = "block";
+            document.getElementById("loginScreen").style.display = "none";
+            document.getElementById("appContent").style.display = "block";
         }
     });
 
