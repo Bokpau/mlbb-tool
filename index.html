@@ -667,122 +667,6 @@
             justify-content: center;   /* horizontal center */
             padding: 0 16px;
         }
-        /* ====================== TEAMFIGHT MODAL — BROADCAST SLIDING EFFECT ====================== */
-
-        #teamfightModal {
-            backdrop-filter: blur(6px);
-        }
-
-        #teamfightModal > div {
-            background: radial-gradient(circle at center, #020617 0%, #000000 100%);
-            box-shadow: 0 0 60px rgba(0,0,0,0.9),
-                        inset 0 0 100px rgba(0,0,0,0.8);
-            border-radius: 20px;
-            overflow: hidden;
-        }
-
-        /* HEADER */
-        #teamfightModal .border-b {
-            background: linear-gradient(to bottom, rgba(15,23,42,0.95), rgba(2,6,23,0.95));
-        }
-
-        /* TOTAL DAMAGE TEXT */
-        #tfTotal {
-            letter-spacing: 0.05em;
-            text-shadow: 0 0 10px rgba(255,255,255,0.2);
-            font-size: 28px;
-            font-weight: 900;
-        }
-
-        /* ====================== BAR — CLEAR SLIDING & RESIZING ====================== */
-        #tfBar {
-            height: 64px;
-            background: #1e2937;
-            border-radius: 9999px;
-            overflow: hidden;
-            border: 4px solid #334155;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
-            display: flex;
-            position: relative;
-        }
-
-        .tf-segment {
-            height: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 900;
-            color: white;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.9);
-            font-size: 28px;
-            min-width: 25px;
-
-            /* ← THIS IS THE KEY: long, visible sliding when width changes */
-            transition: width 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .tf-segment.small { font-size: 20px; }
-        .tf-segment.tiny  { font-size: 13px; }
-
-        .tf-blue { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
-        .tf-red  { background: linear-gradient(90deg, #ef4444, #f87171); }
-
-        /* ====================== HERO ICONS — CLEAR GLIDING & SWAPPING ====================== */
-        #tfIcons {
-            position: absolute;
-            bottom: -68px;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            pointer-events: none;
-        }
-
-        .tf-icon {
-            position: absolute;
-            width: 52px;          /* slightly bigger so movement is more obvious */
-            height: 52px;
-            background-size: cover;
-            background-position: center;
-            border-radius: 50%;
-            border: 3px solid #ffffff;
-            box-shadow: 0 4px 16px rgba(0,0,0,0.8);
-            transform: translateX(-50%);
-
-            /* ← THIS IS THE KEY: long, visible gliding when left position changes */
-            transition: left 1.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-
-        .tf-icon.dead {
-            filter: grayscale(100%) brightness(0.6);
-            border-color: #888;
-        }
-
-        /* Center line + pulse (broadcast feel) */
-        #tfBar::after {
-            content: "";
-            position: absolute;
-            left: 50%;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: rgba(255,255,255,0.25);
-            z-index: 5;
-            box-shadow: 0 0 8px rgba(255,255,255,0.3);
-        }
-
-        #tfBar::before {
-            content: "";
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to right, rgba(59,130,246,0.08), transparent, rgba(239,68,68,0.08));
-            pointer-events: none;
-            animation: tfPulse 4s infinite ease-in-out;
-        }
-
-        @keyframes tfPulse {
-            0%, 100% { opacity: 0.15; }
-            50% { opacity: 0.35; }
-}
 
         /* =========================
             🔥 ITEM MODAL PRO UI
@@ -1021,10 +905,6 @@
                     <button onclick="toggleItemTimingModal()"
                         class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
                         Items
-                    </button>
-                    <button onclick="toggleTeamfightModal()"
-                        class="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded-xl text-xs font-medium">
-                        Teamfight
                     </button>
         
                 </div>
@@ -1363,54 +1243,36 @@
             </div>
         </div>
     </div>
-    <!-- ==================== TEAMFIGHT MODAL ==================== -->
-    <div id="teamfightModal" 
-        onclick="if(event.target.id==='teamfightModal') toggleTeamfightModal()"
-        class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-6">
-
-        <div class="bg-slate-950 border border-slate-700 rounded-3xl w-full max-w-[1600px] h-[420px] flex flex-col overflow-hidden">
-
-        <!-- HEADER -->
-        <div class="flex justify-between items-center px-6 py-4 border-b border-slate-700 bg-slate-900">
-            <h2 class="text-lg font-bold text-red-400">TEAMFIGHT DAMAGE</h2>
-
-            <div class="flex gap-2">
-                <button onclick="startTeamfightModal()" 
-                        class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">START</button>
-                <button onclick="stopTeamfightModal()" 
-                        class="px-5 py-2 bg-red-600 hover:bg-red-500 rounded-xl text-xs font-medium">STOP</button>
-                <button onclick="toggleTeamfightModal()" 
-                        class="px-5 py-2 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-medium">✕</button>
-            </div>
-        </div>
-
-        <!-- BODY -->
-        <div class="flex-1 flex flex-col justify-center px-10 relative">
-
-            <!-- TOTAL -->
-            <div id="tfTotal" class="text-center text-3xl font-bold mb-8">
-                <span class="text-blue-400">0k</span> vs 
-                <span class="text-red-400">0k</span>
-            </div>
-
-            <!-- BAR + ICONS CONTAINER -->
-            <div class="relative w-full" style="margin-bottom: 70px;">
-                <div id="tfBar" class="w-full h-[64px] rounded-full overflow-hidden border-4 border-slate-700 shadow-2xl flex">
-                    <div id="tfBarLeft" class="flex-1 flex"></div>
-                    <div id="tfBarRight" class="flex-1 flex"></div>
-                </div>
-                
-                <!-- HERO ICONS BELOW -->
-                <div id="tfIcons" class="absolute -bottom-14 left-0 w-full h-14"></div>
-            </div>
-        </div>
-    </div>
 </div>
-<script>
-    const HERO_IMAGE_PATH = './hero/';
-    const ITEM_IMAGE_PATH = './items/';
-    const RUNE_IMAGE_PATH = './Rune/';
-    const SKILL_IMAGE_PATH = './SKILL/';
+<script type="module">
+
+    import {
+        HERO_IMAGE_PATH,
+        ITEM_IMAGE_PATH,
+        RUNE_IMAGE_PATH,
+        SKILL_IMAGE_PATH,
+        MIN,
+        MAX,
+        BASE_MAP_SIZE,
+        PLAYER_ROLE_MAP,
+        GOLD_SOURCE_LABELS,
+        BOSS_SNAP_POINTS,
+        TOWER_COORDS,
+        CUSTOM_ICONS,
+        HERO_DATA,
+        ITEM_DATA,
+        DEFAULT_ACTIVE_TOWERS,
+        getHeroIconUrl,
+        getRuneIconUrl,
+        getSkillIconUrl,
+        getItemIconUrl,
+        apiToMap,
+        toPx,
+        normalizeTeamName,
+        normalizeTowerName,
+        getTeamInitials
+    } from './main-config.js';
+
     let apiData = null;
     let lastTime = 0;
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
@@ -1430,8 +1292,6 @@
     const allItemEvents = new Map();
     let showItems = true;
     const prevItemsMap = new Map();
-    const MIN = -37.5, MAX = 37.5;
-    let baseMapSize = 440;
     const compareCharts = {};
     let showDeathsOnMap = true;
     let showLiveDataOnMap = true;
@@ -1445,80 +1305,6 @@
         playerId: ""
     };    // Toggle for reviewer mode    
     let pvpCharts = {};
-    const PLAYER_ROLE_MAP = {
-        "Regi":"ROAM", "Vinnn":"MID LANE", "Matt_":"JUNGLE", "West":"GOLD LANE", "Niborr":"EXP LANE",
-        "Kuroro":"JUNGLE", "Salam":"GOLD LANE", "YunaDrei":"MID LANE", "DreamGod":"JUNGLE", "RWIZZ":"EXP LANE",
-        "h1ghest":"ROAM", "Hecate":"JUNGLE", "YukTzy":"GOLD LANE", "Lalush":"JUNGLE", "NATHZGOD":"EXP LANE",
-        "Aizawa":"MID LANE", "MANILABOY":"ROAM", "Mico":"EXP LANE", "Zehn":"ROAM", "Eskapo":"MID LANE",
-        "DENJIRO":"JUNGLE", "ATAMS":"GOLD LANE", "VLADD":"EXP LANE", "starboy":"MID LANE",
-        "Teddyqt":"GOLD LANE", "Leix":"JUNGLE", "KRAM":"EXP LANE", "Dameon":"ROAM",
-        "Cull":"GOLD LANE", "Deku.":"EXP LANE", "FRANZZ":"JUNGLE", "Zeno":"MID LANE", "Godzu":"GOLD LANE",
-        "Ishkael":"ROAM", "Vinjaz":"ROAM", "Clarencezzx":"ROAM", "Nikulet":"GOLD LANE", "Kyano":"JUNGLE",
-        "Lestoink":"EXP LANE", "WINDELLL":"MID LANE", "Cinderella":"MID LANE", "FLACKKOOO":"EXP LANE", "EXORNNN":"EXP LANE",
-        "Draven":"JUNGLE", "Takgu":"GOLD LANE", "Echo":"ROAM", "Rky.":"MID LANE", "Karasu":"EXP LANE",
-        "Jax.":"EXP LANE", "AngryEspi":"ROAM", "Kambs":"MID LANE", "NIKOLAI":"JUNGLE", "Hennezy":"EXP LANE",
-        "AngryFeds":"GOLD LANE", "Lawrencio":"ROAM", "Rhylie.":"EXP LANE", "ARISZE":"GOLD LANE",
-        "Cyprus":"MID LANE", "DUBI":"JUNGLE", "Miyamuraaa":"JUNGLE", "PUSAKITE":"GOLD LANE", "YoungGod":"GOLD LANE",
-        "1rranz":"JUNGLE", "Neeko":"MID LANE", "Coconathz":"GOLD LANE", "Venoza":"ROAM", "Kise.":"EXP LANE",
-        "Dustin":"JUNGLE", "Pong.":"EXP LANE", "Maven":"ROAM", "Acezu.":"GOLD LANE", "Keira":"JUNGLE",
-        "Nagi.":"EXP LANE", "Enzz":"MID LANE", "Douma":"ROAM", "RappStecu..":"JUNGLE","ariell nvm.":"JUNGLE","KarlTzy": "JUNGLE",
-    "Sanji": "MID LANE",
-    "Jaypee": "ROAM",
-    "Sanford": "EXP LANE",
-    "Daiki_": "GOLD LANE",
-    "Light": "ROAM",
-    "Yue": "MID LANE",
-    "Domengkite": "GOLD LANE",
-    "Edward": "EXP LANE",
-    "Demonkite": "JUNGLE",
-    "Sionnn": "MID LANE",
-    "Caloy": "ROAM",
-    "Owl.": "GOLD LANE",
-    "MPtheKing.": "JUNGLE",
-    "Lansu": "EXP LANE",
-    "K1NGKONG": "JUNGLE",
-    "Ryota": "EXP LANE",
-    "Savero": "GOLD LANE",
-    "Brusko": "ROAM",
-    "SuperFrince": "MID LANE",
-    "Nova_": "ROAM",
-    "Kielvj": "EXP LANE",
-    "shizou": "GOLD LANE",
-    "JamesPangks": "JUNGLE",
-    "Aqua": "MID LANE",
-    "Jeymz": "EXP LANE",
-    "Raizen.": "JUNGLE",
-    "Minguin": "MID LANE",
-    "Netskie": "GOLD LANE",
-    "Perkziva": "ROAM",
-    "LanceCy": "MID LANE",
-    "Zaida": "JUNGLE",
-    "3Mar": "EXP LANE",
-    "Ch4knu": "ROAM",
-    "Bennyqt": "GOLD LANE",
-    "Nosia": "GOLD LANE",
-    "Kirk": "EXP LANE",
-    "SuperMarco": "GOLD LANE",
-    "Kyle": "JUNGLE",
-    "Hadji": "MID LANE",
-    "Owgwen": "ROAM",
-    "Flap": "EXP LANE",
-    "Stowm.": "MID LANE",
-    "Teddy": "GOLD LANE",
-    };
-        const GOLD_SOURCE_LABELS = {
-        "1": "Minions",
-        "2": "Jungle Creeps",
-        "3": "Turtle + Lord",
-        "4": "Turrets",
-        "5": "Roam Equip",
-        "6": "Kills + Assists",
-        "9": "Roam Vision"
-    };
-    const BOSS_SNAP_POINTS = {
-        turtle: [ { x: 16, y: -16 }, { x: -16, y: 16 } ],
-        lord: [ { x: 12.5, y: -12.5 }, { x: -12.5, y: 12.5 } ]
-    };
 
     // ====================== FULL RESET FUNCTION ======================
     function resetAllEventData() {
@@ -1584,16 +1370,7 @@
         return campId === 1 ? 'BLUE TEAM' : 'RED TEAM';
     }
 
-    // Normalize team name for filename
-    function normalizeTeamName(name) {
-        if (!name) return '';
-        return name
-            .trim()
-            .toLowerCase()
-            .replace(/[^a-z0-9]/g, '_')
-            .replace(/_+/g, '_')
-            .replace(/^_|_$/g, '');
-    }
+
 
     // Preload team logos with PH.png fallback
     function preloadTeamLogos() {
@@ -1688,26 +1465,6 @@
                 ${initials}
             </div>
         `;
-    }
-
-    function getTeamInitials(name) {
-        if (!name) return '';
-
-        const words = name.trim().split(/\s+/);
-
-        // 🔥 If multi-word → use first letters
-        if (words.length > 1) {
-            return words
-                .map(w => w[0])
-                .join('')
-                .substring(0, 4)
-                .toUpperCase();
-        }
-
-        // 🔥 If single word → take first 4 letters
-        return name
-            .substring(0, 4)
-            .toUpperCase();
     }
 
     function renderTeamComparison() {
@@ -3149,24 +2906,11 @@
     // ==================== TOWER SYSTEM (Exact Copy from Reference) ====================
     let activeTowers = {};
 
-    const TOWER_COORDS = {
-    "down_inner": { 1: { x: 17.50, y: 32.50 }, 2: { x: -17.50, y: -32.50 } },
-    "mid_inner": { 1: { x: 22.50, y: 22.50 }, 2: { x: -22.50, y: -22.50 } },
-    "up_inner": { 1: { x: 32.50, y: 17.50 }, 2: { x: -32.50, y: -17.50 } },
-    "down_mid": { 1: { x: 2.50, y: 32.50 }, 2: { x: -2.50, y: -32.50 } },
-    "mid_mid": { 1: { x: 15.00, y: 15.00 }, 2: { x: -15.00, y: -15.00 } },
-    "up_mid": { 1: { x: 32.50, y: -2.50 }, 2: { x: -32.50, y: 2.50 } },
-    "down_outer": { 1: { x: -17.50, y: 32.50 }, 2: { x: 17.50, y: -32.50 } },
-    "mid_outer": { 1: { x: 7.50, y: 7.50 }, 2: { x: -7.50, y: -7.50 } },
-    "up_outer": { 1: { x: 32.50, y: -17.50 }, 2: { x: -32.50, y: 17.50 } }
-    };
+    
 
     const eventCanvas = document.getElementById('eventCanvas');
     const ctxEvent = eventCanvas.getContext('2d');
 
-    const CUSTOM_ICONS = {
-    tower:  { 1: './icons/tower-red.png',   2: './icons/tower-blue.png' }
-    };
 
     const ICON_SIZE_BASE = { tower: 12 };
 
@@ -3181,18 +2925,6 @@
         });
     }
 
-    function normalizeTowerName(name) {
-        if (!name || typeof name !== 'string') return '';
-        let n = name.toLowerCase().trim();
-        n = n.replace(/turret|tower|turret_|tower_/g, '');
-        n = n.replace(/[^a-z0-9]/g, '_');
-        n = n.replace(/_+/g, '_');
-        n = n.replace(/^_|_$/g, '');
-        n = n.replace(/bottom/g, 'down');
-        n = n.replace(/upper/g, 'up');
-        n = n.replace(/middle/g, 'mid');
-        return n;
-    }
 
     function destroyTower(killerCamp, towerName) {
         if (!towerName) return;
@@ -3292,21 +3024,11 @@
 
     const milestones = [120, 300, 480, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980];
 
-    const HERO_DATA = {1:"Miya",2:"Balmond",3:"Saber",4:"Alice",5:"Nana",6:"Tigreal",7:"Alucard",8:"Karina",9:"Akai",10:"Franco",11:"Bane",12:"Bruno",13:"Clint",14:"Rafaela",15:"Eudora",16:"Zilong",17:"Fanny",18:"Layla",19:"Minotaur",20:"Lolita",21:"Hayabusa",22:"Freya",23:"Gord",24:"Natalia",25:"Kagura",26:"Chou",27:"Sun",28:"Alpha",29:"Ruby",30:"Yi Sun-shin",31:"Moskov",32:"Johnson",33:"Cyclops",34:"Estes",35:"Hilda",36:"Aurora",37:"Lapu-Lapu",38:"Vexana",39:"Roger",40:"Karrie",41:"Gatotkaca",42:"Harley",43:"Irithel",44:"Grock",45:"Argus",46:"Odette",47:"Lancelot",48:"Diggie",49:"Hylos",50:"Zhask",51:"Helcurt",52:"Pharsa",53:"Lesley",54:"Jawhead",55:"Angela",56:"Gusion",57:"Valir",58:"Martis",59:"Uranus",60:"Hanabi",61:"Chang'e",62:"Kaja",63:"Selena",64:"Aldous",65:"Claude",66:"Vale",67:"Leomord",68:"Lunox",69:"Hanzo",70:"Belerick",71:"Kimmy",72:"Thamuz",73:"Harith",74:"Minsitthar",75:"Kadita",76:"Faramis",77:"Badang",78:"Khufra",79:"Granger",80:"Guinevere",81:"Esmeralda",82:"Terizla",83:"X.Borg",84:"Ling",85:"Dyrroth",86:"Lylia",87:"Baxia",88:"Masha",89:"Wanwan",90:"Silvanna",91:"Cecilion",92:"Carmilla",93:"Atlas",94:"Popol and Kupa",95:"Yu Zhong",96:"Luo Yi",97:"Benedetta",98:"Khaleed",99:"Barats",100:"Brody",101:"Yve",102:"Mathilda",103:"Paquito",104:"Gloo",105:"Beatrix",106:"Phoveus",107:"Natan",108:"Aulus",109:"Aamon",110:"Valentina",111:"Edith",112:"Floryn",113:"Yin",114:"Melissa",115:"Xavier",116:"Julian",117:"Fredrinn",118:"Joy",119:"Novaria",120:"Arlott",121:"Ixia",122:"Nolan",123:"Cici",124:"Chip",125:"Zhuxin",126:"Suyou",127:"Lukas",128:"Kalea",129:"Zetian",130:"Obsidia",131:"Sora",132:"Marcel"};
-    const ITEM_DATA = {3212:{name:"Chastise Pauldron",full:1},3210:{name:"Radiant Armor",full:1},3209:{name:"Twilight Armor",full:1},3208:{name:"Brute Force Breastplate",full:1},3207:{name:"Immortality",full:1},3206:{name:"Dominance Ice",full:1},3205:{name:"Athena's Shield",full:1},3204:{name:"Oracle",full:1},3203:{name:"Antique Cuirass",full:1},3202:{name:"Guardian Helmet",full:1},3201:{name:"Cursed Helmet",full:1},3113:{name:"Clock of Destiny",full:1},3112:{name:"Flask of the Oasis",full:1},3111:{name:"Genius Wand",full:1},3110:{name:"Lightning Truncheon",full:1},3109:{name:"Fleeting Time",full:1},3108:{name:"Blood Wings",full:1},3106:{name:"Starlium Scythe",full:1},3105:{name:"Glowing Wand",full:1},3104:{name:"Ice Queen Wand",full:1},3103:{name:"Concentrated Energy",full:1},3102:{name:"Holy Crystal",full:1},3101:{name:"Divine Glaive",full:1},3015:{name:"Malefic Gun",full:1},3014:{name:"Great Dragon Spear",full:1},3013:{name:"Sea Halberd",full:1},3012:{name:"Rose Gold Meteor",full:1},3009:{name:"Hunter Strike",full:1},3008:{name:"Blade of Despair",full:1},3007:{name:"Blade of the Heptaseas",full:1},3006:{name:"Scarlet Phantom",full:1},3005:{name:"Windtalker",full:1},3004:{name:"Endless Battle",full:1},3003:{name:"Berserker's Fury",full:1},3002:{name:"Haas's Claws",full:1},3001:{name:"Malefic Roar",full:1},2212:{name:"Thunder Belt",full:1},2208:{name:"Queen's Wings",full:1},2207:{name:"Blade Armor",full:1},2112:{name:"Wishing Lantern",full:1},2110:{name:"Necklace of Durance",full:1},2108:{name:"Feather of Heaven",full:1},2107:{name:"Winter Crown",full:1},2106:{name:"Enchanted Talisman",full:1},2014:{name:"Sky Piercer",full:1},2013:{name:"War Axe",full:1},2011:{name:"Wind of Nature",full:1},2009:{name:"Golden Staff",full:1},2008:{name:"Corrosion Scythe",full:1},2006:{name:"Demon Hunter Sword",full:1}};
-
     const IMG_CACHE = {};
     const loadImg = src => { if (IMG_CACHE[src]) return IMG_CACHE[src]; const img = new Image(); img.src = src; IMG_CACHE[src] = img; return img; };
     const drawIconIfReady = (ctx, img, x, y, size) => { if (img.complete && img.naturalWidth !== 0) { ctx.drawImage(img, x - size/2, y - size/2, size, size); return true; } return false; };
     const fmtTime = s => { const m = String(Math.floor(s / 60)).padStart(2, '0'); const ss = String(s % 60).padStart(2, '0'); return `${m}:${ss}`; };
 
-    function getHeroIconUrl(heroid) { return `${HERO_IMAGE_PATH}${heroid}_CIRCLE.png`; }
-    function getRuneIconUrl(id) { return `${RUNE_IMAGE_PATH}${id}_RUNES.png`; }
-    function getSkillIconUrl(skillid) { return `${SKILL_IMAGE_PATH}${skillid}.png`; }
-    function getItemIconUrl(itemId) { return `${ITEM_IMAGE_PATH}${itemId}.png`; }
-
-    function apiToMap(x, y) { const s = Math.SQRT2 / 2; return { map_x: s * (x - y), map_y: s * (x + y) }; }
-    function toPx(coord, isY = false, currentSize) { const normalized = (coord - MIN) / (MAX - MIN); return isY ? currentSize * (1 - normalized) : currentSize * normalized; }
 
     function extractPositions(data, time) {
         if (!data?.camp_list) return;
@@ -5833,193 +5555,6 @@ function renderTimeline() {
             ctx.drawImage(img, drawX, drawY, size, size);
             ctx.restore();
         });
-    }
-
-    // ====================== TEAMFIGHT MODAL TOGGLE ======================
-
-    let tfSnapshot = {};
-    let teamfightUpdateInterval = null;
-
-    function toggleTeamfightModal() {
-        const modal = document.getElementById('teamfightModal');
-        if (!modal) return;
-
-        modal.classList.toggle('hidden');
-
-        if (!modal.classList.contains('hidden')) {
-            // Modal opened
-            if (!tfSnapshot || Object.keys(tfSnapshot).length === 0) {
-                startTeamfightModal();   // Auto start when opening
-            } else {
-                renderTeamfight();
-            }
-            
-            // Start live updating
-            startTeamfightLiveUpdate();
-        } else {
-            // Modal closed
-            stopTeamfightLiveUpdate();
-        }
-    }
-
-    function startTeamfightModal() {
-        if (!apiData?.camp_list) return;
-
-        // Take snapshot of current damage
-        tfSnapshot = {};
-        apiData.camp_list.forEach(camp => {
-            camp.player_list.forEach(p => {
-                tfSnapshot[p.roleid] = p.total_damage || 0;
-            });
-        });
-
-        renderTeamfight();
-        startTeamfightLiveUpdate();
-    }
-
-    function stopTeamfightModal() {
-        stopTeamfightLiveUpdate();
-        tfSnapshot = {};           // Reset snapshot
-        renderTeamfight();         // Show 0k vs 0k again
-    }
-
-    function startTeamfightLiveUpdate() {
-        stopTeamfightLiveUpdate(); // Clear any existing
-
-        teamfightUpdateInterval = setInterval(() => {
-            const modal = document.getElementById('teamfightModal');
-            if (!modal || modal.classList.contains('hidden')) {
-                stopTeamfightLiveUpdate();
-                return;
-            }
-            renderTeamfight();     // ← This makes it update live
-        }, 800); // Update every 800ms (smooth but not too heavy)
-    }
-
-    function stopTeamfightLiveUpdate() {
-        if (teamfightUpdateInterval) {
-            clearInterval(teamfightUpdateInterval);
-            teamfightUpdateInterval = null;
-        }
-    }
-
-    function forceReflow() {
-        const bar = document.getElementById('tfBar');
-        if (bar) {
-            void bar.offsetWidth;   // This forces the browser to recalculate layout
-        }
-    }
-
-    function renderTeamfight() {
-        const bar = document.getElementById('tfBar');
-        const iconsContainer = document.getElementById('tfIcons');
-        const totalEl = document.getElementById('tfTotal');
-
-        if (!bar || !iconsContainer || !totalEl) return;
-
-        let blueTotal = 0;
-        let redTotal = 0;
-        const bluePlayers = [];
-        const redPlayers = [];
-
-        apiData?.camp_list?.forEach(camp => {
-            camp.player_list.forEach(p => {
-                const diff = Math.max(0, (p.total_damage || 0) - (tfSnapshot[p.roleid] || 0));
-                if (diff > 800 && p.heroid) {
-                    if (camp.campid === 1) {
-                        blueTotal += diff;
-                        bluePlayers.push({ heroid: p.heroid, dmg: diff, dead: !!p.dead });
-                    } else {
-                        redTotal += diff;
-                        redPlayers.push({ heroid: p.heroid, dmg: diff, dead: !!p.dead });
-                    }
-                }
-            });
-        });
-
-        const grandTotal = blueTotal + redTotal || 1;
-
-        // Sort exactly as before
-        bluePlayers.sort((a, b) => a.dmg - b.dmg);
-        redPlayers.sort((a, b) => b.dmg - a.dmg);
-
-        let cum = 0;
-
-        // ====================== BLUE TEAM ======================
-        bluePlayers.forEach((player, index) => {
-            const pct = (player.dmg / grandTotal) * 100;
-            const dmgText = (player.dmg / 1000).toFixed(1) + 'k';
-
-            // Reuse or create segment
-            let segment = bar.children[index];
-            if (!segment) {
-                segment = document.createElement('div');
-                bar.appendChild(segment);
-            }
-            segment.className = `tf-segment tf-blue ${index === bluePlayers.length - 1 ? '' : (pct >= 12 ? 'small' : 'tiny')}`;
-            segment.style.width = `${pct}%`;
-            segment.textContent = dmgText;
-
-            // Reuse or create icon
-            let icon = iconsContainer.children[index];
-            if (!icon) {
-                icon = document.createElement('div');
-                iconsContainer.appendChild(icon);
-            }
-            icon.className = `tf-icon ${player.dead ? 'dead' : ''}`;
-            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.png')`;
-            icon.style.left = `calc(${cum + (pct / 2)}%)`;
-
-            cum += pct;
-        });
-
-        // ====================== RED TEAM ======================
-        redPlayers.forEach((player, index) => {
-            const pct = (player.dmg / grandTotal) * 100;
-            const dmgText = (player.dmg / 1000).toFixed(1) + 'k';
-            const iconIndex = bluePlayers.length + index;
-
-            // Reuse or create segment
-            let segment = bar.children[bluePlayers.length + index];
-            if (!segment) {
-                segment = document.createElement('div');
-                bar.appendChild(segment);
-            }
-            segment.className = `tf-segment tf-red ${index === 0 ? '' : (pct >= 12 ? 'small' : 'tiny')}`;
-            segment.style.width = `${pct}%`;
-            segment.textContent = dmgText;
-
-            // Reuse or create icon
-            let icon = iconsContainer.children[iconIndex];
-            if (!icon) {
-                icon = document.createElement('div');
-                iconsContainer.appendChild(icon);
-            }
-            icon.className = `tf-icon ${player.dead ? 'dead' : ''}`;
-            icon.style.backgroundImage = `url('${HERO_IMAGE_PATH}${player.heroid}_CIRCLE.png')`;
-            icon.style.left = `calc(${cum + (pct / 2)}%)`;
-
-            cum += pct;
-        });
-
-        // Clean up extra elements if number of players decreased
-        while (bar.children.length > bluePlayers.length + redPlayers.length) {
-            bar.removeChild(bar.lastChild);
-        }
-        while (iconsContainer.children.length > bluePlayers.length + redPlayers.length) {
-            iconsContainer.removeChild(iconsContainer.lastChild);
-        }
-
-        // Update Total
-        totalEl.innerHTML = `
-            <span class="text-blue-400">${(blueTotal/1000).toFixed(1)}k</span> vs 
-            <span class="text-red-400">${(redTotal/1000).toFixed(1)}k</span>
-        `;
-
-        // Force reflow so transitions actually run
-        setTimeout(() => {
-            void bar.offsetWidth;
-        }, 10);
     }
     // ================= Player Gold Distribution =================
     const goldDistCharts = {};
