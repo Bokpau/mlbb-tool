@@ -4437,11 +4437,12 @@ function renderTimeline() {
     }
 
     function applyFilters() {
-        currentFilters.showTurtle = document.getElementById('filterTurtle').checked;
-        currentFilters.showLord = document.getElementById('filterLord').checked;
-        currentFilters.showTurret = document.getElementById('filterTurret').checked;
-        currentFilters.team = document.getElementById('filterTeam').value;
-        currentFilters.playerId = document.getElementById('filterPlayer').value;
+        currentFilters.showTurtle = document.getElementById('filterTurtle')?.checked ?? true;
+        currentFilters.showLord = document.getElementById('filterLord')?.checked ?? true;
+        currentFilters.showTurret = document.getElementById('filterTurret')?.checked ?? true;
+
+        currentFilters.team = document.getElementById('filterTeam')?.value || "all";
+        currentFilters.playerId = document.getElementById('filterPlayer')?.value || "";
 
         renderKillList();
     }
@@ -4481,13 +4482,6 @@ function renderTimeline() {
         renderKillList();
     }
 
-    function applyFilters() {
-        currentFilters.team = document.getElementById('filterTeam').value;
-        currentFilters.playerId = document.getElementById('filterPlayer').value || "";
-
-        renderKillList();
-    }
-
     function populatePlayerFilter() {
         const select = document.getElementById('filterPlayer');
         if (!select || !apiData?.camp_list) return;
@@ -4521,24 +4515,6 @@ function renderTimeline() {
             option.textContent = p.display;
             select.appendChild(option);
         });
-    }
-    
-    function resetFilters() {
-        currentFilters = {
-            showTurtle: true,
-            showLord: true,
-            showTurret: true,
-            team: "all",
-            playerId: ""
-        };
-
-        document.getElementById('filterTurtle').checked = true;
-        document.getElementById('filterLord').checked = true;
-        document.getElementById('filterTurret').checked = true;
-        document.getElementById('filterTeam').value = "all";
-        document.getElementById('filterPlayer').value = "";
-
-        renderKillList();
     }
 
     function toggleDeathMarkers() {
