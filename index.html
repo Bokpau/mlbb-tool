@@ -6285,7 +6285,6 @@ window.onload = () => {
                 document.getElementById("appContent").style.display = "block";
                 document.getElementById("loginError").classList.add("hidden");
 
-                // optional session
                 localStorage.setItem("loggedIn", "true");
             } else {
                 document.getElementById("loginError").classList.remove("hidden");
@@ -6297,6 +6296,9 @@ window.onload = () => {
             document.getElementById("loginError").classList.remove("hidden");
         }
     }
+
+    // 🔥 REQUIRED FOR MODULE SCRIPTS
+    window.checkLogin = checkLogin;
 
     // Auto-login if already authenticated
     window.addEventListener("load", async () => {
