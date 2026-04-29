@@ -1429,20 +1429,6 @@
         return data && data.success ? data.path : null;
     }
 
-    function getTeamLogoHTML(campId) {
-        const data = TEAM_LOGOS[campId];
-
-        if (!data || !data.success || !data.path) {
-            return `<div class="team-logo"></div>`;
-        }
-
-        return `
-            <div class="team-logo">
-                <img src="${data.path}" alt="team">
-            </div>
-        `;
-    }
-
     // Reusable Team Logo with grayish glow + fill
     function getTeamLogoHTML(campId) {
         const data = TEAM_LOGOS[campId];
