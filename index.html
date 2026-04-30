@@ -2990,13 +2990,14 @@
 
         const frame = posByTime[lastTime] || {};
         const heroSize = Math.max(18, size * 0.05);
+        const filteredPlayerId = currentFilters.playerId;
 
         // ==================== 1. Draw Alive Players ====================
         Object.keys(frame).forEach(roleid => {
             const pos = frame[roleid];
             if (!pos) return;
 
-            if (deathReviewMode && filteredPlayerId && roleid == filteredPlayerId) return;
+            if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
 
             const camp = campMap[roleid];
             const campData = apiData?.camp_list?.find(c => c.campid === camp);
@@ -5071,6 +5072,11 @@ function renderTimeline() {
                     let objIconSrc = '';
                     const objTeamColor = death.camp === 1 ? 'blue' : 'red';
 
+                    const objIcon = death.type === 'lord'
+                        ? CUSTOM_ICONS.lord[objTeamColor]
+                        : CUSTOM_ICONS.turtle[objTeamColor];
+
+
                     if (death.type === 'lord') objIconSrc = `./icons/lord-${objTeamColor}.png`;
                     else if (death.type === 'turtle') objIconSrc = `./icons/turtle-${objTeamColor}.png`;
 
@@ -5078,6 +5084,8 @@ function renderTimeline() {
                     const actionWord = (death.extra_params && death.extra_params.toLowerCase() === "steal") 
                         ? "stole" 
                         : "killed";
+
+                    
 
                     div.innerHTML = `
                         <div class="font-mono text-emerald-400 w-12 flex-shrink-0">${fmtTime(death.time)}</div>
@@ -6295,7 +6303,7 @@ window.onload = () => {
 
             if (text) text.textContent = "Hide Kill List";
 
-            renderDeathReviewList();
+            renderKillList();
         } else {
             killPanel?.classList.add("hidden");
             filterPanel?.classList.add("hidden");
