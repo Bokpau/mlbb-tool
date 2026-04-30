@@ -2043,30 +2043,6 @@
     // ==================== DRAFT MODAL - IMPROVED ====================
     let draftInterval = null;
 
-    function toggleDraftModal() {
-        const modal = document.getElementById('draftModal');
-        modal.classList.toggle('hidden');
-
-        if (!modal.classList.contains('hidden')) {
-            renderDraftModal();           // initial render
-
-            // Start live updating every 1 second while modal is open
-            if (draftInterval) clearInterval(draftInterval);
-            draftInterval = setInterval(() => {
-                if (!modal.classList.contains('hidden')) {
-                    renderDraftModal();
-                } else {
-                    clearInterval(draftInterval);
-                }
-            }, 1000);
-        } else {
-            if (draftInterval) {
-                clearInterval(draftInterval);
-                draftInterval = null;
-            }
-        }
-    }
-
     function renderDraftModal() {
         const container = document.getElementById('draftContent');
         container.innerHTML = '';
@@ -5272,22 +5248,6 @@ function renderTimeline() {
         }
     }
 
-    function toggleItemTimingModal() {
-        const modal = document.getElementById('itemTimingModal');
-        modal.classList.toggle('hidden');
-
-        if (!modal.classList.contains('hidden')) {
-            setTimeout(renderItemTimings, 100);                    // first draw
-            if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
-            window.itemTimingInterval = setInterval(renderItemTimings, 1500); // live update
-        } else {
-            if (window.itemTimingInterval) {
-                clearInterval(window.itemTimingInterval);
-                window.itemTimingInterval = null;
-            }
-        }
-    }
-
     function renderItemTimings() {
         const canvas = document.getElementById('itemTimingCanvas');
         if (!canvas) return;
@@ -6243,8 +6203,27 @@ window.onload = () => {
         modal.classList.toggle('hidden');
 
         if (!modal.classList.contains('hidden')) {
-            if (typeof renderDraftResults === 'function') {
-                renderDraftResults();
+            if (typeof renderDraftModal === 'function') {
+                renderDraftModal();
+            }
+
+            if (draftInterval) clearInterval(draftInterval);
+
+            draftInterval = setInterval(() => {
+                if (!modal.classList.contains('hidden')) {
+                    if (typeof renderDraftModal === 'function') {
+                        renderDraftModal();
+                    }
+                } else {
+                    clearInterval(draftInterval);
+                    draftInterval = null;
+                }
+            }, 1000);
+
+        } else {
+            if (draftInterval) {
+                clearInterval(draftInterval);
+                draftInterval = null;
             }
         }
     };
@@ -6295,11 +6274,34 @@ window.onload = () => {
         modal.classList.toggle('hidden');
 
         if (!modal.classList.contains('hidden')) {
-            if (typeof renderItemTiming === 'function') {
-                renderItemTiming();
+            if (typeof renderItemTimings === 'function') {
+                setTimeout(() => {
+                    renderItemTimings();
+                }, 100);
+            }
+
+            if (window.itemTimingInterval) {
+                clearInterval(window.itemTimingInterval);
+            }
+
+            window.itemTimingInterval = setInterval(() => {
+                if (!modal.classList.contains('hidden')) {
+                    if (typeof renderItemTimings === 'function') {
+                        renderItemTimings();
+                    }
+                } else {
+                    clearInterval(window.itemTimingInterval);
+                    window.itemTimingInterval = null;
+                }
+            }, 1500);
+
+        } else {
+            if (window.itemTimingInterval) {
+                clearInterval(window.itemTimingInterval);
+                window.itemTimingInterval = null;
             }
         }
-};
+    };
 
     window.addEventListener("load", () => {
     loadLatestBattle();
@@ -6347,7 +6349,7 @@ window.onload = () => {
         }
     });
     window.renderDraftModal = renderDraftModal;
-    window.renderItemTimingModal = renderItemTimings;
+    window.renderItemTimings = renderItemTimings;
 
 </script>
 </body>
