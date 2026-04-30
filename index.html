@@ -3426,7 +3426,7 @@
     function updatePlayerRankingChart() {
         if (!playerRankingChart || !apiData?.camp_list) return;
 
-        const category = rankingCategories[rankingIndex];
+        const category = RANKING_CATEGORIES[rankingIndex];
 
         // ✅ UPDATE HEADER TITLE (sync with chart)
         updatePlayerRankingTitle(category.label);
@@ -6015,7 +6015,7 @@ window.onload = () => {
     };
 
     setInterval(() => {
-        rankingIndex = (rankingIndex + 1) % rankingCategories.length;
+        rankingIndex = (rankingIndex + 1) % RANKING_CATEGORIES.length;
     }, 3000); // change every 3 seconds
 };
 
