@@ -3936,12 +3936,17 @@
 
                             if (idx === -1) return;
 
-                            let imgSrc = ev.camp === 1 
-                                ? (type === 'kill_lord' ? './icons/lord-blue.png' : 
-                                type === 'kill_turtle' ? './icons/turtle-blue.png' : './icons/tower-blue.png')
-                                : (type === 'kill_lord' ? './icons/lord-red.png' : 
-                                type === 'kill_turtle' ? './icons/turtle-red.png' : './icons/tower-red.png');
+                            const teamColor = ev.camp === 1 ? 'blue' : 'red';
 
+                            let iconImg;
+
+                                if (type === 'kill_lord') {
+                                    iconImg = CUSTOM_ICONS.lord[teamColor];
+                                } else if (type === 'kill_turtle') {
+                                    iconImg = CUSTOM_ICONS.turtle[teamColor];
+                                } else {
+                                    iconImg = CUSTOM_ICONS.tower[ev.camp];
+                                }
                             const img = loadImg(imgSrc);
                             const xPos = x.getPixelForValue(idx);
                             const yPos = ev.camp === 1 ? objY1 : objY2;
@@ -4830,14 +4835,14 @@ function renderTimeline() {
 
                     // Use your team-colored files
                     const objColor = death.camp === 1 ? 'blue' : 'red';
-                    const objIconSrc = death.type === 'lord' 
-                        ? `./icons/lord-${objColor}.png` 
-                        : `./icons/turtle-${objColor}.png`;
+                    const objIcon = death.type === 'lord'
+                        ? CUSTOM_ICONS.lord[objColor]
+                        : CUSTOM_ICONS.turtle[objColor];
 
                     const img = loadImg(objIconSrc);
 
                     ctx.save();
-                    ctx.drawImage(img, px - 26, py - 26, 52, 52);
+                    ctx.drawImage(objIcon, px - 26, py - 26, 52, 52);
                     ctx.restore();
 
                     ctx.save();
@@ -5082,7 +5087,7 @@ function renderTimeline() {
 
                         <span class="text-slate-400 whitespace-nowrap">${actionWord}</span>
 
-                        <img src="${objIconSrc}" 
+                        <img src="${objIcon.src}" 
                             class="w-6 h-6 object-contain flex-shrink-0">
 
                         <span class="font-medium">${death.displayName || (death.type === 'lord' ? 'Lord' : 'Turtle')}</span>

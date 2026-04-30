@@ -136,13 +136,26 @@ export const TOWER_COORDS = {
     }
 };
 
-// =========================
-// CUSTOM ICONS
-// =========================
+function loadIcon(src) {
+    const img = new Image();
+    img.src = src;
+    return img;
+}
+
 export const CUSTOM_ICONS = {
     tower: {
-        1: './icons/tower-red.png',
-        2: './icons/tower-blue.png'
+        1: loadIcon('./icons/tower-red.png'),
+        2: loadIcon('./icons/tower-blue.png')
+    },
+
+    lord: {
+        blue: loadIcon('./icons/lord-blue.png'),
+        red: loadIcon('./icons/lord-red.png')
+    },
+
+    turtle: {
+        blue: loadIcon('./icons/turtle-blue.png'),
+        red: loadIcon('./icons/turtle-red.png')
     }
 };
 
