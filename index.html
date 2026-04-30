@@ -6314,6 +6314,30 @@ window.onload = () => {
         renderMapModal();
     };
 
+    window.applyFilters = function () {
+        currentFilters.team = document.getElementById("filterTeam")?.value || "all";
+        currentFilters.playerId = document.getElementById("filterPlayer")?.value || "";
+
+        renderKillList();
+        renderMapModal();
+    };
+
+    window.resetFilters = function () {
+        currentFilters = {
+            team: "all",
+            playerId: ""
+        };
+
+        const teamSelect = document.getElementById("filterTeam");
+        const playerSelect = document.getElementById("filterPlayer");
+
+        if (teamSelect) teamSelect.value = "all";
+        if (playerSelect) playerSelect.value = "";
+
+        renderKillList();
+        renderMapModal();
+    };
+
     async function checkLogin() {
         const password = document.getElementById("passwordInput").value;
 
