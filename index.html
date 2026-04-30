@@ -6002,7 +6002,7 @@ async function loadLatestBattle() {
 
         const battleId = data.battleId;
 
-        document.getElementById('battleIdInput').value = battleId;
+        document.getElementById("battleIdInput").value = battleId;
 
         await loadBattle();
 
@@ -6011,6 +6011,8 @@ async function loadLatestBattle() {
         alert("Failed to auto load latest match");
     }
 }
+
+window.loadLatestBattle = loadLatestBattle;
 
 window.onload = () => {
     document.getElementById('battleIdInput').value = "733833342261468941";
