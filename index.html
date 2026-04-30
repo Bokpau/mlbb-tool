@@ -6267,9 +6267,44 @@ window.onload = () => {
         }
     };
 
+    window.toggleLiveData = function () {
+        showLiveData = !showLiveData;
+
+        const text = document.getElementById("liveDataToggleText");
+        if (text) {
+            text.textContent = showLiveData ? "Hide Live Data" : "Show Live Data";
+        }
+
+        renderMapModal();
+    };
+
     window.addEventListener("load", () => {
     loadLatestBattle();
     });
+
+    window.toggleDeathReviewMode = function () {
+        deathReviewMode = !deathReviewMode;
+
+        const killPanel = document.getElementById("killListPanel");
+        const filterPanel = document.getElementById("filtersPanel");
+        const text = document.getElementById("deathReviewText");
+
+        if (deathReviewMode) {
+            killPanel?.classList.remove("hidden");
+            filterPanel?.classList.remove("hidden");
+
+            if (text) text.textContent = "Hide Kill List";
+
+            renderDeathReviewList();
+        } else {
+            killPanel?.classList.add("hidden");
+            filterPanel?.classList.add("hidden");
+
+            if (text) text.textContent = "Show Kill List";
+        }
+
+        renderMapModal();
+    };
 
     async function checkLogin() {
         const password = document.getElementById("passwordInput").value;
