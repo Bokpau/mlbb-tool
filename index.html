@@ -1283,7 +1283,48 @@
         getRoleIcon
     } from './main-config.js';
 
-    import { runtimeState } from './runtime-state.js';
+    let apiData = null;
+    let lastTime = 0;
+    let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
+    let pollInterval = null;
+    let player1 = null;
+    let player2 = null;
+    let totalGameTime = 0;
+    let goldDiffHistory = [];
+    let goldDiffChart = null;
+    let teamGoldDiffChart = null;
+    let selectedPlayer1 = null;
+    let selectedPlayer2 = null;
+    const playerGoldHistory = new Map();
+    const teamGoldHistory = new Map();
+    let allKillEvents = [];
+    let allDeathEvents = [];
+    const allItemEvents = new Map();
+    let showItems = true;
+    const prevItemsMap = new Map();
+    const compareCharts = {};
+    let showDeathsOnMap = true;
+    let showLiveDataOnMap = true;
+    let deathReviewData = [];
+    let deathReviewMode = false;
+    let selectedDeathIndex = -1;
+    let showLivePositions = true;
+    let showLiveData = true;
+    let currentFilters = {
+    team: "all",
+    playerId: ""
+    };
+    let pvpCharts = {};
+    const DISABLE_TEAM_LOGOS = false;
+    const TEAM_LOGOS = {};
+    let draftInterval = null;
+    let activeTowers = {};
+    const IMG_CACHE = {};
+    let playerRankingChart = null;
+    let rankingIndex = 0;
+    let mapModalInterval = null;
+    let animationTime = 0;
+    const goldDistCharts = {};
 
 
     // ====================== FULL RESET FUNCTION ======================
@@ -5788,7 +5829,7 @@ async function startAutoRefresh(battleId) {
 
             if (!json.data) return;
 
-            runtimeState.apiData = json.data;
+            apiData = json.data;
             const currentTime = apiData.game_time || 0;
 
             // ====================== POSITION + BASIC DATA ======================
@@ -5880,7 +5921,7 @@ async function loadBattle() {
         const json = await res.json();
         if (!json.data) throw new Error("No data");
 
-        runtimeState.apiData = json.data;
+        apiData = json.data;
         heroMap = {};
         apiData.camp_list.forEach(camp => {
             camp.player_list.forEach(p => {
