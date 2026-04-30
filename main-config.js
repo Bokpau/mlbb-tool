@@ -279,3 +279,49 @@ export function sortPlayersByRoleSafe(players) {
         return ROLE_ORDER.indexOf(roleA) - ROLE_ORDER.indexOf(roleB);
     });
 }
+
+export const ICON_SIZE_BASE = {
+    tower: 12
+};
+
+export const milestones = [120, 300, 480, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980];
+
+export const ROLE_ORDER = {
+    "EXP LANE": 1, "JUNGLE": 2, "MID LANE": 3, "ROAM": 4, "GOLD LANE": 5
+};
+
+export const RANKING_CATEGORIES = [
+    { key: 'gold', label: 'GOLD' },
+    { key: 'damage', label: 'DAMAGE DEALT' },
+    { key: 'taken', label: 'DAMAGE TAKEN' },
+    { key: 'turret', label: 'TURRET DAMAGE' },
+    { key: 'exp', label: 'LEVEL' },
+    { key: 'heal', label: 'HEAL' },
+    { key: 'control', label: 'CONTROL TIME' }
+];
+
+export function formatValue(val, isControlTime = false) {
+    if (isControlTime) return val.toFixed(1) + 's';
+
+    return val >= 1000
+        ? (val / 1000).toFixed(1) + 'K'
+        : val.toLocaleString();
+}
+
+export function formatStatName(stat) {
+    if (!stat) return '';
+
+    return stat
+        .replace(/_/g, ' ')
+        .replace(/\b\w/g, l => l.toUpperCase());
+}
+
+export function getHeroRecIcon(heroid) {
+    if (!heroid) return '';
+    return `./herorec/HERO_${heroid}_BAN.png`;
+}
+
+export function getRoleIcon(role) {
+    if (!role) return '';
+    return `./Role/${role}.png`;
+}

@@ -1272,41 +1272,19 @@
         normalizeTowerName,
         getTeamInitials,
         getPlayerRoleSafe,
-        sortPlayersByRoleSafe
+        sortPlayersByRoleSafe,
+        ICON_SIZE_BASE,
+        milestones,
+        ROLE_ORDER,
+        RANKING_CATEGORIES,
+        formatValue,
+        formatStatName,
+        getHeroRecIcon,
+        getRoleIcon
     } from './main-config.js';
 
-    let apiData = null;
-    let lastTime = 0;
-    let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
-    let pollInterval = null;
-    let player1 = null;
-    let player2 = null;
-    let totalGameTime = 0;
-    let goldDiffHistory = [];
-    let goldDiffChart = null;
-    let teamGoldDiffChart = null;
-    let selectedPlayer1 = null;
-    let selectedPlayer2 = null;
-    const playerGoldHistory = new Map();
-    const teamGoldHistory = new Map();
-    let allKillEvents = [];
-    let allDeathEvents = [];
-    const allItemEvents = new Map();
-    let showItems = true;
-    const prevItemsMap = new Map();
-    const compareCharts = {};
-    let showDeathsOnMap = true;
-    let showLiveDataOnMap = true;
-    let deathReviewData = [];        // ← This will hold ALL deaths with positions
-    let deathReviewMode = false;
-    let selectedDeathIndex = -1;
-    let showLivePositions = true;
-    let showLiveData = true;  
-    let currentFilters = {
-        team: "all",
-        playerId: ""
-    };    // Toggle for reviewer mode    
-    let pvpCharts = {};
+    import { runtimeState } from './runtime-state.js';
+
 
     // ====================== FULL RESET FUNCTION ======================
     function resetAllEventData() {
@@ -1356,10 +1334,6 @@
 
         console.log("✅ Full reset completed - old battle data cleared");
     }
-
-    // ====================== ROBUST TEAM LOGO SYSTEM WITH PH FALLBACK ======================
-    const DISABLE_TEAM_LOGOS = false;
-    const TEAM_LOGOS = {};
 
     // ================= TEAM NAME =================
     function getTeamName(campId) {
@@ -2040,8 +2014,6 @@
             <span class="gold-lead">${lead2}</span>
         `;
     }
-    // ==================== DRAFT MODAL - IMPROVED ====================
-    let draftInterval = null;
 
     function renderDraftModal() {
         const container = document.getElementById('draftContent');
@@ -2300,502 +2272,502 @@
     }
     
     function createPlayerGoldDiffChart() {
-    const ctx = document.getElementById('playerGoldDiffChart').getContext('2d');
-    if (goldDiffChart) goldDiffChart.destroy();
+        const ctx = document.getElementById('playerGoldDiffChart').getContext('2d');
+        if (goldDiffChart) goldDiffChart.destroy();
 
-    const name1 = nameMap[selectedPlayer1] || 'Player 1';
-    const name2 = nameMap[selectedPlayer2] || 'Player 2';
+        const name1 = nameMap[selectedPlayer1] || 'Player 1';
+        const name2 = nameMap[selectedPlayer2] || 'Player 2';
 
-    const getPointSize = (chart) => {
-        const h = chart.chartArea.bottom - chart.chartArea.top;
+        const getPointSize = (chart) => {
+            const h = chart.chartArea.bottom - chart.chartArea.top;
 
-        // base size for normal mode
-        const base = Math.max(5, h * 0.012);
+            // base size for normal mode
+            const base = Math.max(5, h * 0.012);
 
-        return document.fullscreenElement ? base * 1.5 : base;
-    };
+            return document.fullscreenElement ? base * 1.5 : base;
+        };
 
 
-    goldDiffChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: `${name1} vs ${name2}`, // ✅ FIXED
-                data: [],
-                borderColor: '#3b82f6',
-                backgroundColor: 'rgba(59,130,246,0.25)',
-                fill: true,
-                tension: 0.25,
-                pointRadius: 0,
-                borderWidth: 3,
-                segment: {
-                    borderColor: ctx => ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
-                    backgroundColor: ctx => ctx.p1.parsed.y > 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'
-                }
-            }]
-        },
-        options: {
-            animation: { duration: 0 },
-            responsive: true,
-            maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 35,      // Reduced from 40
-                    right: 25,    // Good amount for right side labels
-                    bottom: 4,    // ← THIS IS THE BOTTOM PADDING FIX (was probably ~20-30 before)
-                    left: 12      // ← Much smaller left padding (removes empty space)
+        goldDiffChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: `${name1} vs ${name2}`, // ✅ FIXED
+                    data: [],
+                    borderColor: '#3b82f6',
+                    backgroundColor: 'rgba(59,130,246,0.25)',
+                    fill: true,
+                    tension: 0.25,
+                    pointRadius: 0,
+                    borderWidth: 3,
+                    segment: {
+                        borderColor: ctx => ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
+                        backgroundColor: ctx => ctx.p1.parsed.y > 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'
+                    }
+                }]
+            },
+            options: {
+                animation: { duration: 0 },
+                responsive: true,
+                maintainAspectRatio: false,
+                layout: {
+                    padding: {
+                        top: 35,      // Reduced from 40
+                        right: 25,    // Good amount for right side labels
+                        bottom: 4,    // ← THIS IS THE BOTTOM PADDING FIX (was probably ~20-30 before)
+                        left: 12      // ← Much smaller left padding (removes empty space)
+                    }
+                },
+                scales: {
+                    x: { display: false, offset: false },
+                    y: {
+                        position: 'right',
+                        title: { display: true, text: 'Gold Lead', color: '#e2e8f0' },
+                        ticks: { 
+                            color: '#94a3b8',
+                            callback: v => {
+                                const abs = Math.abs(v);
+                                return abs >= 1000 
+                                    ? (abs / 1000).toFixed(1) + 'K' 
+                                    : abs;
+                            }
+                        },
+                        grid: { color: '#334155' }
+                    }
+                },
+                plugins: { legend: { display: false } }
+            },
+
+            plugins: [
+
+            {
+                id: 'milestoneLines',
+                beforeDatasetsDraw(chart) {
+                    const { ctx, scales: { x }, chartArea } = chart;
+                    const labels = chart.data.labels;
+                    if (!labels.length) return;
+
+                    for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
+                        const t = m * 60;
+
+                        const idx = labels.findIndex(l => {
+                            const [mm, ss] = l.split(':').map(Number);
+                            return mm * 60 + ss >= t;
+                        });
+
+                        if (idx === -1) continue;
+
+                        const xPos = x.getPixelForValue(idx);
+
+                        ctx.save();
+                        ctx.strokeStyle = 'rgba(140,140,140,0.75)';
+                        ctx.lineWidth = 1.5;
+                        ctx.setLineDash([4,4]);
+                        ctx.beginPath();
+                        ctx.moveTo(xPos, chartArea.top);
+                        ctx.lineTo(xPos, chartArea.bottom);
+                        ctx.stroke();
+                        ctx.restore();
+                    }
                 }
             },
-            scales: {
-                x: { display: false, offset: false },
-                y: {
-                    position: 'right',
-                    title: { display: true, text: 'Gold Lead', color: '#e2e8f0' },
-                    ticks: { 
-                        color: '#94a3b8',
-                        callback: v => {
-                            const abs = Math.abs(v);
-                            return abs >= 1000 
-                                ? (abs / 1000).toFixed(1) + 'K' 
-                                : abs;
+
+            {
+                id: 'teamLinesAndLabels',
+                afterDraw(chart) {
+                    const { ctx, scales: { x }, chartArea } = chart;
+                    const labels = chart.data.labels;
+                    if (!labels.length) return;
+                    const labelY = 20;
+                    for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
+                        const t = m * 60;
+                        const idx = labels.findIndex(l => {
+                            const [mm,ss] = l.split(':').map(Number);
+                            return mm*60 + ss >= t;
+                        });
+                        if (idx === -1) continue;
+                        const xPos = x.getPixelForValue(idx);
+                        if (milestones.includes(t)) {
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(12,12,12,0.8)';
+                            ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.font = 'bold 11px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(fmtTime(t), xPos, labelY + 1);
+                            ctx.restore();
                         }
-                    },
-                    grid: { color: '#334155' }
+                    }
                 }
             },
-            plugins: { legend: { display: false } }
-        },
 
-        plugins: [
+            {
+                id: 'goldItems',
+                afterDatasetsDraw(chart) {
+                    if (!showItems || !selectedPlayer1 || !selectedPlayer2) return;
 
-        {
-            id: 'milestoneLines',
-            beforeDatasetsDraw(chart) {
-                const { ctx, scales: { x }, chartArea } = chart;
-                const labels = chart.data.labels;
-                if (!labels.length) return;
+                    const { ctx, scales: { x }, chartArea } = chart;
+                    const labels = chart.data.labels;
+                    if (!labels.length) return;
 
-                for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
-                    const t = m * 60;
+                    const h = chartArea.bottom - chartArea.top;
+                    const y1 = chartArea.top + h * 0.05;
+                    const y2 = chartArea.top + h * 0.95;
 
-                    const idx = labels.findIndex(l => {
-                        const [mm, ss] = l.split(':').map(Number);
-                        return mm * 60 + ss >= t;
-                    });
+                    // ===================== TIME → X POSITION (INTERPOLATED) =====================
+                    const getXFromTime = (timeSec) => {
+                        const times = labels.map(l => {
+                            const [m, s] = l.split(':').map(Number);
+                            return m * 60 + s;
+                        });
 
-                    if (idx === -1) continue;
+                        for (let i = 0; i < times.length - 1; i++) {
+                            if (timeSec >= times[i] && timeSec <= times[i + 1]) {
+                                const ratio = (timeSec - times[i]) / (times[i + 1] - times[i]);
+                                const x1 = x.getPixelForValue(i);
+                                const x2 = x.getPixelForValue(i + 1);
+                                return x1 + (x2 - x1) * ratio;
+                            }
+                        }
 
-                    const xPos = x.getPixelForValue(idx);
+                        return x.getPixelForValue(times.length - 1);
+                    };
+
+                    // ===================== SPLIT ITEMS =====================
+                    const splitItems = (items) => {
+                        const small = [];
+                        const full = [];
+
+                        items.forEach(item => {
+                            if (ITEM_DATA[item.itemId]?.full) full.push(item);
+                            else small.push(item);
+                        });
+
+                        return { small, full };
+                    };
+
+                    // ===================== DRAW FUNCTION =====================
+                    const drawGroup = (items, baseY, isFull) => {
+                        const size = Math.max(18, getResponsiveSize(chart, isFull ? 1.0 : 0.75));
+                        const alpha = isFull ? 1 : 0.45;
+                        const spacingX = size * 0.9;
+
+                        items.forEach((item, i) => {
+                            if (!item.time) return;
+
+                            let xPos = getXFromTime(item.time);
+
+                            // 🔥 Smart offset (only if safe)
+                            let offsetX = 0;
+                            if (xPos < chartArea.right - 50) {
+                                offsetX = (i % 4) * spacingX;
+                            }
+
+                            let drawX = xPos + offsetX;
+
+                            // 🔥 HARD CLAMP (prevents overflow)
+                            drawX = Math.min(drawX, chartArea.right - size / 2 - 2);
+
+                            const img = loadImg(`${ITEM_IMAGE_PATH}${item.itemId}.png`);
+
+                            const draw = () => {
+                                ctx.save();
+                                ctx.globalAlpha = alpha;
+
+                                ctx.drawImage(
+                                    img,
+                                    drawX - size / 2,
+                                    baseY - size / 2,
+                                    size,
+                                    size
+                                );
+
+                                ctx.restore();
+                            };
+
+                            if (img.complete && img.naturalWidth !== 0) {
+                                draw();
+                            } else {
+                                img.onload = () => chart.update('none');
+                            }
+                        });
+                    };
+
+                    // ===================== PLAYER DRAW =====================
+                    const drawPlayer = (roleid, baseY) => {
+                        if (!allItemEvents.has(roleid)) return;
+
+                        const items = allItemEvents.get(roleid);
+                        const { small, full } = splitItems(items);
+
+                        // 🔥 ORDER MATTERS (z-index simulation)
+                        drawGroup(small, baseY, false); // bottom
+                        drawGroup(full, baseY, true);   // top
+                    };
+
+                    drawPlayer(selectedPlayer1, y1);
+                    drawPlayer(selectedPlayer2, y2);
+                }
+            },
+
+            {
+                id: 'playerEventIcons',
+                afterDatasetsDraw(chart) {
+                    if (!selectedPlayer1 || !selectedPlayer2) return;
+
+                    const { ctx, scales: { x }, chartArea } = chart;
+                    const h = chartArea.bottom - chartArea.top;
+
+                    // ✅ IMPROVED LAYOUT (more breathing space)
+                    const objY1  = chartArea.top + h * 0.28;
+                    const killY1 = chartArea.top + h * 0.22;
+
+                    const objY2  = chartArea.top + h * 0.72;
+                    const killY2 = chartArea.top + h * 0.78;
+
+                    const selected = new Set([
+                        parseInt(selectedPlayer1),
+                        parseInt(selectedPlayer2)
+                    ]);
+
+                    const drawn = new Set();
+
+                    // ✅ CONSISTENT ICON SIZE SYSTEM
+                    const killSize = Math.max(14, getResponsiveSize(chart, 0.5));
+                    const objSize  = Math.max(16, getResponsiveSize(chart, 0.6));
+
+                    // =========================
+                    // 🟥 KILLS + DEATHS
+                    // =========================
+                    allKillEvents
+                        .filter(ev => ev.type === 'kill_hero' && ev.time <= (apiData?.game_time || 0))
+                        .forEach(ev => {
+
+                            const killer = ev.killerId ?? ev.roleid; // ✅ FIX
+                            const victim = ev.victimId;
+
+                            // ✅ FIXED FILTER
+                            if (!selected.has(killer) && !selected.has(victim)) return;
+
+                            let idx = chart.data.labels.findIndex(l => {
+                                const [m,s] = l.split(':').map(Number);
+                                return m*60 + s >= ev.time;
+                            });
+
+                            if (idx === -1) return;
+
+                            const xPos = x.getPixelForValue(idx);
+
+                            // 🔵 KILL ICON
+                            if (selected.has(killer)) {
+                                const key = `kill_${ev.time}_${killer}`;
+                                if (!drawn.has(key)) {
+                                    drawn.add(key);
+
+                                    const img = loadImg(
+                                        ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png'
+                                    );
+
+                                    const yPos = ev.camp === 1 ? killY1 : killY2;
+
+                                    ctx.save();
+                                    ctx.globalAlpha = 0.95;
+                                    drawIconIfReady(ctx, img, xPos, yPos, killSize);
+                                    ctx.restore();
+                                }
+                            }
+
+                            // 💀 DEATH ICON
+                            if (selected.has(victim)) {
+                                const victimCamp = campMap[victim];
+
+                                const key = `death_${ev.time}_${victim}`;
+                                if (!drawn.has(key)) {
+                                    drawn.add(key);
+
+                                    const img = loadImg(
+                                        victimCamp === 1 ? './icons/death-blue.png' : './icons/death-red.png'
+                                    );
+
+                                    const yPos = victimCamp === 1 ? killY1 : killY2;
+
+                                    ctx.save();
+                                    ctx.globalAlpha = 0.85;
+                                    drawIconIfReady(ctx, img, xPos, yPos, killSize);
+                                    ctx.restore();
+                                }
+                            }
+                        });
+
+                    // =========================
+                    // 🟡 OBJECTIVES
+                    // =========================
+                    allKillEvents
+                        .filter(ev =>
+                            ['kill_lord','kill_turtle','kill_tower'].includes(ev.type) &&
+                            ev.time <= (apiData?.game_time || 0) &&
+                            selected.has(ev.roleid)
+                        )
+                        .forEach(ev => {
+
+                            const key = `${ev.time}_${ev.type}_${ev.roleid}`;
+                            if (drawn.has(key)) return;
+                            drawn.add(key);
+
+                            let idx = chart.data.labels.findIndex(l => {
+                                const [m,s] = l.split(':').map(Number);
+                                return m*60 + s >= ev.time;
+                            });
+
+                            if (idx === -1) return;
+
+                            const xPos = x.getPixelForValue(idx);
+
+                            let src;
+                            if (ev.type === 'kill_lord')
+                                src = ev.camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
+                            else if (ev.type === 'kill_turtle')
+                                src = ev.camp === 1 ? './icons/turtle-blue.png' : './icons/turtle-red.png';
+                            else if (ev.type === 'kill_tower')
+                                src = ev.camp === 1 ? './icons/tower-blue.png' : './icons/tower-red.png';
+
+                            const yPos = ev.camp === 1 ? objY1 : objY2;
+
+                            const img = loadImg(src);
+
+                            ctx.save();
+                            ctx.globalAlpha = 1;
+                            drawIconIfReady(ctx, img, xPos, yPos, objSize);
+                            ctx.restore();
+                        });
+                }
+            },
+            {
+                id: 'minutePoints',
+                afterDatasetsDraw(chart) {
+                    const { ctx, scales: { x, y }, data } = chart;
+
+                    if (!data.labels.length) return;
 
                     ctx.save();
-                    ctx.strokeStyle = 'rgba(140,140,140,0.75)';
-                    ctx.lineWidth = 1.5;
-                    ctx.setLineDash([4,4]);
-                    ctx.beginPath();
-                    ctx.moveTo(xPos, chartArea.top);
-                    ctx.lineTo(xPos, chartArea.bottom);
-                    ctx.stroke();
+                    ctx.font = 'bold 11px Inter';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
+
+                    const currentGameTime = apiData?.game_time || 0;
+                    const maxMinute = Math.floor(currentGameTime / 60);
+
+                    for (let minute = 1; minute <= maxMinute; minute++) {
+                        const targetSec = minute * 60;
+
+                        // =========================
+                        // 🔥 FIND CLOSEST POINT (IMPORTANT FIX)
+                        // =========================
+                        let closestIdx = -1;
+                        let minDiff = Infinity;
+
+                        data.labels.forEach((label, i) => {
+                            const [m, s] = label.split(':').map(Number);
+                            const sec = m * 60 + s;
+
+                            const diff = Math.abs(sec - targetSec);
+                            if (diff < minDiff) {
+                                minDiff = diff;
+                                closestIdx = i;
+                            }
+                        });
+
+                        if (closestIdx === -1) continue;
+
+                        const value = data.datasets[0].data[closestIdx];
+                        if (value === undefined) continue;
+
+                        const xPos = x.getPixelForValue(closestIdx);
+                        const yPos = y.getPixelForValue(value);
+
+                        const isBlue = value >= 0;
+
+                        // =========================
+                        // 🔵 POINT
+                        // =========================
+                        ctx.save();
+                        ctx.beginPath();
+                        const size = getPointSize(chart);
+                        ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.strokeStyle = isBlue ? '#194FFF' : '#D4001D';
+                        ctx.lineWidth = 2.5;
+                        ctx.fill();
+                        ctx.stroke();
+                        ctx.restore();
+
+                        // =========================
+                        // 🔢 LABEL
+                        // =========================
+                        const displayVal = Math.abs(value) >= 1000
+                            ? (Math.abs(value)/1000).toFixed(1)+'K'
+                            : Math.round(Math.abs(value)).toString();
+
+                        ctx.strokeStyle = '#FFFFFF';
+                        ctx.lineWidth = 4;
+                        ctx.strokeText(displayVal, xPos, yPos - 10);
+
+                        ctx.fillStyle = isBlue ? '#194FFF' : '#D4001D';
+                        ctx.fillText(displayVal, xPos, yPos - 10);
+                    }
+
                     ctx.restore();
                 }
-            }
-        },
+            },
+            {
+                id: 'currentTimePoint',
+                afterDatasetsDraw(chart) {
+                    const { ctx, scales: { x, y }, data } = chart;
 
-        {
-            id: 'teamLinesAndLabels',
-            afterDraw(chart) {
-                const { ctx, scales: { x }, chartArea } = chart;
-                const labels = chart.data.labels;
-                if (!labels.length) return;
-                const labelY = 20;
-                for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
-                    const t = m * 60;
-                    const idx = labels.findIndex(l => {
-                        const [mm,ss] = l.split(':').map(Number);
-                        return mm*60 + ss >= t;
-                    });
-                    if (idx === -1) continue;
-                    const xPos = x.getPixelForValue(idx);
-                    if (milestones.includes(t)) {
-                        ctx.save();
-                        ctx.fillStyle = 'rgba(12,12,12,0.8)';
-                        ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.font = 'bold 11px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-                        ctx.fillText(fmtTime(t), xPos, labelY + 1);
-                        ctx.restore();
-                    }
-                }
-            }
-        },
+                    const last = data.labels.length - 1;
+                    if (last < 0) return;
 
-        {
-            id: 'goldItems',
-            afterDatasetsDraw(chart) {
-                if (!showItems || !selectedPlayer1 || !selectedPlayer2) return;
+                    const value = data.datasets[0].data[last];
 
-                const { ctx, scales: { x }, chartArea } = chart;
-                const labels = chart.data.labels;
-                if (!labels.length) return;
-
-                const h = chartArea.bottom - chartArea.top;
-                const y1 = chartArea.top + h * 0.05;
-                const y2 = chartArea.top + h * 0.95;
-
-                // ===================== TIME → X POSITION (INTERPOLATED) =====================
-                const getXFromTime = (timeSec) => {
-                    const times = labels.map(l => {
-                        const [m, s] = l.split(':').map(Number);
-                        return m * 60 + s;
-                    });
-
-                    for (let i = 0; i < times.length - 1; i++) {
-                        if (timeSec >= times[i] && timeSec <= times[i + 1]) {
-                            const ratio = (timeSec - times[i]) / (times[i + 1] - times[i]);
-                            const x1 = x.getPixelForValue(i);
-                            const x2 = x.getPixelForValue(i + 1);
-                            return x1 + (x2 - x1) * ratio;
-                        }
-                    }
-
-                    return x.getPixelForValue(times.length - 1);
-                };
-
-                // ===================== SPLIT ITEMS =====================
-                const splitItems = (items) => {
-                    const small = [];
-                    const full = [];
-
-                    items.forEach(item => {
-                        if (ITEM_DATA[item.itemId]?.full) full.push(item);
-                        else small.push(item);
-                    });
-
-                    return { small, full };
-                };
-
-                // ===================== DRAW FUNCTION =====================
-                const drawGroup = (items, baseY, isFull) => {
-                    const size = Math.max(18, getResponsiveSize(chart, isFull ? 1.0 : 0.75));
-                    const alpha = isFull ? 1 : 0.45;
-                    const spacingX = size * 0.9;
-
-                    items.forEach((item, i) => {
-                        if (!item.time) return;
-
-                        let xPos = getXFromTime(item.time);
-
-                        // 🔥 Smart offset (only if safe)
-                        let offsetX = 0;
-                        if (xPos < chartArea.right - 50) {
-                            offsetX = (i % 4) * spacingX;
-                        }
-
-                        let drawX = xPos + offsetX;
-
-                        // 🔥 HARD CLAMP (prevents overflow)
-                        drawX = Math.min(drawX, chartArea.right - size / 2 - 2);
-
-                        const img = loadImg(`${ITEM_IMAGE_PATH}${item.itemId}.png`);
-
-                        const draw = () => {
-                            ctx.save();
-                            ctx.globalAlpha = alpha;
-
-                            ctx.drawImage(
-                                img,
-                                drawX - size / 2,
-                                baseY - size / 2,
-                                size,
-                                size
-                            );
-
-                            ctx.restore();
-                        };
-
-                        if (img.complete && img.naturalWidth !== 0) {
-                            draw();
-                        } else {
-                            img.onload = () => chart.update('none');
-                        }
-                    });
-                };
-
-                // ===================== PLAYER DRAW =====================
-                const drawPlayer = (roleid, baseY) => {
-                    if (!allItemEvents.has(roleid)) return;
-
-                    const items = allItemEvents.get(roleid);
-                    const { small, full } = splitItems(items);
-
-                    // 🔥 ORDER MATTERS (z-index simulation)
-                    drawGroup(small, baseY, false); // bottom
-                    drawGroup(full, baseY, true);   // top
-                };
-
-                drawPlayer(selectedPlayer1, y1);
-                drawPlayer(selectedPlayer2, y2);
-            }
-        },
-
-        {
-            id: 'playerEventIcons',
-            afterDatasetsDraw(chart) {
-                if (!selectedPlayer1 || !selectedPlayer2) return;
-
-                const { ctx, scales: { x }, chartArea } = chart;
-                const h = chartArea.bottom - chartArea.top;
-
-                // ✅ IMPROVED LAYOUT (more breathing space)
-                const objY1  = chartArea.top + h * 0.28;
-                const killY1 = chartArea.top + h * 0.22;
-
-                const objY2  = chartArea.top + h * 0.72;
-                const killY2 = chartArea.top + h * 0.78;
-
-                const selected = new Set([
-                    parseInt(selectedPlayer1),
-                    parseInt(selectedPlayer2)
-                ]);
-
-                const drawn = new Set();
-
-                // ✅ CONSISTENT ICON SIZE SYSTEM
-                const killSize = Math.max(14, getResponsiveSize(chart, 0.5));
-                const objSize  = Math.max(16, getResponsiveSize(chart, 0.6));
-
-                // =========================
-                // 🟥 KILLS + DEATHS
-                // =========================
-                allKillEvents
-                    .filter(ev => ev.type === 'kill_hero' && ev.time <= (apiData?.game_time || 0))
-                    .forEach(ev => {
-
-                        const killer = ev.killerId ?? ev.roleid; // ✅ FIX
-                        const victim = ev.victimId;
-
-                        // ✅ FIXED FILTER
-                        if (!selected.has(killer) && !selected.has(victim)) return;
-
-                        let idx = chart.data.labels.findIndex(l => {
-                            const [m,s] = l.split(':').map(Number);
-                            return m*60 + s >= ev.time;
-                        });
-
-                        if (idx === -1) return;
-
-                        const xPos = x.getPixelForValue(idx);
-
-                        // 🔵 KILL ICON
-                        if (selected.has(killer)) {
-                            const key = `kill_${ev.time}_${killer}`;
-                            if (!drawn.has(key)) {
-                                drawn.add(key);
-
-                                const img = loadImg(
-                                    ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png'
-                                );
-
-                                const yPos = ev.camp === 1 ? killY1 : killY2;
-
-                                ctx.save();
-                                ctx.globalAlpha = 0.95;
-                                drawIconIfReady(ctx, img, xPos, yPos, killSize);
-                                ctx.restore();
-                            }
-                        }
-
-                        // 💀 DEATH ICON
-                        if (selected.has(victim)) {
-                            const victimCamp = campMap[victim];
-
-                            const key = `death_${ev.time}_${victim}`;
-                            if (!drawn.has(key)) {
-                                drawn.add(key);
-
-                                const img = loadImg(
-                                    victimCamp === 1 ? './icons/death-blue.png' : './icons/death-red.png'
-                                );
-
-                                const yPos = victimCamp === 1 ? killY1 : killY2;
-
-                                ctx.save();
-                                ctx.globalAlpha = 0.85;
-                                drawIconIfReady(ctx, img, xPos, yPos, killSize);
-                                ctx.restore();
-                            }
-                        }
-                    });
-
-                // =========================
-                // 🟡 OBJECTIVES
-                // =========================
-                allKillEvents
-                    .filter(ev =>
-                        ['kill_lord','kill_turtle','kill_tower'].includes(ev.type) &&
-                        ev.time <= (apiData?.game_time || 0) &&
-                        selected.has(ev.roleid)
-                    )
-                    .forEach(ev => {
-
-                        const key = `${ev.time}_${ev.type}_${ev.roleid}`;
-                        if (drawn.has(key)) return;
-                        drawn.add(key);
-
-                        let idx = chart.data.labels.findIndex(l => {
-                            const [m,s] = l.split(':').map(Number);
-                            return m*60 + s >= ev.time;
-                        });
-
-                        if (idx === -1) return;
-
-                        const xPos = x.getPixelForValue(idx);
-
-                        let src;
-                        if (ev.type === 'kill_lord')
-                            src = ev.camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
-                        else if (ev.type === 'kill_turtle')
-                            src = ev.camp === 1 ? './icons/turtle-blue.png' : './icons/turtle-red.png';
-                        else if (ev.type === 'kill_tower')
-                            src = ev.camp === 1 ? './icons/tower-blue.png' : './icons/tower-red.png';
-
-                        const yPos = ev.camp === 1 ? objY1 : objY2;
-
-                        const img = loadImg(src);
-
-                        ctx.save();
-                        ctx.globalAlpha = 1;
-                        drawIconIfReady(ctx, img, xPos, yPos, objSize);
-                        ctx.restore();
-                    });
-            }
-        },
-        {
-            id: 'minutePoints',
-            afterDatasetsDraw(chart) {
-                const { ctx, scales: { x, y }, data } = chart;
-
-                if (!data.labels.length) return;
-
-                ctx.save();
-                ctx.font = 'bold 11px Inter';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-
-                const currentGameTime = apiData?.game_time || 0;
-                const maxMinute = Math.floor(currentGameTime / 60);
-
-                for (let minute = 1; minute <= maxMinute; minute++) {
-                    const targetSec = minute * 60;
-
-                    // =========================
-                    // 🔥 FIND CLOSEST POINT (IMPORTANT FIX)
-                    // =========================
-                    let closestIdx = -1;
-                    let minDiff = Infinity;
-
-                    data.labels.forEach((label, i) => {
-                        const [m, s] = label.split(':').map(Number);
-                        const sec = m * 60 + s;
-
-                        const diff = Math.abs(sec - targetSec);
-                        if (diff < minDiff) {
-                            minDiff = diff;
-                            closestIdx = i;
-                        }
-                    });
-
-                    if (closestIdx === -1) continue;
-
-                    const value = data.datasets[0].data[closestIdx];
-                    if (value === undefined) continue;
-
-                    const xPos = x.getPixelForValue(closestIdx);
+                    const xPos = x.getPixelForValue(last);
                     const yPos = y.getPixelForValue(value);
 
                     const isBlue = value >= 0;
 
-                    // =========================
-                    // 🔵 POINT
-                    // =========================
                     ctx.save();
                     ctx.beginPath();
                     const size = getPointSize(chart);
                     ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
                     ctx.fillStyle = '#FFFFFF';
                     ctx.strokeStyle = isBlue ? '#194FFF' : '#D4001D';
-                    ctx.lineWidth = 2.5;
+                    ctx.lineWidth = 3;
                     ctx.fill();
                     ctx.stroke();
                     ctx.restore();
 
-                    // =========================
-                    // 🔢 LABEL
-                    // =========================
                     const displayVal = Math.abs(value) >= 1000
-                        ? (Math.abs(value)/1000).toFixed(1)+'K'
+                        ? (Math.abs(value)/1000).toFixed(1)+'k'
                         : Math.round(Math.abs(value)).toString();
+
+                    ctx.save();
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.font = `bold ${getResponsiveSize(chart, 0.45)}px Inter`;
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'bottom';
 
                     ctx.strokeStyle = '#FFFFFF';
                     ctx.lineWidth = 4;
-                    ctx.strokeText(displayVal, xPos, yPos - 10);
-
+                    
+                    const offset = Math.max(14, getResponsiveSize(chart, 0.6));
+                    ctx.strokeText(displayVal, xPos, yPos - offset);
                     ctx.fillStyle = isBlue ? '#194FFF' : '#D4001D';
-                    ctx.fillText(displayVal, xPos, yPos - 10);
+                    ctx.fillText(displayVal, xPos, yPos - offset);
                 }
-
-                ctx.restore();
             }
-        },
-        {
-            id: 'currentTimePoint',
-            afterDatasetsDraw(chart) {
-                const { ctx, scales: { x, y }, data } = chart;
 
-                const last = data.labels.length - 1;
-                if (last < 0) return;
-
-                const value = data.datasets[0].data[last];
-
-                const xPos = x.getPixelForValue(last);
-                const yPos = y.getPixelForValue(value);
-
-                const isBlue = value >= 0;
-
-                ctx.save();
-                ctx.beginPath();
-                const size = getPointSize(chart);
-                ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
-                ctx.fillStyle = '#FFFFFF';
-                ctx.strokeStyle = isBlue ? '#194FFF' : '#D4001D';
-                ctx.lineWidth = 3;
-                ctx.fill();
-                ctx.stroke();
-                ctx.restore();
-
-                const displayVal = Math.abs(value) >= 1000
-                    ? (Math.abs(value)/1000).toFixed(1)+'k'
-                    : Math.round(Math.abs(value)).toString();
-
-                ctx.save();
-                ctx.globalCompositeOperation = 'source-over';
-                ctx.font = `bold ${getResponsiveSize(chart, 0.45)}px Inter`;
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'bottom';
-
-                ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = 4;
-                
-                const offset = Math.max(14, getResponsiveSize(chart, 0.6));
-                ctx.strokeText(displayVal, xPos, yPos - offset);
-                ctx.fillStyle = isBlue ? '#194FFF' : '#D4001D';
-                ctx.fillText(displayVal, xPos, yPos - offset);
-            }
-        }
-
-        ]
+            ]
         });
     }
     function updatePlayerGoldDiffChart() {
@@ -2834,17 +2806,8 @@
             updatePlayerComparisonCharts();
         }
     }
-
-    // ==================== TOWER SYSTEM (Exact Copy from Reference) ====================
-    let activeTowers = {};
-
-    
-
     const eventCanvas = document.getElementById('eventCanvas');
     const ctxEvent = eventCanvas.getContext('2d');
-
-
-    const ICON_SIZE_BASE = { tower: 12 };
 
     function initAllTowers() {
         activeTowers = {};
@@ -2949,14 +2912,7 @@
         });
     }
 
-    function getRoleIcon(role) {
-        if (!role) return '';
-        return `./Role/${role}.png`;
-    }
 
-    const milestones = [120, 300, 480, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980];
-
-    const IMG_CACHE = {};
     const loadImg = src => { if (IMG_CACHE[src]) return IMG_CACHE[src]; const img = new Image(); img.src = src; IMG_CACHE[src] = img; return img; };
     const drawIconIfReady = (ctx, img, x, y, size) => { if (img.complete && img.naturalWidth !== 0) { ctx.drawImage(img, x - size/2, y - size/2, size, size); return true; } return false; };
     const fmtTime = s => { const m = String(Math.floor(s / 60)).padStart(2, '0'); const ss = String(s % 60).padStart(2, '0'); return `${m}:${ss}`; };
@@ -3080,10 +3036,6 @@
         drawAllAliveTowers(ctx, size, false);   // false = main map mode
 
     }
-
-    const ROLE_ORDER = {
-        "EXP LANE": 1, "JUNGLE": 2, "MID LANE": 3, "ROAM": 4, "GOLD LANE": 5
-    };
 
     function renderPlayersHorizontal() {
         const container = document.getElementById('players-container');
@@ -3271,35 +3223,7 @@
             rowHTML += `</div>`;
             container.innerHTML += rowHTML;
         });
-    }
-
-    function formatValue(val, isControlTime = false) {
-        if (isControlTime) return val.toFixed(1) + 's';
-        return val >= 1000 ? (val/1000).toFixed(1) + 'K' : val.toLocaleString();
-    }   
-
-
-let playerRankingChart = null;
-let rankingIndex = 0;
-
-    function formatStatName(stat) {
-        if (!stat) return '';
-
-        return stat
-            .replace(/_/g, ' ')
-            .replace(/\b\w/g, l => l.toUpperCase()); // capitalize words
-    }
-   
-    
-const rankingCategories = [
-    { key: 'gold', label: 'GOLD' },
-    { key: 'damage', label: 'DAMAGE DEALT' },
-    { key: 'taken', label: 'DAMAGE TAKEN' },
-    { key: 'turret', label: 'TURRET DAMAGE' },
-    { key: 'exp', label: 'LEVEL' }, // uses EXP
-    { key: 'heal', label: 'HEAL' },
-    { key: 'control', label: 'CONTROL TIME' }
-];
+    } 
 
     function updatePlayerRankingTitle(stat) {
             const el = document.getElementById('playerStatTitle');
@@ -4368,8 +4292,6 @@ function renderTimeline() {
     }
 
 
-    let mapModalInterval = null;
-
     function toggleMapModal() {
         const modal = document.getElementById('mapModal');
         if (!modal) return;
@@ -4509,8 +4431,7 @@ function renderTimeline() {
             renderMapModal();         // Refresh map when hiding list
         }
     }
-    // ==================== GLOBAL ANIMATION LOOP ====================
-    let animationTime = 0;
+    // ==================== GLOBAL ANIMATION LOOP ===================
 
     function animateLoop() {
         animationTime += 0.05;
@@ -5449,12 +5370,7 @@ function renderTimeline() {
         });
     }
     // ================= Player Gold Distribution =================
-    const goldDistCharts = {};
     
-    function getHeroRecIcon(heroid) {
-        if (!heroid) return '';
-        return `./herorec/HERO_${heroid}_BAN.png`;
-    }
     
     function getGoldMapSafe(player) {
         const raw = player?.gold_map || {};
@@ -5872,7 +5788,7 @@ async function startAutoRefresh(battleId) {
 
             if (!json.data) return;
 
-            apiData = json.data;
+            runtimeState.apiData = json.data;
             const currentTime = apiData.game_time || 0;
 
             // ====================== POSITION + BASIC DATA ======================
@@ -5964,7 +5880,7 @@ async function loadBattle() {
         const json = await res.json();
         if (!json.data) throw new Error("No data");
 
-        apiData = json.data;
+        runtimeState.apiData = json.data;
         heroMap = {};
         apiData.camp_list.forEach(camp => {
             camp.player_list.forEach(p => {
