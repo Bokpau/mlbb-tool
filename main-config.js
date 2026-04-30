@@ -239,3 +239,43 @@ export function getTeamInitials(name) {
         .substring(0, 4)
         .toUpperCase();
 }
+
+// =========================
+// PLAYER ROLE HELPERS
+// =========================
+export function getPlayerRoleSafe(name) {
+    if (!name) return "ROAM";
+
+    const cleanName = name.trim().replace(/\./g, '').toLowerCase();
+
+    for (const [key, role] of Object.entries(PLAYER_ROLE_MAP)) {
+        const cleanKey = key.trim().replace(/\./g, '').toLowerCase();
+
+        if (
+            cleanName === cleanKey ||
+            cleanName.includes(cleanKey) ||
+            cleanKey.includes(cleanName)
+        ) {
+            return role;
+        }
+    }
+
+    return "ROAM";
+}
+
+export function sortPlayersByRoleSafe(players) {
+    const ROLE_ORDER = [
+        "EXP LANE",
+        "JUNGLE",
+        "MID LANE",
+        "GOLD LANE",
+        "ROAM"
+    ];
+
+    return players.sort((a, b) => {
+        const roleA = getPlayerRoleSafe(a.name);
+        const roleB = getPlayerRoleSafe(b.name);
+
+        return ROLE_ORDER.indexOf(roleA) - ROLE_ORDER.indexOf(roleB);
+    });
+}
