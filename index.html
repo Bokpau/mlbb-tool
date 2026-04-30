@@ -2982,7 +2982,7 @@
         if (!canvas || !apiData) return;
 
         const ctx = canvas.getContext('2d');           // ← Fixed: define ctx properly
-        const size = canvas.parentElement.clientWidth || BASE_MAP_WISEI || 300;
+        const size = canvas.parentElement.clientWidth || BASE_MAP_SIZE || 300;
 
         canvas.width = size;
         canvas.height = size;
