@@ -2900,7 +2900,7 @@
     // Replace your existing drawAllAliveTowers() with this improved version
     function drawAllAliveTowers(ctx, canvasSize, isModal = false) {
         if (!ctx || !canvasSize) return;
-
+        console.log(`🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers).length}`);
         const towerNames = Object.keys(TOWER_COORDS);
         const scaleFactor = isModal ? 1.8 : 1;   // bigger icons in modal
 
@@ -3059,8 +3059,9 @@
         });
 
         // ==================== 3. Draw Towers ====================
-        processTowerEvents();
-        drawAllAliveTowers(ctx, size, false);   // false = main map mode
+        processTowerEvents();                    // process latest destructions
+        console.log(`🗼 redrawMap() → drawing towers on main map | size=${size}`);
+        drawAllAliveTowers(ctx, size, false);    // false = main map
 
     }
 
