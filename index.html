@@ -6230,19 +6230,13 @@ window.onload = () => {
         }
     };
 
+    // ==================== CLEAN MODAL TOGGLES ====================
     window.toggleMapModal = function () {
         const modal = document.getElementById('mapModal');
         if (!modal) return;
-
         modal.classList.toggle('hidden');
-
-        if (!modal.classList.contains('hidden')) {
-            if (typeof resizeMapModalCanvas === 'function') resizeMapModalCanvas();
-            if (typeof redrawMapModal === 'function') redrawMapModal();
-        }
     };
 
-    // ✅ FIXED: Item Timing Modal Open + Close (reliable for button + ESC)
     window.toggleItemTimingModal = function () {
         const modal = document.getElementById('itemTimingModal');
         if (!modal) return;
@@ -6251,21 +6245,9 @@ window.onload = () => {
 
         if (!modal.classList.contains('hidden')) {
             // Modal opened
-            if (typeof renderItemTimings === 'function') {
-                setTimeout(() => renderItemTimings(), 100);
-            }
-            if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
-            window.itemTimingInterval = setInterval(() => {
-                if (!modal.classList.contains('hidden') && typeof renderItemTimings === 'function') {
-                    renderItemTimings();
-                }
-            }, 1500);
-        } else {
-            // Modal closed
-            if (window.itemTimingInterval) {
-                clearInterval(window.itemTimingInterval);
-                window.itemTimingInterval = null;
-            }
+            setTimeout(() => {
+                if (typeof renderItemTimings === 'function') renderItemTimings();
+            }, 50);
         }
     };
 
