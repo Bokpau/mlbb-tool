@@ -616,7 +616,7 @@
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
         #statsContainer {
             width: 100%;
-            flex: 1 1 auto;
+            flex: 1 1 0%;
             min-height: 0;
             max-height: 100%;
 
@@ -633,11 +633,17 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         #teamChartWrapper { flex: 1; position: relative; }
 
         /* Player Gold Diff Chart */
-        #playerGoldChartContainer { 
-            min-height: 260px; 
-            padding: 15px; 
-            display: flex; 
-            flex-direction: column; 
+       #playerGoldChartContainer {
+            min-height: 180px;
+            max-height: 30vh;
+
+            padding: 15px;
+
+            display: flex;
+            flex-direction: column;
+
+            flex-shrink: 0;
+            overflow: hidden;
         }
 
         /* Team Gold Diff Chart */
@@ -886,13 +892,13 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
         @media (orientation: landscape) and (max-width: 1366px) {
             #statsContainer {
-                flex: 1 1 58%;
+                flex: 1 1 65%;
             }
 
             #playerGoldChartContainer {
-                flex: 0 0 32%;
+                flex: 0 0 24%;
                 min-height: 180px;
-                max-height: 28vh;
+                max-height: 24vh;
             }
         }
     </style>
@@ -1005,7 +1011,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 <div id="players-container" class="flex-1 space-y-1 overflow-y-auto min-h-0 p-3"></div>
             </div>
             
-            <div id="playerGoldChartContainer" class="container-box flex flex-col min-h-[260px] lg:min-h-[340px] relative">
+            <div id="playerGoldChartContainer" class="container-box flex flex-col relative min-h-[180px] lg:min-h-0 flex-shrink-0">
                 <button onclick="toggleFullscreen('playerGoldChartContainer')" 
                 class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg z-10">
                     ⛶
