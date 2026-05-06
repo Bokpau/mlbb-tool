@@ -1408,6 +1408,24 @@
     function resetAllEventData() {
         console.log("🔄 Starting full reset...");
 
+        const p1 = document.getElementById("player1Select");
+        const p2 = document.getElementById("player2Select");
+
+        if (p1) {
+            p1.innerHTML = "";
+            p1.selectedIndex = -1;
+            delete p1.dataset.loaded;
+        }
+
+        if (p2) {
+            p2.innerHTML = "";
+            p2.selectedIndex = -1;
+            delete p2.dataset.loaded;
+        }
+
+        selectedPlayer1 = null;
+        selectedPlayer2 = null;
+
         // Core event arrays
         allKillEvents = [];
         allDeathEvents = [];
@@ -1477,11 +1495,13 @@
 
         if (p1) {
             p1.innerHTML = "";
+            p1.selectedIndex = -1;
             delete p1.dataset.loaded;
         }
 
         if (p2) {
             p2.innerHTML = "";
+            p2.selectedIndex = -1;
             delete p2.dataset.loaded;
         }
 
@@ -5420,6 +5440,12 @@ function renderTimeline() {
 }
 
     function renderItemTimings() {
+
+        const container = document.getElementById("itemTimelineBody");
+
+        if (container) {
+            container.innerHTML = "";
+        }
         const canvas = document.getElementById('itemTimingCanvas');
         if (!canvas) return;
 
@@ -5913,6 +5939,60 @@ function renderTimeline() {
             </div>
         `;
     }
+
+    function populateGoldDiffSelectors() {
+    const p1 = document.getElementById("player1Select");
+    const p2 = document.getElementById("player2Select");
+
+    if (!p1 || !p2 || !apiData?.battle?.camp1 || !apiData?.battle?.camp2) return;
+
+    // Clear old options
+    p1.innerHTML = "";
+    p2.innerHTML = "";
+
+    // =========================
+    // CAMP 1 PLAYERS
+    // =========================
+    apiData.battle.camp1.forEach(player => {
+        const option = document.createElement("option");
+        option.value = player.player_id || player.name;
+        option.textContent = player.name;
+        p1.appendChild(option);
+    });
+
+    // =========================
+    // CAMP 2 PLAYERS
+    // =========================
+    apiData.battle.camp2.forEach(player => {
+        const option = document.createElement("option");
+        option.value = player.player_id || player.name;
+        option.textContent = player.name;
+        p2.appendChild(option);
+    });
+
+    // Default first players
+    if (p1.options.length > 0) {
+        p1.selectedIndex = 0;
+        selectedPlayer1 = p1.value;
+    }
+
+    if (p2.options.length > 0) {
+        p2.selectedIndex = 0;
+        selectedPlayer2 = p2.value;
+    }
+
+    console.log("✅ Gold Diff selectors populated");
+}
+
+document.getElementById("player1Select")?.addEventListener("change", e => {
+    selectedPlayer1 = e.target.value;
+    updateGoldDiffChart();
+});
+
+document.getElementById("player2Select")?.addEventListener("change", e => {
+    selectedPlayer2 = e.target.value;
+    updateGoldDiffChart();
+});
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
     const camp1 = apiData.camp_list?.find(c => c.campid === 1);
@@ -6132,6 +6212,7 @@ async function loadBattle() {
         if (!json.data) throw new Error("No data");
 
         apiData = json.data;
+        populateGoldDiffSelectors();
         heroMap = {};
         apiData.camp_list.forEach(camp => {
             camp.player_list.forEach(p => {
