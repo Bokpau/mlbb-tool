@@ -4352,14 +4352,11 @@ function renderTimeline() {
     }
 
     function applyFilters() {
-        currentFilters.showTurtle = document.getElementById('filterTurtle')?.checked ?? true;
-        currentFilters.showLord = document.getElementById('filterLord')?.checked ?? true;
-        currentFilters.showTurret = document.getElementById('filterTurret')?.checked ?? true;
-
         currentFilters.team = document.getElementById('filterTeam')?.value || "all";
         currentFilters.playerId = document.getElementById('filterPlayer')?.value || "";
 
         renderKillList();
+        renderMapModal();        // ← important: refresh the map too
     }
 
     function toggleLiveData() {
@@ -6231,15 +6228,18 @@ window.onload = () => {
         }
     };
 
-    window.toggleMapModal = function () {
+   window.toggleMapModal = function () {
         const modal = document.getElementById('mapModal');
         if (!modal) return;
 
         modal.classList.toggle('hidden');
 
         if (!modal.classList.contains('hidden')) {
-            if (typeof resizeMapModalCanvas === 'function') resizeMapModalCanvas();
-            if (typeof redrawMapModal === 'function') redrawMapModal();
+            // 🔥 Populate the player filter every time we open the modal
+            populatePlayerFilter();
+            
+            renderMapModal();
+            startMapModalTimer();
         }
     };
 
