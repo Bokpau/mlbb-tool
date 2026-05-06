@@ -846,61 +846,83 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             animation: subtlePulse 4s infinite ease-in-out;
         }
 
-        /* =========================
-        TABLET PORTRAIT SCROLL FIX
-        ========================= */
+      /* =========================
+   TABLET PORTRAIT SCROLL FIX
+   ========================= */
 
-        /* Portrait tablets and smaller */
-        @media (orientation: portrait) and (max-width: 1024px) {
-            body {
-                overflow-y: auto !important;
-                overflow-x: hidden !important;
-                height: auto !important;
-            }
+/* Portrait tablets and smaller */
+@media (orientation: portrait) and (max-width: 1024px) {
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+    }
 
-            #appContent > div,
-            body > div:first-child {
-                height: auto !important;
-                min-height: 100vh !important;
-                overflow: visible !important;
-            }
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+    }
+}
 
-            .main-dashboard-wrapper {
-                height: auto !important;
-                overflow: visible !important;
-            }
-        }
+/* ==================== TABLET LANDSCAPE FIX ==================== */
+/* Only for landscape tablets (between phone and laptop size) */
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
 
-        /* Landscape tablets/laptops/desktops */
-        @media (orientation: landscape), (min-width: 1025px) {
-            body {
-                overflow: hidden !important;
-                height: 100vh !important;
-            }
+    /* Force proper height distribution on left column */
+    .lg\:col-span-5.flex.flex-col.gap-3 {
+        gap: 12px !important;
+    }
 
-            #appContent > div,
-            body > div:first-child {
-                height: 100vh !important;
-                overflow: hidden !important;
-            }
+    /* Player Stats - Scrollable but limited height */
+    #statsContainer {
+        flex: 1 1 57% !important;
+        min-height: 0 !important;
+        max-height: 57vh !important;
+        overflow-y: auto !important;
+    }
 
-            .main-dashboard-wrapper {
-                height: 100% !important;
-                overflow: hidden !important;
-            }
-        }
+    /* Player Gold Diff Chart - Always visible */
+    #playerGoldChartContainer {
+        flex: 0 0 39% !important;
+        min-height: 165px !important;
+        max-height: 39vh !important;
+    }
 
-        @media (orientation: landscape) and (max-width: 1366px) {
-            #statsContainer {
-                flex: 1 1 65%;
-            }
+    #playerGoldChartContainer .flex-1 {
+        min-height: 0 !important;
+    }
 
-            #playerGoldChartContainer {
-                flex: 0 0 24%;
-                min-height: 180px;
-                max-height: 24vh;
-            }
-        }
+    /* Make rows a bit smaller on tablet */
+    .player-row {
+        padding: 6px 10px !important;
+        font-size: 12.5px !important;
+        gap: 8px !important;
+    }
+
+    .hero-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+}
+
+/* ==================== DESKTOP & BIG SCREENS ==================== */
+/* For laptops and bigger screens */
+@media (min-width: 1367px) {
+    body {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+}
     </style>
 </head>
 <body>
