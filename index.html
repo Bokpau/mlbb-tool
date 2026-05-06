@@ -1096,8 +1096,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 <img id="mapImg" src="./Maps/Map_0.png"
                     class="absolute inset-0 w-full h-full object-fill pointer-events-none">
 
-                <canvas id="eventCanvas"
-                        class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+                <canvas id="eventCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
             </div>
             <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 flex-1 overflow-y-auto text-xs min-h-[220px] lg:min-h-0"></div>
         </div>
@@ -3044,110 +3043,110 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     }
 
     function redrawMap() {
-        const canvas = document.getElementById('eventCanvas');
-        if (!canvas || !apiData) return;
+    const canvas = document.getElementById('eventCanvas');
+    if (!canvas || !apiData) return;
 
-        const ctx = canvas.getContext('2d');           // ← Fixed: define ctx properly
-        const mapBox = canvas.parentElement;
+    const ctx = canvas.getContext('2d');
+    const mapBox = canvas.parentElement;
 
-        const width = mapBox.clientWidth || BASE_MAP_SIZE || 300;
-        const height = mapBox.clientHeight || width;
+    const width = mapBox.clientWidth || BASE_MAP_SIZE || 300;
+    const height = mapBox.clientHeight || width;
 
-        canvas.width = width;
-        canvas.height = height;
+    canvas.width = width;
+    canvas.height = height;
 
-        ctx.clearRect(0, 0, width, height);            // ← Use ctx instead of ctxEvent
+    ctx.clearRect(0, 0, width, height);
 
-        const frame = posByTime[lastTime] || {};
-        const heroSize = Math.max(18, size * 0.05);
-        const filteredPlayerId = currentFilters.playerId;
+    const frame = posByTime[lastTime] || {};
+    const heroSize = Math.max(18, width * 0.05);
+    const filteredPlayerId = currentFilters.playerId;
 
-        // ==================== 1. Draw Alive Players ====================
-        Object.keys(frame).forEach(roleid => {
-            const pos = frame[roleid];
+    // ==================== 1. Draw Alive Players ====================
+    Object.keys(frame).forEach(roleid => {
+        const pos = frame[roleid];
+        if (!pos) return;
+
+        if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
+
+        const camp = campMap[roleid];
+        const campData = apiData?.camp_list?.find(c => c.campid === camp);
+        const player = campData?.player_list?.find(p => p.roleid == roleid);
+
+        if (player && (player.dead === true || player.dead === 1)) return;
+
+        const px = toPx(pos.x, false, width);
+        const py = toPx(pos.y, true, height);
+
+        const heroid = heroMap[roleid];
+        if (!heroid) return;
+
+        const img = loadImg(getHeroIconUrl(heroid));
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(px, py, heroSize / 2 + 2, 0, Math.PI * 2);
+        ctx.strokeStyle = camp === 1 ? '#3b82f6' : '#ef4444';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(px, py, heroSize / 2, 0, Math.PI * 2);
+        ctx.clip();
+        ctx.drawImage(img, px - heroSize / 2, py - heroSize / 2, heroSize, heroSize);
+        ctx.restore();
+    });
+
+    // ==================== 2. Draw Current Dead Players ====================
+    const deathSize = Math.max(21, width * 0.05);
+
+    apiData?.camp_list?.forEach(camp => {
+        const isTeam1 = camp.campid === 1;
+
+        camp.player_list?.forEach(player => {
+            const roleid = player.roleid;
+            if (!(player.dead === true || player.dead === 1)) return;
+
+            const reviveSeconds = parseFloat(player.revive_left_time) || 0;
+            const pos = posByTime[lastTime]?.[roleid];
             if (!pos) return;
 
-            if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
+            const px = toPx(pos.x, false, width);
+            const py = toPx(pos.y, true, height);
 
-            const camp = campMap[roleid];
-            const campData = apiData?.camp_list?.find(c => c.campid === camp);
-            const player = campData?.player_list?.find(p => p.roleid == roleid);
-
-            if (player && (player.dead === true || player.dead === 1)) return;
-
-            const px = toPx(pos.map_x, false, size);
-            const py = toPx(pos.map_y, true, size);
-            const heroid = heroMap[roleid];
-            if (!heroid) return;
-
-            const img = loadImg(getHeroIconUrl(heroid));
+            const img = loadImg(getHeroIconUrl(player.heroid));
 
             ctx.save();
+
             ctx.beginPath();
-            ctx.arc(px, py, heroSize / 2 + 2, 0, Math.PI * 2);
-            ctx.strokeStyle = camp === 1 ? '#3b82f6' : '#ef4444';
-            ctx.lineWidth = 2;
+            ctx.arc(px, py, deathSize / 2 + 4, 0, Math.PI * 2);
+            ctx.strokeStyle = isTeam1 ? '#3b82f6' : '#ef4444';
+            ctx.lineWidth = 2.8;
             ctx.stroke();
-            ctx.restore();
 
-            ctx.save();
-            ctx.beginPath();
-            ctx.arc(px, py, heroSize / 2, 0, Math.PI * 2);
-            ctx.clip();
-            ctx.drawImage(img, px - heroSize/2, py - heroSize/2, heroSize, heroSize);
+            ctx.filter = 'grayscale(100%) brightness(0.8)';
+            ctx.drawImage(img, px - deathSize / 2, py - deathSize / 2, deathSize, deathSize);
+
+            ctx.filter = 'none';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 6;
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
+
+            const displayText = reviveSeconds > 0 ? Math.ceil(reviveSeconds) : '✕';
+            ctx.fillText(displayText, px, py + 1);
+
             ctx.restore();
         });
+    });
 
-        // ==================== 2. Draw Current Dead Players ====================
-        const deathSize = Math.max(21, size * 0.05);
-
-        apiData?.camp_list?.forEach(camp => {
-            const isTeam1 = camp.campid === 1;
-
-            camp.player_list?.forEach(player => {
-                const roleid = player.roleid;
-                if (!(player.dead === true || player.dead === 1)) return;
-
-                const reviveSeconds = parseFloat(player.revive_left_time) || 0;
-                const pos = posByTime[lastTime]?.[roleid];
-                if (!pos) return;
-
-                const px = toPx(pos.map_x, false, size);
-                const py = toPx(pos.map_y, true, size);
-
-                const img = loadImg(getHeroIconUrl(player.heroid));
-
-                ctx.save();
-
-                ctx.beginPath();
-                ctx.arc(px, py, deathSize / 2 + 4, 0, Math.PI * 2);
-                ctx.strokeStyle = isTeam1 ? '#3b82f6' : '#ef4444';
-                ctx.lineWidth = 2.8;
-                ctx.stroke();
-
-                ctx.filter = 'grayscale(100%) brightness(0.8)';
-                ctx.drawImage(img, px - deathSize/2, py - deathSize/2, deathSize, deathSize);
-
-                ctx.filter = 'none';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-                ctx.shadowColor = '#000';
-                ctx.shadowBlur = 6;
-                ctx.font = 'bold 18px Inter, sans-serif';
-                ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
-
-                const displayText = reviveSeconds > 0 ? Math.ceil(reviveSeconds) : '✕';
-                ctx.fillText(displayText, px, py + 1);
-
-                ctx.restore();
-            });
-        });
-
-        // ==================== 3. Draw Towers ====================
-        processTowerEvents();
-        drawAllAliveTowers(ctx, size, false);   // false = main map mode
-
-    }
+    // ==================== 3. Draw Towers ====================
+    processTowerEvents();
+    drawAllAliveTowers(ctx, width, false); // false = main map mode
+}
 
     function renderPlayersHorizontal() {
         const container = document.getElementById('players-container');
