@@ -592,21 +592,25 @@
         .player-row .right-team { justify-content: flex-end; min-width: 0;}
         
         #mapBox {
-        position: relative;
-        width: 100%;
-        aspect-ratio: 1 / 1;
-        min-height: 260px;           /* ← Add this */
-        overflow: hidden;
-        border-radius: 20px;
-        border: 5px solid #334155;
-            background: #111827;
-        }
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
 
-        #mapBox canvas {
+            margin: 0 auto;
+
+            overflow: hidden;
+            border-radius: 20px;
+            border: 5px solid #334155;
+
+            background: #111827;
+
+            flex-shrink: 0;
+        }
+        canvas {
             position: absolute;
             inset: 0;
-            width: 100% !important;
-            height: 100% !important;
+            width: 100%;
+            height: 100%;
         }
         
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
@@ -842,11 +846,11 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             animation: subtlePulse 4s infinite ease-in-out;
         }
 
- /* =============================================
-   RESPONSIVE MEDIA QUERIES - MLBB LIVE TRACKER
-   ============================================= */
+      /* =========================
+   TABLET PORTRAIT SCROLL FIX
+   ========================= */
 
-/* ==================== PORTRAIT (Mobile + Portrait Tablet) ==================== */
+/* Portrait tablets and smaller */
 @media (orientation: portrait) and (max-width: 1024px) {
     body {
         overflow-y: auto !important;
@@ -861,46 +865,74 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         min-height: 100vh !important;
         overflow: visible !important;
     }
-
-    /* Make player rows easier to read in portrait */
-    .player-row {
-        padding: 8px 12px !important;
-        font-size: 13px !important;
-    }
 }
 
-/* ==================== TABLET LANDSCAPE (Main Problem Area) ==================== */
+/* ==================== TABLET LANDSCAPE FIX ==================== */
+/* Only for landscape tablets (between phone and laptop size) */
 @media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
 
-    /* Left Column - Balanced Height */
+    /* Force proper height distribution on left column */
     .lg\:col-span-5.flex.flex-col.gap-3 {
         gap: 12px !important;
     }
 
-    /* Player Stats Container */
+    /* Player Stats - Scrollable but limited height */
     #statsContainer {
-        flex: 1 1 54% !important;
+        flex: 1 1 57% !important;
         min-height: 0 !important;
-        max-height: 54vh !important;
+        max-height: 57vh !important;
         overflow-y: auto !important;
     }
 
-    /* Player Gold Diff Chart */
+    /* Player Gold Diff Chart - Always visible */
     #playerGoldChartContainer {
-        flex: 0 0 42% !important;
+        flex: 0 0 39% !important;
         min-height: 165px !important;
-        max-height: 42vh !important;
+        max-height: 39vh !important;
     }
 
     #playerGoldChartContainer .flex-1 {
         min-height: 0 !important;
     }
 
-    /* ==================== CONTENT SCALING ==================== */
+    /* Make rows a bit smaller on tablet */
+    .player-row {
+        padding: 6px 10px !important;
+        font-size: 12.5px !important;
+        gap: 8px !important;
+    }
+
+    .hero-icon {
+        width: 38px !important;
+        height: 38px !important;
+    }
+}
+
+/* ==================== DESKTOP & BIG SCREENS ==================== */
+/* For laptops and bigger screens */
+@media (min-width: 1367px) {
+    body {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+}
+
+/* ==================== CONTENT SCALING FOR TABLETS ==================== */
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
+
+    /* 1. Player Stats Rows - Smaller & Cleaner */
     .player-row {
         padding: 5px 10px !important;
         font-size: 12px !important;
         gap: 6px !important;
+        min-height: auto !important;
     }
 
     .hero-icon {
@@ -918,71 +950,39 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         height: 16px !important;
     }
 
+    /* 2. Text Sizes */
+    .font-medium, .text-xs, .text-sm {
+        font-size: 11.5px !important;
+    }
+
+    /* 3. Charts - Force Resize */
+    #playerGoldChartContainer canvas,
+    #teamGoldDiffChart canvas,
+    #playerRankingChart canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* 4. Scoreboard & Header Texts */
     .score-blue, .score-red {
-        font-size: 21px !important;
+        font-size: 20px !important;
     }
 
     .tc-name {
         font-size: 10px !important;
     }
 
-    #timelineContainer .text-xs {
-        font-size: 10.5px !important;
-    }
-
-    /* Force charts to scale properly */
-    #playerGoldDiffChart,
-    #teamGoldDiffChart,
-    #playerRankingChart {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* Extra safety for flex items */
+    /* 5. Make sure flex children can shrink */
     #statsContainer,
     #playerGoldChartContainer,
     #teamChartContainer,
     #playerRankingContainer {
         min-height: 0 !important;
     }
-}
 
-/* ==================== DESKTOP & LARGE SCREENS ==================== */
-@media (min-width: 1367px) {
-    body {
-        overflow: hidden !important;
-        height: 100vh !important;
-    }
-
-    #appContent > div,
-    body > div:first-child,
-    .main-dashboard-wrapper {
-        height: 100vh !important;
-        overflow: hidden !important;
-    }
-
-    /* Reset tablet scaling on big screens */
-    .player-row {
-        padding: 7px 12px !important;
-        font-size: 13px !important;
-    }
-
-    .hero-icon {
-        width: 44px !important;
-        height: 44px !important;
-    }
-}
-
-/* ==================== VERY SMALL LANDSCAPE (Small Tablets) ==================== */
-@media (orientation: landscape) and (max-width: 900px) {
-    .hero-icon {
-        width: 34px !important;
-        height: 34px !important;
-    }
-
-    .player-row {
-        font-size: 11.5px !important;
-        padding: 4px 8px !important;
+    /* 6. Timeline events - smaller */
+    #timelineContainer .text-xs {
+        font-size: 10.5px !important;
     }
 }
     </style>
@@ -3160,37 +3160,30 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     if (!canvas || !apiData) return;
 
     const ctx = canvas.getContext('2d');
-    const mapBox = document.getElementById('mapBox');  // Make sure this ID exists
+    const mapBox = canvas.parentElement;
 
-    if (!mapBox) return;
+    const width = mapBox.clientWidth || BASE_MAP_SIZE || 300;
+    const height = mapBox.clientHeight || width;
 
-    // 🔥 Force proper size using container dimensions
-    let width = mapBox.clientWidth;
-    let height = mapBox.clientHeight;
-
-    // Fallback + safety
-    if (width < 50 || height < 50) {
-        width = Math.min(mapBox.offsetWidth, 380);
-        height = width;   // keep square
-    }
-
-    // Set canvas resolution
     canvas.width = width;
     canvas.height = height;
 
     ctx.clearRect(0, 0, width, height);
 
     const frame = posByTime[lastTime] || {};
-    const heroSize = Math.max(18, width * 0.052);   // slightly bigger scaling
+    const heroSize = Math.max(18, width * 0.05);
+    const filteredPlayerId = currentFilters.playerId;
 
-    // ==================== Draw Alive Players ====================
+    // ==================== 1. Draw Alive Players ====================
     Object.keys(frame).forEach(roleid => {
         const pos = frame[roleid];
         if (!pos) return;
 
+        if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
+
         const camp = campMap[roleid];
-        const player = apiData?.camp_list?.flatMap(c => c.player_list || [])
-                        .find(p => p.roleid == roleid);
+        const campData = apiData?.camp_list?.find(c => c.campid === camp);
+        const player = campData?.player_list?.find(p => p.roleid == roleid);
 
         if (player && (player.dead === true || player.dead === 1)) return;
 
@@ -3202,16 +3195,14 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
         const img = loadImg(getHeroIconUrl(heroid));
 
-        // Border
         ctx.save();
         ctx.beginPath();
-        ctx.arc(px, py, heroSize / 2 + 2.5, 0, Math.PI * 2);
+        ctx.arc(px, py, heroSize / 2 + 2, 0, Math.PI * 2);
         ctx.strokeStyle = camp === 1 ? '#3b82f6' : '#ef4444';
-        ctx.lineWidth = 2.5;
+        ctx.lineWidth = 2;
         ctx.stroke();
         ctx.restore();
 
-        // Hero Image
         ctx.save();
         ctx.beginPath();
         ctx.arc(px, py, heroSize / 2, 0, Math.PI * 2);
@@ -3220,15 +3211,17 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         ctx.restore();
     });
 
-    // ==================== Draw Dead Players ====================
-    const deathSize = Math.max(22, width * 0.055);
+    // ==================== 2. Draw Current Dead Players ====================
+    const deathSize = Math.max(21, width * 0.05);
 
     apiData?.camp_list?.forEach(camp => {
         const isTeam1 = camp.campid === 1;
+
         camp.player_list?.forEach(player => {
+            const roleid = player.roleid;
             if (!(player.dead === true || player.dead === 1)) return;
 
-            const roleid = player.roleid;
+            const reviveSeconds = parseFloat(player.revive_left_time) || 0;
             const pos = posByTime[lastTime]?.[roleid];
             if (!pos) return;
 
@@ -3238,31 +3231,34 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             const img = loadImg(getHeroIconUrl(player.heroid));
 
             ctx.save();
+
             ctx.beginPath();
             ctx.arc(px, py, deathSize / 2 + 4, 0, Math.PI * 2);
             ctx.strokeStyle = isTeam1 ? '#3b82f6' : '#ef4444';
-            ctx.lineWidth = 3;
+            ctx.lineWidth = 2.8;
             ctx.stroke();
 
-            ctx.filter = 'grayscale(100%) brightness(0.75)';
+            ctx.filter = 'grayscale(100%) brightness(0.8)';
             ctx.drawImage(img, px - deathSize / 2, py - deathSize / 2, deathSize, deathSize);
 
-            // Revive timer
-            const revive = Math.ceil(parseFloat(player.revive_left_time) || 0);
             ctx.filter = 'none';
-            ctx.font = 'bold 17px Inter, sans-serif';
-            ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(revive > 0 ? revive : '✕', px, py);
+            ctx.shadowColor = '#000';
+            ctx.shadowBlur = 6;
+            ctx.font = 'bold 18px Inter, sans-serif';
+            ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
+
+            const displayText = reviveSeconds > 0 ? Math.ceil(reviveSeconds) : '✕';
+            ctx.fillText(displayText, px, py + 1);
 
             ctx.restore();
         });
     });
 
-    // Draw Towers
+    // ==================== 3. Draw Towers ====================
     processTowerEvents();
-    drawAllAliveTowers(ctx, width, false);   // false = main map
+    drawAllAliveTowers(ctx, width, false); // false = main map mode
 }
 
     function renderPlayersHorizontal() {
@@ -6016,20 +6012,7 @@ function updateUI() {
     if (pvpModal && !pvpModal.classList.contains('hidden')) {
         renderPlayerComparison();
     }
-
-    // Force all charts to resize on tablet
-        if (goldDiffChart) goldDiffChart.resize();
-        if (teamGoldDiffChart) teamGoldDiffChart.resize();
-        if (playerRankingChart) playerRankingChart.resize();
-
-        // ==================== MAP REDRAW FIX ====================
-    setTimeout(() => {
-        redrawMap();                    // Main map
-        if (!document.getElementById('mapModal').classList.contains('hidden')) {
-            renderMapModal();           // Modal map
-        }
-    }, 30);   // Small delay gives browser time to calculate layout
- }
+    }
 
 async function startAutoRefresh(battleId) {
     if (pollInterval) clearInterval(pollInterval);
