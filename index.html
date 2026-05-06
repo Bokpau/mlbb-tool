@@ -5174,36 +5174,61 @@ function renderTimeline() {
     }
 
     function updateTeamKillsDisplay() {
-    const team1 = apiData?.camp_list?.find(c => c.campid === 1);
-    const team2 = apiData?.camp_list?.find(c => c.campid === 2);
+    if (!apiData?.camp_list) return;
 
-    if (!team1 || !team2) return;
+    const camp1 = apiData.camp_list.find(c => c.campid === 1);
+    const camp2 = apiData.camp_list.find(c => c.campid === 2);
 
-    const score1 = team1.score || 0;
-    const score2 = team2.score || 0;
+    // ✅ ONLY CHANGED THIS LINE - use .score (correct field from realtime JSON)
+    const score1 = camp1?.score || 0;
+    const score2 = camp2?.score || 0;
 
-    // === ONLY UPDATE THE SCORE NUMBERS (nothing else) ===
-    const team1ScoreEl = document.querySelector('#team1Block .text-5xl, #team1Block .text-4xl');
-    if (team1ScoreEl) {
-        team1ScoreEl.textContent = score1;
+    const winner = apiData.win_camp;
+    const isEnd = (apiData.state || "").toLowerCase() === "end";
+
+    // ✅ update logos (unchanged)
+    const team1Block = document.getElementById('team1Block');
+    const team2Block = document.getElementById('team2Block');
+
+    if (team1Block) {
+        team1Block.innerHTML = getTeamLogoHTML(1);
     }
 
-    const team2ScoreEl = document.querySelector('#team2Block .text-5xl, #team2Block .text-4xl');
-    if (team2ScoreEl) {
-        team2ScoreEl.textContent = score2;
+    if (team2Block) {
+        team2Block.innerHTML = getTeamLogoHTML(2);
     }
 
-    // Optional center score (if you use it)
-    const centerScore = document.getElementById('scoreCenter');
-    if (centerScore) {
-        centerScore.innerHTML = `
+    // ✅ NEW: update score center
+    const center = document.getElementById('scoreCenter');
+    if (!center) return;
+
+    if (!isEnd || winner === 0) {
+        // NORMAL MODE
+        center.innerHTML = `
             <span class="score-blue">${score1}</span>
             <span class="vs">VS</span>
             <span class="score-red">${score2}</span>
         `;
+    } else {
+        // END GAME MODE
+        center.innerHTML = `
+            <span class="${winner === 1 ? 'victory' : 'defeat'}">
+                ${winner === 1 ? 'VICTORY' : 'DEFEAT'}
+            </span>
+
+            <span class="score-blue">${score1}</span>
+
+            <span class="vs">VS</span>
+
+            <span class="score-red">${score2}</span>
+
+            <span class="${winner === 2 ? 'victory' : 'defeat'}">
+                ${winner === 2 ? 'VICTORY' : 'DEFEAT'}
+            </span>
+        `;
     }
 
-    console.log(`📊 Score only updated → ${score1} - ${score2}`);
+    console.log(`✅ Score updated → ${score1} - ${score2}`);
 }
 
     function renderItemTimings() {
@@ -5717,7 +5742,6 @@ function updateUI() {
     preloadTeamLogos();
     updateGoldHistory();
     populatePlayerDropdowns();
-    updateTeamKillsDisplay();
     // ====================== ITEM TRACKING - ONLY CAMP 1 & CAMP 2 ======================
     if (apiData?.camp_list) {
         apiData.camp_list
@@ -5777,6 +5801,7 @@ function updateUI() {
                 });
             });
     }
+    updateTeamKillsDisplay();
     renderTeamComparisonHeader();
     renderTeamObjectives();
     renderTeamComparison();  
