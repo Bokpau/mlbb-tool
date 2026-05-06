@@ -863,6 +863,18 @@
                     <div id="team2Block" class="team-side red"></div>
                 </div>
             </div>
+
+            <div id="mapInfoHeader" class="flex items-center gap-2 mr-4">
+                <img id="mapIconHeader"
+                    src="./mapicon/0.png"
+                    alt="Map Icon"
+                    class="w-8 h-8 object-contain rounded-lg border border-slate-600">
+
+                <span id="mapNameHeader"
+                    class="text-sm font-semibold text-cyan-300 whitespace-nowrap">
+                    Default
+                </span>
+            </div>
         
             <!-- RIGHT CONTROLS -->
             <div class="flex items-center gap-4">
@@ -1332,6 +1344,14 @@
 
     let DEV_MODE = false;
 
+    const MAP_NAMES = {
+        0: 'Default',
+        1: 'Broken Walls',
+        2: 'Dangerous Grass',
+        3: 'Flying Cloud',
+        4: 'Expanding Rivers'
+    };
+
     function openDevLoginModal() {
         document.getElementById("devLoginModal").classList.remove("hidden");
     }
@@ -1606,11 +1626,32 @@
         ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
     }
 
+    const mapNameEl = document.getElementById("mapNameHeader");
+    const mapIconEl = document.getElementById("mapIconHeader");
+
+    if (mapNameEl) mapNameEl.textContent = "Default";
+    if (mapIconEl) mapIconEl.src = "./mapicon/0.png";
+
     // ======================
     // RESET BATTLE INPUT
     // ======================
 
     console.log("✅ FULL DEV RESET COMPLETE");
+}
+
+function updateMapHeader() {
+    if (!apiData) return;
+
+    const playModeId = apiData.play_mode_id ?? 0;
+
+    const mapName = MAP_NAMES[playModeId] || "Default";
+    const mapIconPath = `./mapicon/${playModeId}.png`;
+
+    const mapNameEl = document.getElementById("mapNameHeader");
+    const mapIconEl = document.getElementById("mapIconHeader");
+
+    if (mapNameEl) mapNameEl.textContent = mapName;
+    if (mapIconEl) mapIconEl.src = mapIconPath;
 }
 
     // ================= TEAM NAME =================
@@ -6270,6 +6311,7 @@ async function loadBattle() {
 
     // 🔥 FULL UI + DATA RESET
     fullDeveloperReset();
+    updateMapHeader();
     const battleId = document.getElementById('battleIdInput').value.trim();
     if (!battleId) return alert("Enter Battle ID");
     resetAllEventData();
