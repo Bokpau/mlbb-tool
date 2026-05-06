@@ -1098,6 +1098,7 @@
             </div>
 
             <!-- Close Button -->
+            <!-- Replace the entire button with this -->
             <button id="itemCloseBtn"
                     onclick="toggleItemTimingModal()"
                     class="px-6 py-2.5 bg-slate-800 hover:bg-red-600 hover:text-white transition-all rounded-2xl text-sm font-medium flex items-center gap-2 active:scale-95">
@@ -6275,15 +6276,6 @@ window.onload = () => {
             }
         }
     };
-
-    // Force X button to work immediately
-    const itemCloseBtn = document.getElementById('itemCloseBtn');
-    if (itemCloseBtn) {
-        itemCloseBtn.addEventListener('click', function(e) {
-            e.stopImmediatePropagation();
-            toggleItemTimingModal();
-        });
-    }
 
     window.toggleLiveData = function () {
         showLiveData = !showLiveData;
