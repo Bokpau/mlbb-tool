@@ -954,22 +954,6 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     .player-row { font-size: 11.5px !important; padding: 5px 8px !important; }
     #mapBox { min-height: 220px !important; max-height: 220px !important; }
 }
-
-/* EXTRA FIXES FOR PERFECT MATCH */
-.scoreboard { max-width: 420px; }
-#teamComparisonHeader { height: 68px !important; }
-#playerRankingContainer .team-comp-header { height: 68px !important; }
-
-.player-row {
-    grid-template-columns: 48px 1fr auto 1fr !important;
-    gap: 12px;
-}
-
-.container-box {
-    border-radius: 20px;
-    border: 2px solid #334155;
-    background: #1a2332;
-}
     </style>
 </head>
 <body>
@@ -1005,28 +989,73 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     
     <div>
         <!-- Header -->
-        <div class="flex flex-col lg:flex-row gap-3 lg:gap-4 justify-between items-center mb-3 bg-slate-900 border border-slate-700 rounded-3xl px-4 lg:px-6 py-3 flex-shrink-0">
-        <!-- TITLE -->
-        <h1 class="text-xl lg:text-2xl font-bold tracking-tight">MLBB Live Tracker by the BOK</h1>
+        <div class="flex flex-col xl:flex-row gap-3 xl:gap-3 lg:gap-4 justify-between xl:items-center mb-3 bg-slate-900 border border-slate-700 rounded-3xl px-3 lg:px-6 py-3 flex-shrink-0">
 
-        <!-- SCORE -->
-        <div id="teamKillsDisplay" class="flex items-center justify-center">
-            <div class="scoreboard"></div>
-        </div>
-
-        <!-- RIGHT SIDE -->
-        <div class="flex flex-wrap items-center gap-2 lg:gap-3">
-            <input id="battleIdInput" type="text" placeholder="Battle ID" class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-2 w-52 focus:outline-none focus:border-cyan-400 text-sm">
+            <!-- TITLE -->
+            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-center xl:text-left">
+                MLBB Live Tracker by the BOK
+            </h1>
+        
+            <!-- TEAM KILLS -->
+            <div id="teamKillsDisplay" class="w-full flex items-center justify-center">
+                <div class="scoreboard">
+                    <div id="team1Block" class="team-side blue"></div>
             
-            <button onclick="loadBattle()" class="px-5 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-sm font-medium">Load</button>
+                    <div class="score-center">
+                        <div id="scoreCenter" class="score-center"></div>
+                    </div>
             
-            <button onclick="toggleDraftModal()" class="px-5 py-2 bg-slate-800 hover:bg-slate-700 rounded-xl text-sm font-medium">Draft</button>
-            <button onclick="togglePlayerCompareModal()" class="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 rounded-xl text-sm font-medium">PvP</button>
-            <button onclick="toggleGoldDistributionModal()" class="px-5 py-2 bg-yellow-500 hover:bg-yellow-400 rounded-xl text-sm font-medium">Gold Source</button>
-            <button onclick="toggleMapModal()" class="px-5 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-sm font-medium">Map</button>
-            <button onclick="toggleItemTimingModal()" class="px-5 py-2 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-sm font-medium">Items</button>
+                    <div id="team2Block" class="team-side red"></div>
+                </div>
+            </div>
+        
+            <!-- RIGHT CONTROLS -->
+            <div class="flex flex-col lg:flex-row items-center gap-3 w-full xl:w-auto">
+        
+                <!-- STATUS -->
+                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-3 lg:px-3 lg:px-4 py-1.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2">
+                    <span id="stateName">READY</span>
+                    <span id="stateTimer" class="font-mono"></span>
+                </div>
+                <!-- INPUT + ACTIONS -->
+                <div class="flex flex-wrap items-center justify-center xl:justify-end gap-2 w-full">
+        
+                    <input id="battleIdInput"
+                        type="text"
+                        placeholder="Battle ID"
+                        class="bg-slate-800 border border-slate-600 rounded-2xl px-3 lg:px-4 py-1.5 w-full sm:w-56 focus:outline-none focus:border-cyan-400 text-[11px] sm:text-xs">
+        
+                    <button onclick="loadBattle()"
+                        class="px-3 lg:px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        Load
+                    </button>
+        
+                    <button onclick="toggleDraftModal()"
+                        class="px-3 lg:px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-[11px] sm:text-xs font-medium">
+                        Draft
+                    </button>
+        
+                    <button onclick="togglePlayerCompareModal()"
+                        class="px-3 lg:px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-[11px] sm:text-xs font-medium">
+                        PvP
+                    </button>
+                    <button onclick="toggleGoldDistributionModal()"
+                        class="px-3 lg:px-4 py-1.5bg-yellow-500 hover:bg-yellow-400 rounded-xl text-[11px] sm:text-xs font-medium">
+                        Gold Source
+                    </button>
+                    <button onclick="toggleMapModal()"
+                        class="px-3 lg:px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        Map
+                    </button>
+                    <button onclick="toggleItemTimingModal()"
+                        class="px-3 lg:px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        Items
+                    </button>
+        
+                </div>
+        
+            </div>
         </div>
-    </div>
 
         <div class="main-dashboard-wrapper flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-visible lg:overflow-hidden min-h-0">
            <!-- LEFT COLUMN -->
@@ -1668,13 +1697,10 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     function updateStatusBar() {
         if (!apiData) return;
 
-            // Safe status update
         const stateInfo = getStateInfo();
-        const stateNameEl = document.getElementById('stateName');
-        const stateTimerEl = document.getElementById('stateTimer');
-        
-        if (stateNameEl) stateNameEl.textContent = stateInfo.label;
-        if (stateTimerEl) stateTimerEl.textContent = stateInfo.time;
+
+        document.getElementById('stateName').textContent = stateInfo.label;
+        document.getElementById('stateTimer').textContent = stateInfo.time;
     }
 
     function getStateInfo() {
@@ -5847,28 +5873,6 @@ function renderTimeline() {
             </div>
         `;
     }
-
-    function getStateInfo() {
-        if (!apiData) return { label: "READY", time: "" };
-        
-        const state = (apiData.state || "").toLowerCase();
-        let label = "PLAYING";
-        let time = "";
-
-        if (state === "end") {
-            label = "ENDED";
-        } else if (state === "pause") {
-            label = "PAUSED";
-        }
-
-        if (apiData.game_time) {
-            const min = Math.floor(apiData.game_time / 60);
-            const sec = (apiData.game_time % 60).toString().padStart(2, '0');
-            time = `${min}:${sec}`;
-        }
-
-        return { label, time };
-    }
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
     const camp1 = apiData.camp_list?.find(c => c.campid === 1);
@@ -6090,7 +6094,6 @@ async function startAutoRefresh(battleId) {
 async function loadBattle() {
     const battleId = document.getElementById('battleIdInput').value.trim();
     if (!battleId) return alert("Enter Battle ID");
-
     resetAllEventData();
     goldDiffHistory = []; 
     teamGoldHistory.clear(); 
@@ -6099,33 +6102,23 @@ async function loadBattle() {
     allItemEvents.clear();
 
     try {
-        const res = await fetch(`/api/mlbb?battleId=${battleId}`);
+        const res = await fetch(`/api/mlbb?battleId=${battleId}`)
         const json = await res.json();
         if (!json.data) throw new Error("No data");
 
         apiData = json.data;
-
-        // Safe hero mapping
         heroMap = {};
-        if (apiData.camp_list) {
-            apiData.camp_list.forEach(camp => {
-                if (camp.player_list) {
-                    camp.player_list.forEach(p => {
-                        if (p.roleid && p.heroid) {
-                            heroMap[p.roleid] = p.heroid;
-                        }
-                    });
-                }
+        apiData.camp_list.forEach(camp => {
+            camp.player_list.forEach(p => {
+                heroMap[p.roleid] = p.heroid;
             });
-        }
+        });
 
         preloadTeamLogos();
         lastTime = apiData.game_time || 0;
         extractPositions(apiData, lastTime);
         prevItemsMap.clear();
         processEvents();
-        
-        // Safe UI updates
         updateStatusBar();
         initAllTowers();
         createPlayerRankingChart();
@@ -6133,14 +6126,10 @@ async function loadBattle() {
         createTeamGoldDiffChart();
         updateGoldHistory();
         updateUI();
+        processEvents();
         updateTeamKillsDisplay(); 
-        
         startAutoRefresh(battleId);
-        
-        console.log("✅ Battle loaded successfully");
-        
     } catch (e) { 
-        console.error("Load error:", e);
         alert("Failed to load: " + e.message); 
     }
 }
