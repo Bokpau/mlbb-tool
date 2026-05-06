@@ -1390,9 +1390,13 @@
     function enableDevMode() {
         DEV_MODE = true;
 
+        resetAllEventData();
+
+        document.getElementById("battleIdInput").value = "";
+
         document.getElementById("devControls").classList.remove("hidden");
 
-        console.log("🛠 Developer Mode Activated");
+        console.log("🛠 Developer Mode Activated - Full reset complete");
     }
 
     function disableDevMode() {
