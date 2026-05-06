@@ -914,9 +914,9 @@
             </div>
         </div>
 
-        <div class="flex-1 grid grid-cols-12 gap-x-1 gap-y-4">
+        <div class="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-hidden min-h-0">
            <!-- LEFT COLUMN -->
-           <div class="col-span-5 flex flex-col gap-4">
+           <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
             <div id="statsContainer" class="container-box h-[440px]">
                 <div id="players-container" class="flex-1 space-y-1 overflow-y-auto h-full p-3"></div>
             </div>
@@ -953,7 +953,7 @@
             </div>
         </div>
         <!-- CENTER COLUMN -->
-        <div class="col-span-5 flex flex-col gap-4">
+        <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
 
            <!-- 🔥 TOP: TEAM COMPARISON + PLAYER RANKINGS - HEIGHT ADJUSTED -->
             <div class="grid grid-cols-2 gap-4 h-[440px]">
@@ -1030,7 +1030,7 @@
             </div>
         </div>
         <!-- RIGHT COLUMN -->
-        <div class="col-span-2 flex flex-col">
+        <div class="lg:col-span-2 flex flex-col min-h-0">
             <div id="mapBox">
                 <img id="mapImg" src="./Maps/Map_0.png" class="w-full h-full object-contain">
                 <canvas id="eventCanvas"></canvas>
