@@ -2871,20 +2871,31 @@
         console.warn(`⚠️ Tower key not found: ${key} | Original: "${towerName}"`);
     }
 
-    function isTowerAlive(campId, towerName) {
-        if (!towerName) return false;
-        const normalized = normalizeTowerName(towerName);
-        const key = `${campId}_${normalized}`;
+    function isTowerAlive(campId, towerKey) {
+    if (!towerKey) return false;
 
-        if (activeTowers[key] !== undefined) return activeTowers[key] !== false;
+    const normalized = normalizeTowerName(towerKey);
+    const exactKey = `${campId}_${normalized}`;
 
-        for (const existingKey in activeTowers) {
-        if (existingKey.startsWith(`${campId}_`) && existingKey.includes(normalized)) {
-            return activeTowers[existingKey] !== false;
-        }
-        }
-        return false;
+    // Direct exact match (most common)
+    if (activeTowers[exactKey] !== undefined) {
+        const alive = activeTowers[exactKey] !== false;
+        console.log(`Tower check: ${exactKey} → ${alive ? '✅ ALIVE' : '❌ DESTROYED'}`);
+        return alive;
     }
+
+    // Fallback: partial match (handles different naming from API)
+    for (const key in activeTowers) {
+        if (key.startsWith(`${campId}_`) && key.includes(normalized)) {
+            const alive = activeTowers[key] !== false;
+            console.log(`Tower partial match: ${key} → ${alive ? '✅ ALIVE' : '❌ DESTROYED'}`);
+            return alive;
+        }
+    }
+
+    console.log(`⚠️ Tower not found in activeTowers: ${exactKey} (original key: ${towerKey})`);
+    return false;
+}
 
     function processTowerEvents() {
         if (!apiData?.incre_event_list) return;
@@ -2899,44 +2910,57 @@
 
     // Replace your existing drawAllAliveTowers() with this improved version
     function drawAllAliveTowers(ctx, canvasSize, isModal = false) {
-        if (!ctx || !canvasSize) return;
-        console.log(`🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers).length}`);
-        const towerNames = Object.keys(TOWER_COORDS);
-        const scaleFactor = isModal ? 1.8 : 1;   // bigger icons in modal
+    if (!ctx || !canvasSize) return;
 
-        [1, 2].forEach(owningCamp => {
-            towerNames.forEach(towerKey => {
-                if (!isTowerAlive(owningCamp, towerKey)) return;
+    const towerNames = Object.keys(TOWER_COORDS);
+    const scaleFactor = isModal ? 1.8 : 1.0;
+    let drawnCount = 0;
 
-                const coords = TOWER_COORDS[towerKey][owningCamp];
-                if (!coords) return;
+    console.log(`🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers).length}`);
 
-                const px = toPx(coords.x, false, canvasSize);
-                const py = toPx(coords.y, true, canvasSize);
+    [1, 2].forEach(owningCamp => {
+        towerNames.forEach(towerKey => {
+            if (!isTowerAlive(owningCamp, towerKey)) return;
 
-                const baseSize = ICON_SIZE_BASE.tower || 12;
-                const sizeScale = Math.max(14, canvasSize * 0.032 * scaleFactor);
+            const coords = TOWER_COORDS[towerKey][owningCamp];
+            if (!coords) return;
 
-                const url = CUSTOM_ICONS.tower[owningCamp];
-                if (!url) return;
+            const px = toPx(coords.x, false, canvasSize);
+            const py = toPx(coords.y, true, canvasSize);
 
+            const sizeScale = Math.max(14, canvasSize * 0.032 * scaleFactor);
+
+            const url = CUSTOM_ICONS.tower?.[owningCamp];
+            if (url) {
                 const img = loadImg(url);
-
-                const drawTower = () => {
+                if (img.complete && img.naturalWidth > 0) {
                     ctx.save();
                     ctx.globalAlpha = isModal ? 0.98 : 0.95;
                     ctx.drawImage(img, px - sizeScale/2, py - sizeScale/2, sizeScale, sizeScale);
                     ctx.restore();
-                };
-
-                if (img.complete && img.naturalWidth !== 0) {
-                    drawTower();
-                } else {
-                    img.onload = drawTower;
+                    drawnCount++;
+                    return;
                 }
-            });
+            }
+
+            // Fallback visible circle (so we can confirm position even if image fails)
+            ctx.save();
+            ctx.globalAlpha = 0.85;
+            ctx.fillStyle = owningCamp === 1 ? '#60a5fa' : '#f87171';
+            ctx.beginPath();
+            ctx.arc(px, py, sizeScale / 2, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+            ctx.restore();
+
+            drawnCount++;
         });
-    }
+    });
+
+    console.log(`✅ Towers successfully drawn: ${drawnCount}`);
+}
 
 
     const loadImg = src => { if (IMG_CACHE[src]) return IMG_CACHE[src]; const img = new Image(); img.src = src; IMG_CACHE[src] = img; return img; };
