@@ -227,22 +227,20 @@
         }
 
         /* ========================= 🎮 SCOREBOARD CONTAINER ========================= */
-        .scoreboard {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
+        .scoreboard{
+            width: min(32vw, 420px);
 
-            width: 420px;
-            height: 60px;
+            min-width: 220px;
 
-            padding: 6px 14px;
+            height: clamp(42px, 5vh, 60px);
 
-            background: #0b1220;
-            border-radius: 16px;
+            padding: clamp(4px,0.5vw,10px);
 
-            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: clamp(10px,1vw,16px);
 
-            box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+            gap: clamp(4px,0.5vw,10px);
+
+            flex-shrink: 1;
         }
         .team-side {
             display: flex;
@@ -940,6 +938,30 @@
             }
 
         }
+
+        @media (max-width: 1200px){
+
+            .scoreboard{
+                width: 260px;
+            }
+
+            .score-blue,
+            .score-red{
+                font-size: 16px;
+            }
+
+            .victory,
+            .defeat{
+                font-size: 10px;
+            }
+
+            #teamKillsDisplay{
+                order:3;
+                width:100%;
+                justify-content:center;
+            }
+
+        }
     </style>
 </head>
 <body>
@@ -976,15 +998,35 @@
         <body>
     <div>
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6 bg-slate-900 border border-slate-700 rounded-3xl px-6 py-3 flex-shrink-0">
+        <div class="
+            flex flex-wrap items-center justify-between
+            gap-3
+
+            mb-3
+
+            bg-slate-900
+            border border-slate-700
+
+            rounded-[clamp(12px,1vw,24px)]
+
+            px-[clamp(8px,1vw,24px)]
+            py-[clamp(6px,0.8vw,14px)]
+
+            flex-shrink-0
+        ">
 
             <!-- TITLE -->
-            <h1 class="text-2xl font-bold tracking-tight">
+            <h1 class="
+                text-[clamp(16px,1.3vw,28px)]
+                font-bold
+                tracking-tight
+                whitespace-nowrap
+            ">
                 MLBB Live Tracker by the BOK
             </h1>
         
             <!-- TEAM KILLS -->
-            <div id="teamKillsDisplay" class="w-full flex items-center justify-center">
+            <div id="teamKillsDisplay" class="flex items-center justify-center flex-1 min-w-[220px]">
                 <div class="scoreboard">
                     <div id="team1Block" class="team-side blue"></div>
             
@@ -997,10 +1039,10 @@
             </div>
         
             <!-- RIGHT CONTROLS -->
-            <div class="flex items-center gap-4">
+            <div class="flex flex-wrap items-center justify-end gap-2 min-w-0">
         
                 <!-- STATUS -->
-                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-4 py-1.5 rounded-2xl text-sm font-bold flex items-center gap-2">
+                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] rounded-2xl text-sm font-bold flex items-center gap-2">
                     <span id="stateName">READY</span>
                     <span id="stateTimer" class="font-mono"></span>
                 </div>
@@ -1010,32 +1052,32 @@
                     <input id="battleIdInput"
                         type="text"
                         placeholder="Battle ID"
-                        class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-1.5 w-56 focus:outline-none focus:border-cyan-400 text-xs">
+                        class="bg-slate-800 border border-slate-600 rounded-2xl px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] w-[clamp(120px,12vw,220px)] focus:outline-none focus:border-cyan-400 text-xs">
         
                     <button onclick="loadBattle()"
-                        class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-medium">
                         Load
                     </button>
         
                     <button onclick="toggleDraftModal()"
-                        class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium">
                         Draft
                     </button>
         
                     <button onclick="togglePlayerCompareModal()"
-                        class="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-xs font-medium">
                         PvP
                     </button>
                     <button onclick="toggleGoldDistributionModal()"
-                        class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-400 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-yellow-500 hover:bg-yellow-400 rounded-xl text-xs font-medium">
                         Gold Source
                     </button>
                     <button onclick="toggleMapModal()"
-                        class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
                         Map
                     </button>
                     <button onclick="toggleItemTimingModal()"
-                        class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
+                        class="px-[clamp(8px,0.8vw,16px)] py-[clamp(4px,0.5vw,8px)] bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
                         Items
                     </button>
         
@@ -1086,7 +1128,7 @@
         <div class="col-span-5 flex flex-col gap-4">
 
            <!-- 🔥 TOP: TEAM COMPARISON + PLAYER RANKINGS - HEIGHT ADJUSTED -->
-            <div class="grid grid-cols-2 gap-4 h-[440px]">
+            <div class="grid grid-cols-2 gap-4 flex-1 min-h-0">
 
                 <!-- TEAM COMPARISON - Adjusted Header Height -->
                 <div id="teamChartContainer" class="container-box flex flex-col">
