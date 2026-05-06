@@ -5177,48 +5177,33 @@ function renderTimeline() {
     const team1 = apiData?.camp_list?.find(c => c.campid === 1);
     const team2 = apiData?.camp_list?.find(c => c.campid === 2);
 
-    if (!team1 || !team2) {
-        console.warn("Team data not found");
-        return;
+    if (!team1 || !team2) return;
+
+    const score1 = team1.score || 0;
+    const score2 = team2.score || 0;
+
+    // === ONLY UPDATE THE SCORE NUMBERS (nothing else) ===
+    const team1ScoreEl = document.querySelector('#team1Block .text-5xl, #team1Block .text-4xl');
+    if (team1ScoreEl) {
+        team1ScoreEl.textContent = score1;
     }
 
-    // === TEAM 1 (Blue - Left) ===
-    const team1Block = document.getElementById('team1Block');
-    if (team1Block) {
-        team1Block.innerHTML = `
-            <div class="team-side">
-                <div class="team-block-vertical">
-                    <div class="team-logo">
-                        <img src="./logos/RORA.png" alt="RORA">
-                    </div>
-                    <div class="team-name">RORA</div>
-                </div>
-                <div class="text-5xl font-black text-blue-400 tabular-nums leading-none" style="text-shadow: 0 4px 12px #3b82f6;">
-                    ${team1.score}
-                </div>
-            </div>
+    const team2ScoreEl = document.querySelector('#team2Block .text-5xl, #team2Block .text-4xl');
+    if (team2ScoreEl) {
+        team2ScoreEl.textContent = score2;
+    }
+
+    // Optional center score (if you use it)
+    const centerScore = document.getElementById('scoreCenter');
+    if (centerScore) {
+        centerScore.innerHTML = `
+            <span class="score-blue">${score1}</span>
+            <span class="vs">VS</span>
+            <span class="score-red">${score2}</span>
         `;
     }
 
-    // === TEAM 2 (Red - Right) ===
-    const team2Block = document.getElementById('team2Block');
-    if (team2Block) {
-        team2Block.innerHTML = `
-            <div class="team-side">
-                <div class="text-5xl font-black text-red-400 tabular-nums leading-none" style="text-shadow: 0 4px 12px #ef4444;">
-                    ${team2.score}
-                </div>
-                <div class="team-block-vertical">
-                    <div class="team-logo">
-                        <img src="./logos/TWIS.png" alt="TWIS">
-                    </div>
-                    <div class="team-name">TWIS</div>
-                </div>
-            </div>
-        `;
-    }
-
-    console.log(`📊 Scoreboard Updated → ${team1.score} - ${team2.score}`);
+    console.log(`📊 Score only updated → ${score1} - ${score2}`);
 }
 
     function renderItemTimings() {
