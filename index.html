@@ -1090,8 +1090,8 @@
 
         <div class="border border-slate-800 rounded-3xl w-full max-w-[1950px] h-[94vh] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)]">
 
-        <!-- HEADER - Updated with z-index fix -->
-        <div class="flex items-center justify-between px-8 py-5 border-b border-slate-700 bg-slate-900 relative z-20">
+        <!-- HEADER -->
+        <div class="flex items-center justify-between px-8 py-5 border-b border-slate-700 bg-slate-900">
             <div class="flex items-center gap-4">
                 <i class="fa-solid fa-clock text-yellow-400 text-2xl"></i>
                 <h2 class="text-xl font-bold text-white tracking-tight">ITEM PROGRESSION</h2>
@@ -1109,6 +1109,13 @@
         <!-- CANVAS AREA -->
         <div class="flex-1 p-6">
             <canvas id="itemTimingCanvas" class="w-full h-full rounded-2xl"></canvas>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="px-8 py-3 text-xs text-slate-500 border-t border-slate-700 bg-slate-900 flex justify-between">
+            <div>Blue Team • Top | Red Team • Bottom</div>
+            <div>Items appear when purchased • Updated live</div>
+        </div>
         </div>
     </div>
     <div id="mapModal" 
@@ -6230,26 +6237,45 @@ window.onload = () => {
         }
     };
 
-    // ==================== CLEAN MODAL TOGGLES ====================
     window.toggleMapModal = function () {
         const modal = document.getElementById('mapModal');
-        if (!modal) return;
-        modal.classList.toggle('hidden');
-    };
-
-    window.toggleItemTimingModal = function () {
-        const modal = document.getElementById('itemTimingModal');
         if (!modal) return;
 
         modal.classList.toggle('hidden');
 
         if (!modal.classList.contains('hidden')) {
-            // Modal opened
-            setTimeout(() => {
-                if (typeof renderItemTimings === 'function') renderItemTimings();
-            }, 50);
+            if (typeof resizeMapModalCanvas === 'function') resizeMapModalCanvas();
+            if (typeof redrawMapModal === 'function') redrawMapModal();
         }
     };
+
+   window.toggleItemTimingModal = function () {
+    const modal = document.getElementById('itemTimingModal');
+    if (!modal) return;
+
+    modal.classList.toggle('hidden');
+
+    if (modal.classList.contains('hidden')) {
+        // Closed
+        if (window.itemTimingInterval) {
+            clearInterval(window.itemTimingInterval);
+            window.itemTimingInterval = null;
+        }
+    } else {
+        // Opened
+        if (typeof renderItemTimings === 'function') {
+            setTimeout(renderItemTimings, 100);
+        }
+        if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
+        window.itemTimingInterval = setInterval(() => {
+            if (!modal.classList.contains('hidden') && typeof renderItemTimings === 'function') {
+                renderItemTimings();
+            }
+        }, 1500);
+    }
+
+    modal.classList.toggle('hidden');
+};
 
     window.toggleLiveData = function () {
         showLiveData = !showLiveData;
@@ -6357,6 +6383,17 @@ window.onload = () => {
     });
     window.renderDraftModal = renderDraftModal;
     window.renderItemTimings = renderItemTimings;
+
+    // Force close button to work reliably
+    document.addEventListener('DOMContentLoaded', function() {
+        const closeBtn = document.getElementById('itemCloseBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+                e.stopImmediatePropagation();
+                toggleItemTimingModal();
+            });
+        }
+    });
 
 </script>
 </body>
