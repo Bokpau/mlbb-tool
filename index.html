@@ -1390,13 +1390,29 @@
     function enableDevMode() {
         DEV_MODE = true;
 
-        resetAllEventData();
+        // 🔥 STOP ALL ACTIVE POLLING
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
 
-        document.getElementById("battleIdInput").value = "";
+        if (draftInterval) {
+            clearInterval(draftInterval);
+            draftInterval = null;
+        }
 
+        if (mapModalInterval) {
+            clearInterval(mapModalInterval);
+            mapModalInterval = null;
+        }
+
+        // 🔥 FULL RESET
+        fullDeveloperReset();
+
+        // 🔥 Show developer controls
         document.getElementById("devControls").classList.remove("hidden");
 
-        console.log("🛠 Developer Mode Activated - Full reset complete");
+        console.log("🛠 Developer Mode Activated - All polling stopped");
     }
 
     function disableDevMode() {
@@ -1461,6 +1477,82 @@
         }
 
         console.log("✅ Full reset completed - old battle data cleared");
+    }
+
+    function fullDeveloperReset() {
+        console.log("🔥 FULL DEV RESET START");
+
+        // Core reset
+        resetAllEventData();
+
+        // ======================
+        // TEAM LOGOS
+        // ======================
+        Object.keys(TEAM_LOGOS).forEach(key => delete TEAM_LOGOS[key]);
+
+        // ======================
+        // ACTIVE TOWERS
+        // ======================
+        activeTowers = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TOWERS));
+
+        // ======================
+        // PLAYER FILTER DROPDOWNS
+        // ======================
+        const p1 = document.getElementById("player1Select");
+        const p2 = document.getElementById("player2Select");
+
+        if (p1) {
+            p1.innerHTML = "";
+            delete p1.dataset.loaded;
+        }
+
+        if (p2) {
+            p2.innerHTML = "";
+            delete p2.dataset.loaded;
+        }
+
+        selectedPlayer1 = null;
+        selectedPlayer2 = null;
+
+        // ======================
+        // SCOREBOARD UI
+        // ======================
+        document.getElementById("team1Block").innerHTML = "";
+        document.getElementById("team2Block").innerHTML = "";
+        document.getElementById("scoreCenter").innerHTML = "";
+
+        // ======================
+        // TEAM COMPARISON UI
+        // ======================
+        document.getElementById("tcTeam1").innerHTML = "";
+        document.getElementById("tcTeam2").innerHTML = "";
+        document.getElementById("tcObjectives").innerHTML = "";
+        document.getElementById("teamComparisonContent").innerHTML = "";
+
+        // ======================
+        // PLAYER STATS
+        // ======================
+        document.getElementById("players-container").innerHTML = "";
+
+        // ======================
+        // TIMELINE
+        // ======================
+        document.getElementById("timelineContainer").innerHTML = "";
+
+        // ======================
+        // BATTLE INPUT
+        // ======================
+        document.getElementById("battleIdInput").value = "";
+
+        // ======================
+        // STOP AUTO BATTLE IMMEDIATELY
+        // ======================
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+
+        console.log("✅ FULL DEV RESET COMPLETE");
     }
 
     // ================= TEAM NAME =================
