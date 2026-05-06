@@ -1645,7 +1645,7 @@ function updateMapHeader() {
     const playModeId = apiData.play_mode_id ?? 0;
 
     const mapName = MAP_NAMES[playModeId] || "Default";
-    const mapIconPath = `./mapicon/${playModeId}.png`;
+    const mapIconPath = `./Maps/MAP_${playModeId}.png`;
 
     const mapNameEl = document.getElementById("mapNameHeader");
     const mapIconEl = document.getElementById("mapIconHeader");
