@@ -3898,18 +3898,20 @@
             {
                 id: 'objectiveIcons',
                 afterDatasetsDraw(chart) {
-                    if (!chart.data.labels?.length || !apiData) return;
+                    if (!chart.data.labels.length || !apiData) return;
 
                     const { ctx, scales: { x }, chartArea } = chart;
                     const h = chartArea.bottom - chartArea.top;
 
-                    // Positions - Top for Team 1, Bottom for Team 2
-                    const objY1 = chartArea.top + h * 0.09;   // Blue team objectives
-                    const objY2 = chartArea.top + h * 0.91;   // Red team objectives
+                    // Position adjustments
+                    const objY1   = chartArea.top + h * 0.08;     // Team 1 (Blue)
+                    const killY1  = chartArea.top + h * 0.28;
+                    const objY2   = chartArea.top + h * 0.92;     // Team 2 (Red)
+                    const killY2  = chartArea.top + h * 0.72;
 
                     const drawn = new Set();
 
-                    // Use BOTH event lists (most reliable)
+                    // ====================== OBJECTIVES (Lord / Turtle / Tower) ======================
                     const allEvents = [
                         ...(apiData.incre_event_list || []),
                         ...(apiData.event_list || [])
@@ -3921,25 +3923,25 @@
                         let type = null;
                         let camp = null;
 
-                        // Detect Lord / Turtle
-                        if (ev.event_type === 'kill_boss') {
-                            if (ev.boss_name === 'lord') type = 'kill_lord';
-                            else if (ev.boss_name === 'tortoise') type = 'kill_turtle';
+                        // ────── IMPROVED DATA PULLING ──────
+                        if (ev.event_type === "kill_boss") {
+                            if (ev.boss_name === "lord") type = "kill_lord";
+                            else if (ev.boss_name === "tortoise" || ev.boss_name === "turtle") type = "kill_turtle";
                             camp = ev.killer_camp || ev.camp;
                         } 
-                        // Detect Tower
-                        else if (ev.event_type === 'kill_tower' || ev.event_type === 'camp_kill_tower') {
-                            type = 'kill_tower';
+                        else if (ev.event_type === "kill_tower" || 
+                                ev.event_type === "camp_kill_tower") {
+                            type = "kill_tower";
                             camp = ev.killer_camp || ev.camp;
                         }
 
                         if (!type || !camp) return;
+                        // ───────────────────────────────────
 
                         const key = `${ev.game_time}_${type}_${camp}`;
                         if (drawn.has(key)) return;
                         drawn.add(key);
 
-                        // Find X position
                         let idx = chart.data.labels.findIndex(label => {
                             const [min, sec] = label.split(':').map(Number);
                             return (min * 60 + sec) >= ev.game_time;
@@ -3950,7 +3952,6 @@
                         const xPos = x.getPixelForValue(idx);
                         const yPos = camp === 1 ? objY1 : objY2;
 
-                        // Choose correct icon
                         let src = '';
                         if (type === 'kill_lord') {
                             src = camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
@@ -3966,9 +3967,38 @@
                         ctx.globalAlpha = 1.0;
                         ctx.shadowColor = 'rgba(0,0,0,0.8)';
                         ctx.shadowBlur = 8;
-                        drawIconIfReady(ctx, img, xPos, yPos, 26);   // Bigger for team chart
+                        drawIconIfReady(ctx, img, xPos, yPos, 26);
                         ctx.restore();
                     });
+
+                    // ====================== KILL EVENTS (optional but kept for consistency) ======================
+                    allKillEvents
+                        .filter(ev => ev.type === 'kill_hero' && ev.time <= (apiData.game_time || 0))
+                        .forEach(ev => {
+                            const key = `${ev.time}_kill_${ev.camp}`;
+                            if (drawn.has(key)) return;
+                            drawn.add(key);
+
+                            let idx = chart.data.labels.findIndex(l => {
+                                const [m, s] = l.split(':').map(Number);
+                                return m * 60 + s >= ev.time;
+                            });
+
+                            if (idx === -1) return;
+
+                            const xPos = x.getPixelForValue(idx);
+                            const yPos = ev.camp === 1 ? killY1 : killY2;
+
+                            const imgSrc = ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png';
+                            const img = loadImg(imgSrc);
+
+                            ctx.save();
+                            ctx.globalAlpha = 0.85;
+                            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                            ctx.shadowBlur = 5;
+                            drawIconIfReady(ctx, img, xPos, yPos, 18);
+                            ctx.restore();
+                        });
                 }
             }
         ]
