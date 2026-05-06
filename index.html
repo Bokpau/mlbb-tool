@@ -902,10 +902,9 @@
                         class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
                         Map
                     </button>
-                    <button onclick="toggleItemTimingModal()" 
-                            class="px-6 py-2.5 bg-slate-800 hover:bg-red-600 hover:text-white transition-all rounded-2xl text-sm font-medium flex items-center gap-2 active:scale-95">
-                        <i class="fa-solid fa-xmark text-lg"></i>
-                        <span>Close</span>
+                    <button onclick="toggleItemTimingModal()"
+                        class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
+                        Items
                     </button>
         
                 </div>
@@ -1099,10 +1098,10 @@
             </div>
 
             <!-- Close Button -->
-            <button onclick="toggleItemTimingModal()" 
-                    class="px-6 py-2.5 bg-slate-800 hover:bg-red-600 hover:text-white transition-all rounded-2xl text-sm font-medium flex items-center gap-2">
-                <i class="fa-solid fa-xmark"></i>
-                <span>Close (ESC)</span>
+            <button id="itemCloseBtn"
+                    class="px-6 py-2.5 bg-slate-800 hover:bg-red-600 hover:text-white transition-all rounded-2xl text-sm font-medium flex items-center gap-2 active:scale-95">
+                <i class="fa-solid fa-xmark text-lg"></i>
+                <span>Close</span>
             </button>
         </div>
 
@@ -6253,22 +6252,20 @@ window.onload = () => {
     const modal = document.getElementById('itemTimingModal');
     if (!modal) return;
 
-    const isHidden = modal.classList.contains('hidden');
+    modal.classList.toggle('hidden');
 
-    if (!isHidden) {
-        // Closing
+    if (modal.classList.contains('hidden')) {
+        // Closed
         if (window.itemTimingInterval) {
             clearInterval(window.itemTimingInterval);
             window.itemTimingInterval = null;
         }
     } else {
-        // Opening
+        // Opened
         if (typeof renderItemTimings === 'function') {
-            setTimeout(renderItemTimings, 80);
+            setTimeout(renderItemTimings, 100);
         }
-
         if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
-
         window.itemTimingInterval = setInterval(() => {
             if (!modal.classList.contains('hidden') && typeof renderItemTimings === 'function') {
                 renderItemTimings();
@@ -6385,6 +6382,17 @@ window.onload = () => {
     });
     window.renderDraftModal = renderDraftModal;
     window.renderItemTimings = renderItemTimings;
+
+    // Force close button to work reliably
+    document.addEventListener('DOMContentLoaded', function() {
+        const closeBtn = document.getElementById('itemCloseBtn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function(e) {
+                e.stopImmediatePropagation();
+                toggleItemTimingModal();
+            });
+        }
+    });
 
 </script>
 </body>
