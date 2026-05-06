@@ -595,11 +595,12 @@
             position: relative;
             width: 100%;
             aspect-ratio: 1 / 1;
-            min-height: 260px;           /* ← Add this */
+            min-height: 280px !important;     /* Prevents zero height */
             overflow: hidden;
             border-radius: 20px;
             border: 5px solid #334155;
             background: #111827;
+            flex-shrink: 0;
         }
 
         #mapBox canvas {
@@ -3162,41 +3163,44 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     const mapBox = document.getElementById('mapBox');
     if (!mapBox || !apiData) return;
 
-    // 🔥 Force layout calculation first
-    mapBox.offsetHeight;   // This forces browser to compute real size
+    // 🔥 Force browser to calculate real dimensions
+    void mapBox.offsetWidth;
+    void mapBox.offsetHeight;
 
-    let width = mapBox.clientWidth || mapBox.offsetWidth;
-    let height = mapBox.clientHeight || mapBox.offsetHeight;
+    let size = mapBox.clientWidth || mapBox.offsetWidth || 340;
 
-    // Safety fallback - keep it square
-    if (width < 100 || height < 50) {
-        width = Math.max(280, width);
-        height = width;
-    }
-
-    // Set canvas internal resolution
-    canvas.width = width;
-    canvas.height = height;
+    // Keep it perfectly square
+    canvas.width = size;
+    canvas.height = size;
 
     const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, width, height);
+    ctx.clearRect(0, 0, size, size);
 
     const frame = posByTime[lastTime] || {};
-    const heroSize = Math.max(17, width * 0.05);
 
-    // === Draw Alive Players ===
+    if (Object.keys(frame).length === 0) {
+        ctx.fillStyle = "#64748b";
+        ctx.font = "bold 14px Inter";
+        ctx.textAlign = "center";
+        ctx.fillText("Waiting for map data...", size/2, size/2);
+        return;
+    }
+
+    const heroSize = Math.max(17, size * 0.052);
+
+    // Draw Alive Players
     Object.keys(frame).forEach(roleid => {
         const pos = frame[roleid];
         if (!pos) return;
 
         const camp = campMap[roleid];
-        const player = apiData.camp_list.flatMap(c => c.player_list || [])
+        const player = apiData.camp_list?.flatMap(c => c.player_list || [])
                          .find(p => p.roleid == roleid);
 
         if (player && (player.dead === true || player.dead === 1)) return;
 
-        const px = toPx(pos.x, false, width);
-        const py = toPx(pos.y, true, height);
+        const px = toPx(pos.x || pos.map_x, false, size);
+        const py = toPx(pos.y || pos.map_y, true, size);
 
         const heroid = heroMap[roleid];
         if (!heroid) return;
@@ -3221,19 +3225,18 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         ctx.restore();
     });
 
-    // === Draw Dead Players + Timer ===
-    const deathSize = Math.max(21, width * 0.055);
-
-    apiData.camp_list.forEach(camp => {
+    // Dead Players
+    const deathSize = Math.max(22, size * 0.058);
+    apiData.camp_list?.forEach(camp => {
         const isBlue = camp.campid === 1;
-        camp.player_list.forEach(player => {
+        camp.player_list?.forEach(player => {
             if (!(player.dead === true || player.dead === 1)) return;
 
             const pos = posByTime[lastTime]?.[player.roleid];
             if (!pos) return;
 
-            const px = toPx(pos.x, false, width);
-            const py = toPx(pos.y, true, height);
+            const px = toPx(pos.x || pos.map_x, false, size);
+            const py = toPx(pos.y || pos.map_y, true, size);
 
             const img = loadImg(getHeroIconUrl(player.heroid));
 
@@ -3241,20 +3244,19 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             ctx.beginPath();
             ctx.arc(px, py, deathSize/2 + 4, 0, Math.PI * 2);
             ctx.strokeStyle = isBlue ? '#3b82f6' : '#ef4444';
-            ctx.lineWidth = 3.2;
+            ctx.lineWidth = 3;
             ctx.stroke();
 
-            ctx.filter = 'grayscale(100%) brightness(0.7)';
+            ctx.filter = 'grayscale(100%) brightness(0.75)';
             ctx.drawImage(img, px - deathSize/2, py - deathSize/2, deathSize, deathSize);
 
-            // Revive Timer
             const revive = Math.ceil(parseFloat(player.revive_left_time) || 0);
             ctx.filter = 'none';
-            ctx.font = `bold ${Math.max(15, width*0.038)}px Inter`;
+            ctx.font = `bold ${Math.max(16, size * 0.04)}px Inter`;
             ctx.fillStyle = isBlue ? '#60a5fa' : '#f87171';
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
-            ctx.fillText(revive > 0 ? revive.toString() : '✕', px, py + 1);
+            ctx.fillText(revive > 0 ? revive : '✕', px, py);
 
             ctx.restore();
         });
@@ -3262,7 +3264,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
     // Towers
     processTowerEvents();
-    drawAllAliveTowers(ctx, width, false);
+    drawAllAliveTowers(ctx, size, false);
 }
 
     function renderPlayersHorizontal() {
@@ -6023,12 +6025,15 @@ function updateUI() {
         if (playerRankingChart) playerRankingChart.resize();
 
         // ==================== MAP REDRAW FIX ====================
+        // ==================== MAP REDRAW (Critical Fix) ====================
     setTimeout(() => {
-        redrawMap();                    // Main map
-        if (!document.getElementById('mapModal').classList.contains('hidden')) {
-            renderMapModal();           // Modal map
+        redrawMap();  // Main map
+
+        const mapModal = document.getElementById('mapModal');
+        if (mapModal && !mapModal.classList.contains('hidden')) {
+            renderMapModal();
         }
-    }, 30);   // Small delay gives browser time to calculate layout
+    }, 80);   // 80ms delay is the sweet spot for flex layout // Small delay gives browser time to calculate layout
  }
 
 async function startAutoRefresh(battleId) {
