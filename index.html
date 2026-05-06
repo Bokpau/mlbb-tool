@@ -902,9 +902,10 @@
                         class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
                         Map
                     </button>
-                    <button onclick="toggleItemTimingModal()"
-                        class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
-                        Items
+                    <button onclick="toggleItemTimingModal()" 
+                            class="px-6 py-2.5 bg-slate-800 hover:bg-red-600 hover:text-white transition-all rounded-2xl text-sm font-medium flex items-center gap-2 active:scale-95">
+                        <i class="fa-solid fa-xmark text-lg"></i>
+                        <span>Close</span>
                     </button>
         
                 </div>
@@ -6248,41 +6249,35 @@ window.onload = () => {
         }
     };
 
-    window.toggleItemTimingModal = function () {
-        const modal = document.getElementById('itemTimingModal');
-        if (!modal) return;
+   window.toggleItemTimingModal = function () {
+    const modal = document.getElementById('itemTimingModal');
+    if (!modal) return;
 
-        modal.classList.toggle('hidden');
+    const isHidden = modal.classList.contains('hidden');
 
-        if (!modal.classList.contains('hidden')) {
-            if (typeof renderItemTimings === 'function') {
-                setTimeout(() => {
-                    renderItemTimings();
-                }, 100);
-            }
-
-            if (window.itemTimingInterval) {
-                clearInterval(window.itemTimingInterval);
-            }
-
-            window.itemTimingInterval = setInterval(() => {
-                if (!modal.classList.contains('hidden')) {
-                    if (typeof renderItemTimings === 'function') {
-                        renderItemTimings();
-                    }
-                } else {
-                    clearInterval(window.itemTimingInterval);
-                    window.itemTimingInterval = null;
-                }
-            }, 1500);
-
-        } else {
-            if (window.itemTimingInterval) {
-                clearInterval(window.itemTimingInterval);
-                window.itemTimingInterval = null;
-            }
+    if (!isHidden) {
+        // Closing
+        if (window.itemTimingInterval) {
+            clearInterval(window.itemTimingInterval);
+            window.itemTimingInterval = null;
         }
-    };
+    } else {
+        // Opening
+        if (typeof renderItemTimings === 'function') {
+            setTimeout(renderItemTimings, 80);
+        }
+
+        if (window.itemTimingInterval) clearInterval(window.itemTimingInterval);
+
+        window.itemTimingInterval = setInterval(() => {
+            if (!modal.classList.contains('hidden') && typeof renderItemTimings === 'function') {
+                renderItemTimings();
+            }
+        }, 1500);
+    }
+
+    modal.classList.toggle('hidden');
+};
 
     window.toggleLiveData = function () {
         showLiveData = !showLiveData;
