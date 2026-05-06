@@ -905,6 +905,11 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         height: 380px !important;
     }
 
+    #mapBox {
+    height: 340px !important;     /* Fixed height for landscape */
+    min-height: 340px !important;
+    }
+
     /* ==================== CONTENT SCALING ==================== */
     .player-row {
         padding: 5px 10px !important;
@@ -1097,132 +1102,83 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             </div>
         </div>
 
-        <div class="main-dashboard-wrapper flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-visible lg:overflow-hidden min-h-0">
+                <div class="main-dashboard-wrapper flex-1 grid grid-cols-12 gap-3 h-full overflow-hidden">
+
            <!-- LEFT COLUMN -->
-           <div class="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
-            <div id="statsContainer" class="container-box flex-1 min-h-0">
-                <div id="players-container" class="flex-1 space-y-1 overflow-y-auto min-h-0 p-3"></div>
-            </div>
-            
-            <div id="playerGoldChartContainer" class="container-box flex flex-col relative min-h-[180px] lg:min-h-0 flex-shrink-0">
-                <button onclick="toggleFullscreen('playerGoldChartContainer')" 
-                class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg z-10">
-                    ⛶
-                </button>
-    
-                <!-- HEADER (selectors) -->
-                <div class="chart-header">
-                    <div class="flex items-center justify-center gap-3 lg:gap-4 w-full">
-                
-                        <!-- Player 1 -->
-                        <select id="player1Select"
-                            class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1 text-sm text-center min-w-[120px]">
-                        </select>
-                
-                        <!-- VS -->
-                        <span class="text-slate-400 text-sm font-semibold">VS</span>
-                
-                        <!-- Player 2 -->
-                        <select id="player2Select"
-                            class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1 text-sm text-center min-w-[120px]">
-                        </select>
-                
-                    </div>
+           <div class="lg:col-span-5 flex flex-col gap-3 h-full overflow-hidden">
+                <!-- Player Stats -->
+                <div id="statsContainer" class="container-box flex-1 min-h-0 overflow-hidden">
+                    <div id="players-container" class="flex-1 space-y-1 overflow-y-auto p-3"></div>
                 </div>
-                <div class="flex-1 relative px-1 pb-1">
-                    <canvas id="playerGoldDiffChart"></canvas>
-                </div>
-            
-            </div>
-        </div>
-        <!-- CENTER COLUMN -->
-        <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
-
-           <!-- 🔥 TOP: TEAM COMPARISON + PLAYER RANKINGS - HEIGHT ADJUSTED -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 min-h-[320px] lg:min-h-[440px]">
-
-                <!-- TEAM COMPARISON - Adjusted Header Height -->
-                <div id="teamChartContainer" class="container-box flex flex-col">
-                    <div id="teamComparisonHeader" class="team-comp-header">
-
-                        <!-- LEFT TEAM -->
-                        <div id="tcTeam1"></div>
-                    
-                        <!-- 🔥 OBJECTIVES CENTER -->
-                        <div id="tcObjectives" class="tc-objectives"></div>
-                    
-                        <!-- RIGHT TEAM -->
-                        <div id="tcTeam2"></div>
-                    
-                    </div>
-                    <div class="flex-1 relative px-4 pb-4 min-h-0">
-                        <div id="teamComparisonContent" class="p-4 space-y-3"></div>
-                    </div>
-                </div>
-
-                <!-- PLAYER RANKINGS -->
-                <div id="playerRankingContainer" class="container-box flex flex-col h-full">
-
-                    <!-- HEADER -->
-                    <div class="team-comp-header">
-                        <div class="header-spacer"></div>
-
-                        <div class="section-header pr-title">
-                            <div class="pr-main">PLAYER RANKINGS</div>
-                            <div id="playerStatTitle" class="pr-sub">GOLD</div>
-                        </div>
-
-                        <div class="header-spacer"></div>
-                    </div>
-
-                    <!-- CHART (MAX SIZE) -->
-                    <div class="flex-1 relative min-h-0">
-                        <canvas id="playerRankingChart"></canvas>
-                    </div>
-
-                </div>
-
-            </div>
-           <!-- 🔥 TEAM GOLD DIFF -->
-            <div id="teamGoldChartContainer" class="container-box flex flex-col min-h-[260px] lg:min-h-[340px] relative">
-
-                <!-- ✅ HEADER -->
-                <div class="chart-header">
-
-                    <!-- TITLE -->
-                    <div class="chart-title-main">
-                        TEAM GOLD LEAD AND KILL EVENTS TIMELINE
-                    </div>
-
-                    <!-- DATA (DYNAMIC) -->
-                    <div id="goldDiffHeader" class="chart-title-sub"></div>
-
-                    <!-- BUTTON -->
-                    <button onclick="toggleFullscreen('teamGoldChartContainer')" 
-                        class="chart-btn">
+                
+                <!-- Player Gold Diff -->
+                <div id="playerGoldChartContainer" class="container-box flex flex-col h-[38%] min-h-0 relative">
+                    <button onclick="toggleFullscreen('playerGoldChartContainer')" 
+                        class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg z-10">
                         ⛶
                     </button>
+                    <div class="chart-header">
+                        <div class="flex items-center justify-center gap-4 w-full">
+                            <select id="player1Select" class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1 text-sm text-center min-w-[120px]"></select>
+                            <span class="text-slate-400 text-sm font-semibold">VS</span>
+                            <select id="player2Select" class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1 text-sm text-center min-w-[120px]"></select>
+                        </div>
+                    </div>
+                    <div class="flex-1 relative px-1 pb-1 min-h-0">
+                        <canvas id="playerGoldDiffChart"></canvas>
+                    </div>
+                </div>
+           </div>
 
+           <!-- CENTER COLUMN -->
+           <div class="lg:col-span-5 flex flex-col gap-3 h-full overflow-hidden">
+
+                <!-- Team Comparison + Player Rankings -->
+                <div class="grid grid-cols-2 gap-3 flex-1 min-h-0">
+                    <div id="teamChartContainer" class="container-box flex flex-col h-full min-h-0">
+                        <div id="teamComparisonHeader" class="team-comp-header"></div>
+                        <div class="flex-1 relative px-4 pb-4 min-h-0 overflow-hidden">
+                            <div id="teamComparisonContent" class="p-4 space-y-3 h-full overflow-auto"></div>
+                        </div>
+                    </div>
+
+                    <div id="playerRankingContainer" class="container-box flex flex-col h-full min-h-0">
+                        <div class="team-comp-header">
+                            <div class="header-spacer"></div>
+                            <div class="section-header pr-title">
+                                <div class="pr-main">PLAYER RANKINGS</div>
+                                <div id="playerStatTitle" class="pr-sub">GOLD</div>
+                            </div>
+                            <div class="header-spacer"></div>
+                        </div>
+                        <div class="flex-1 relative min-h-0">
+                            <canvas id="playerRankingChart"></canvas>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- ✅ CHART -->
-                <div class="flex-1 relative min-h-0">
-                    <canvas id="teamGoldDiffChart"></canvas>
+                <!-- Team Gold Diff -->
+                <div id="teamGoldChartContainer" class="container-box flex flex-col h-[38%] min-h-0 relative">
+                    <div class="chart-header">
+                        <div class="chart-title-main">TEAM GOLD LEAD AND KILL EVENTS TIMELINE</div>
+                        <div id="goldDiffHeader" class="chart-title-sub"></div>
+                        <button onclick="toggleFullscreen('teamGoldChartContainer')" class="chart-btn">⛶</button>
+                    </div>
+                    <div class="flex-1 relative min-h-0">
+                        <canvas id="teamGoldDiffChart"></canvas>
+                    </div>
                 </div>
+           </div>
 
-            </div>
+           <!-- RIGHT COLUMN -->
+           <div class="lg:col-span-2 flex flex-col h-full gap-3">
+                <div id="mapBox" class="flex-shrink-0 relative w-full aspect-square overflow-hidden rounded-2xl">
+                    <img id="mapImg" src="./Maps/Map_0.png" class="absolute inset-0 w-full h-full object-contain pointer-events-none">
+                    <canvas id="eventCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+                </div>
+                <div id="timelineContainer" class="bg-slate-900 rounded-2xl p-3 flex-1 min-h-0 overflow-y-auto text-xs"></div>
+           </div>
         </div>
-        <!-- RIGHT COLUMN -->
-        <div class="lg:col-span-2 flex flex-col min-h-0 overflow-visible lg:overflow-hidden">
-            <div id="mapBox" class="relative w-full aspect-square overflow-hidden rounded-2xl">
-                <img id="mapImg" src="./Maps/Map_0.png"
-                    class="absolute inset-0 w-full h-full object-fill pointer-events-none">
-
-                <canvas id="eventCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
-            </div>
-            <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 flex-1 overflow-y-auto text-xs min-h-[220px] lg:min-h-0"></div>
-        </div>
-    </div>
 
     <!-- Draft Modal -->
     <div id="draftModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
