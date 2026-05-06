@@ -3903,83 +3903,100 @@
                     const { ctx, scales: { x }, chartArea } = chart;
                     const h = chartArea.bottom - chartArea.top;
 
-                    const objY1   = chartArea.top + h * 0.05;
-                    const killY1  = chartArea.top + h * 0.30;
-                    const objY2   = chartArea.top + h * 0.95;
-                    const killY2  = chartArea.top + h * 0.70;
+                    // Position adjustments
+                    const objY1   = chartArea.top + h * 0.08;     // Team 1 (Blue)
+                    const killY1  = chartArea.top + h * 0.28;
+                    const objY2   = chartArea.top + h * 0.92;     // Team 2 (Red)
+                    const killY2  = chartArea.top + h * 0.72;
 
                     const drawn = new Set();
 
-                    const objConfig = {
-                        'kill_lord':   { scale: 1.2, alpha: 1.0 },
-                        'kill_turtle': { scale: 1.2, alpha: 1.0 },
-                        'kill_tower':  { scale: 1.0, alpha: 0.95 }
-                    };
+                    // ====================== OBJECTIVES (Lord / Turtle / Tower) ======================
+                    const allEvents = [
+                        ...(apiData.incre_event_list || []),
+                        ...(apiData.event_list || [])
+                    ];
 
-                    Object.keys(objConfig).forEach(type => {
-                        const cfg = objConfig[type];
-                        allKillEvents.filter(k => k.type === type && k.time <= (apiData.game_time || 0)).forEach(ev => {
-                            const key = `${ev.time}_${type}_${ev.camp}`;
-                            if (drawn.has(key)) return;
-                            drawn.add(key);
+                    allEvents.forEach(ev => {
+                        if (!ev.game_time || ev.game_time > (apiData.game_time || 0)) return;
 
-                            let idx = getClosestIndex(chart.data.labels, ev.time);
+                        let type = null;
+                        let camp = null;
 
-                            if (idx === -1) return;
+                        if (ev.event_type === 'kill_boss') {
+                            if (ev.boss_name === 'lord') type = 'kill_lord';
+                            else if (ev.boss_name === 'tortoise') type = 'kill_turtle';
+                            camp = ev.killer_camp || ev.camp;
+                        } 
+                        else if (ev.event_type === 'kill_tower' || ev.event_type === 'camp_kill_tower') {
+                            type = 'kill_tower';
+                            camp = ev.killer_camp || ev.camp;
+                        }
 
-                            const teamColor = ev.camp === 1 ? 'blue' : 'red';
+                        if (!type || !camp) return;
 
-                            let iconImg;
-
-                                if (type === 'kill_lord') {
-                                    iconImg = CUSTOM_ICONS.lord[teamColor];
-                                } else if (type === 'kill_turtle') {
-                                    iconImg = CUSTOM_ICONS.turtle[teamColor];
-                                } else {
-                                    iconImg = CUSTOM_ICONS.tower[ev.camp];
-                                }
-                            const img = loadImg(imgSrc);
-                            const xPos = x.getPixelForValue(idx);
-                            const yPos = ev.camp === 1 ? objY1 : objY2;
-
-                            const jitter = (ev.time % 2 === 0 ? -1 : 1) * getPointSize(chart) * 0.8;
-                            const finalY = yPos + jitter;
-
-                            ctx.save();
-                            ctx.globalAlpha = cfg.alpha;
-                            ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                            ctx.shadowBlur = document.fullscreenElement ? 10 : 4;
-                            drawIconIfReady(ctx, img, xPos, finalY, getIconSize(chart, cfg.scale));
-                            ctx.restore();
-                        });
-                    });
-
-                    allKillEvents.filter(k => k.type === 'kill_hero' && k.time <= (apiData.game_time || 0)).forEach(ev => {
-                        const key = `${ev.time}_kill_hero_${ev.camp}`;
+                        const key = `${ev.game_time}_${type}_${camp}`;
                         if (drawn.has(key)) return;
                         drawn.add(key);
 
+                        // Find closest label index
                         let idx = chart.data.labels.findIndex(l => {
-                            const [m,s] = l.split(':').map(Number);
-                            return m*60 + s >= ev.time;
+                            const [m, s] = l.split(':').map(Number);
+                            return (m * 60 + s) >= ev.game_time;
                         });
+
                         if (idx === -1) return;
 
-                        const imgSrc = ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png';
-                        const img = loadImg(imgSrc);
                         const xPos = x.getPixelForValue(idx);
-                        const yPos = ev.camp === 1 ? killY1 : killY2;
+                        const yPos = camp === 1 ? objY1 : objY2;
 
-                        const jitter = (ev.time % 2 === 0 ? -1 : 1) * getPointSize(chart) * 0.8;
-                        const finalY = yPos + jitter;
+                        let src = '';
+                        if (type === 'kill_lord') {
+                            src = camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
+                        } else if (type === 'kill_turtle') {
+                            src = camp === 1 ? './icons/turtle-blue.png' : './icons/turtle-red.png';
+                        } else if (type === 'kill_tower') {
+                            src = camp === 1 ? './icons/tower-blue.png' : './icons/tower-red.png';
+                        }
+
+                        const img = loadImg(src);
 
                         ctx.save();
-                        ctx.globalAlpha = 0.8;
-                        ctx.shadowColor = 'rgba(0,0,0,0.6)';
-                        ctx.shadowBlur = document.fullscreenElement ? 10 : 4;
-                        drawIconIfReady(ctx, img, xPos, finalY, getIconSize(chart, 1.9));
+                        ctx.globalAlpha = 1.0;
+                        ctx.shadowColor = 'rgba(0,0,0,0.7)';
+                        ctx.shadowBlur = 6;
+                        drawIconIfReady(ctx, img, xPos, yPos, 22);   // slightly bigger for team chart
                         ctx.restore();
                     });
+
+                    // ====================== KILL EVENTS (optional but kept for consistency) ======================
+                    allKillEvents
+                        .filter(ev => ev.type === 'kill_hero' && ev.time <= (apiData.game_time || 0))
+                        .forEach(ev => {
+                            const key = `${ev.time}_kill_${ev.camp}`;
+                            if (drawn.has(key)) return;
+                            drawn.add(key);
+
+                            let idx = chart.data.labels.findIndex(l => {
+                                const [m, s] = l.split(':').map(Number);
+                                return m * 60 + s >= ev.time;
+                            });
+
+                            if (idx === -1) return;
+
+                            const xPos = x.getPixelForValue(idx);
+                            const yPos = ev.camp === 1 ? killY1 : killY2;
+
+                            const imgSrc = ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png';
+                            const img = loadImg(imgSrc);
+
+                            ctx.save();
+                            ctx.globalAlpha = 0.85;
+                            ctx.shadowColor = 'rgba(0,0,0,0.6)';
+                            ctx.shadowBlur = 5;
+                            drawIconIfReady(ctx, img, xPos, yPos, 18);
+                            ctx.restore();
+                        });
                 }
             }
         ]
