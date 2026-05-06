@@ -808,6 +808,41 @@
         #itemTimingModal::after {
             animation: subtlePulse 4s infinite ease-in-out;
         }
+
+        /* =========================
+        MAP HEADER INFO
+        ========================= */
+        #mapInfoHeader {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-left: 28px;
+            min-width: 220px;
+            flex-shrink: 0;
+        }
+
+        #mapIconHeader {
+            width: 40px;
+            height: 40px;
+            object-fit: contain;
+            padding: 4px;
+            border-radius: 12px;
+            border: 1px solid rgba(100, 116, 139, 0.7);
+            background: rgba(15, 23, 42, 0.85);
+            flex-shrink: 0;
+            box-shadow: 0 0 12px rgba(34, 211, 238, 0.18);
+        }
+
+        #mapNameHeader {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #67e8f9;
+            white-space: nowrap;
+            line-height: 1;
+            max-width: 180px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body>
@@ -864,16 +899,12 @@
                 </div>
             </div>
 
-            <div id="mapInfoHeader" class="flex items-center gap-2 mr-4">
+            <div id="mapInfoHeader">
                 <img id="mapIconHeader"
                     src="./mapicon/0.png"
-                    alt="Map Icon"
-                    class="w-8 h-8 object-contain rounded-lg border border-slate-600">
+                    alt="Map Icon">
 
-                <span id="mapNameHeader"
-                    class="text-sm font-semibold text-cyan-300 whitespace-nowrap">
-                    Default
-                </span>
+                <span id="mapNameHeader">Default</span>
             </div>
         
             <!-- RIGHT CONTROLS -->
