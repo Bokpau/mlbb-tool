@@ -137,7 +137,10 @@
         #playerRankingContainer {
             display: flex !important;
             flex-direction: column !important;
-            height: 440px !important;        /* Total fixed height */
+
+            flex: 1 !important;
+            min-height: 320px !important;
+
             overflow: hidden;
         }
 
@@ -588,28 +591,39 @@
         .player-row .left-team { justify-content: flex-start; min-width: 0; }
         .player-row .right-team { justify-content: flex-end; min-width: 0;}
         
-        #mapBox { 
-            position: relative; 
-            width: 100%; 
-            aspect-ratio: 1 / 1; 
-            height: 100%; 
-            margin: 0 auto; 
-            border: 5px solid #334155; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            background: #111827; 
+        #mapBox {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1;
+
+            margin: 0 auto;
+
+            overflow: hidden;
+            border-radius: 20px;
+            border: 5px solid #334155;
+
+            background: #111827;
+
+            flex-shrink: 0;
         }
-        canvas { position: absolute; top: 0; left: 0; }
+        canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
         
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
-        #statsContainer { width: 100%; height: 440px; padding: 12px; display: flex; flex-direction: column; }
+        #statsContainer { width: 100%; flex: 1;
+min-height: 320px; padding: 12px; display: flex; flex-direction: column; }
         
-        #teamChartContainer { height: 440px; padding: 20px; display: flex; flex-direction: column; }
+        #teamChartContainer { flex: 1;
+min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         #teamChartWrapper { flex: 1; position: relative; }
 
         /* Player Gold Diff Chart */
         #playerGoldChartContainer { 
-            height: 340px; 
+            min-height: 260px; 
             padding: 15px; 
             display: flex; 
             flex-direction: column; 
@@ -617,7 +631,7 @@
 
         /* Team Gold Diff Chart */
         #teamGoldChartContainer { 
-            height: 340px; 
+            min-height: 260px; 
             padding: 15px; 
             display: flex; 
             flex-direction: column; 
@@ -889,7 +903,7 @@
             <!-- 🔒 YOUR APP -->
             <div id="appContent" style="display:none;">
             
-                <div class="w-full h-screen overflow-hidden px-3 lg:px-6 flex flex-col">
+                <div class="w-full min-h-screen lg:h-screen overflow-visible lg:overflow-hidden px-3 lg:px-6 flex flex-col">
     
     <div>
         <!-- Header -->
@@ -965,7 +979,7 @@
            <!-- LEFT COLUMN -->
            <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
             <div id="statsContainer" class="container-box flex-1 min-h-0">
-                <div id="players-container" class="flex-1 space-y-1 overflow-y-auto h-full p-3"></div>
+                <div id="players-container" class="flex-1 space-y-1 overflow-y-auto min-h-0 p-3"></div>
             </div>
             
             <div id="playerGoldChartContainer" class="container-box flex flex-col min-h-[260px] lg:min-h-[340px] relative">
@@ -1078,11 +1092,14 @@
         </div>
         <!-- RIGHT COLUMN -->
         <div class="lg:col-span-2 flex flex-col min-h-0 overflow-visible lg:overflow-hidden">
-            <div id="mapBox">
-                <img id="mapImg" src="./Maps/Map_0.png" class="w-full h-full object-contain">
-                <canvas id="eventCanvas"></canvas>
+            <div id="mapBox" class="relative w-full aspect-square overflow-hidden rounded-2xl">
+                <img id="mapImg" src="./Maps/Map_0.png"
+                    class="absolute inset-0 w-full h-full object-fill pointer-events-none">
+
+                <canvas id="eventCanvas"
+                        class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
             </div>
-            <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 flex-1 overflow-y-auto text-xs min-h-0"></div>
+            <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 flex-1 overflow-y-auto text-xs min-h-[220px] lg:min-h-0"></div>
         </div>
     </div>
 
@@ -3031,11 +3048,15 @@
         if (!canvas || !apiData) return;
 
         const ctx = canvas.getContext('2d');           // ← Fixed: define ctx properly
-        const size = canvas.parentElement.clientWidth || BASE_MAP_SIZE || 300;
+        const mapBox = canvas.parentElement;
 
-        canvas.width = size;
-        canvas.height = size;
-        ctx.clearRect(0, 0, size, size);               // ← Use ctx instead of ctxEvent
+        const width = mapBox.clientWidth || BASE_MAP_SIZE || 300;
+        const height = mapBox.clientHeight || width;
+
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.clearRect(0, 0, width, height);            // ← Use ctx instead of ctxEvent
 
         const frame = posByTime[lastTime] || {};
         const heroSize = Math.max(18, size * 0.05);
