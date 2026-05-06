@@ -1472,82 +1472,142 @@
     }
 
     function fullDeveloperReset() {
-        console.log("🔥 FULL DEV RESET START");
+    console.log("🔥 FULL DEV RESET START");
 
-        // Core reset
-        resetAllEventData();
-
-        // ======================
-        // TEAM LOGOS
-        // ======================
-        Object.keys(TEAM_LOGOS).forEach(key => delete TEAM_LOGOS[key]);
-
-        // ======================
-        // ACTIVE TOWERS
-        // ======================
-        activeTowers = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TOWERS));
-
-        // ======================
-        // PLAYER FILTER DROPDOWNS
-        // ======================
-        const p1 = document.getElementById("player1Select");
-        const p2 = document.getElementById("player2Select");
-
-        if (p1) {
-            p1.innerHTML = "";
-            p1.selectedIndex = -1;
-            delete p1.dataset.loaded;
-        }
-
-        if (p2) {
-            p2.innerHTML = "";
-            p2.selectedIndex = -1;
-            delete p2.dataset.loaded;
-        }
-
-        selectedPlayer1 = null;
-        selectedPlayer2 = null;
-
-        // ======================
-        // SCOREBOARD UI
-        // ======================
-        document.getElementById("team1Block").innerHTML = "";
-        document.getElementById("team2Block").innerHTML = "";
-        document.getElementById("scoreCenter").innerHTML = "";
-
-        // ======================
-        // TEAM COMPARISON UI
-        // ======================
-        document.getElementById("tcTeam1").innerHTML = "";
-        document.getElementById("tcTeam2").innerHTML = "";
-        document.getElementById("tcObjectives").innerHTML = "";
-        document.getElementById("teamComparisonContent").innerHTML = "";
-
-        // ======================
-        // PLAYER STATS
-        // ======================
-        document.getElementById("players-container").innerHTML = "";
-
-        // ======================
-        // TIMELINE
-        // ======================
-        document.getElementById("timelineContainer").innerHTML = "";
-
-        // ======================
-        // BATTLE INPUT
-        // ======================
-        document.getElementById("battleIdInput").value = "";
-
-        // ======================
-        // STOP AUTO BATTLE IMMEDIATELY
-        // ======================
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
-        }
-
-        console.log("✅ FULL DEV RESET COMPLETE");
+    // ======================
+    // STOP ALL ACTIVE POLLING FIRST
+    // ======================
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
     }
+
+    if (draftInterval) {
+        clearInterval(draftInterval);
+        draftInterval = null;
+    }
+
+    if (mapModalInterval) {
+        clearInterval(mapModalInterval);
+        mapModalInterval = null;
+    }
+
+    // ======================
+    // CORE RESET
+    // ======================
+    resetAllEventData();
+
+    // ======================
+    // DESTROY OLD GOLD DIFF CHART
+    // ======================
+    if (window.goldDiffChart) {
+        window.goldDiffChart.destroy();
+        window.goldDiffChart = null;
+    }
+
+    // ======================
+    // TEAM LOGOS
+    // ======================
+    if (typeof TEAM_LOGOS === "object") {
+        Object.keys(TEAM_LOGOS).forEach(key => delete TEAM_LOGOS[key]);
+    }
+
+    // ======================
+    // ACTIVE TOWERS
+    // ======================
+    if (typeof DEFAULT_ACTIVE_TOWERS !== "undefined") {
+        activeTowers = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TOWERS));
+    }
+
+    // ======================
+    // PLAYER FILTER DROPDOWNS
+    // ======================
+    const p1 = document.getElementById("player1Select");
+    const p2 = document.getElementById("player2Select");
+
+    if (p1) {
+        p1.innerHTML = "";
+        p1.selectedIndex = -1;
+        delete p1.dataset.loaded;
+    }
+
+    if (p2) {
+        p2.innerHTML = "";
+        p2.selectedIndex = -1;
+        delete p2.dataset.loaded;
+    }
+
+    selectedPlayer1 = null;
+    selectedPlayer2 = null;
+
+    // ======================
+    // SCOREBOARD UI
+    // ======================
+    const team1Block = document.getElementById("team1Block");
+    const team2Block = document.getElementById("team2Block");
+    const scoreCenter = document.getElementById("scoreCenter");
+
+    if (team1Block) team1Block.innerHTML = "";
+    if (team2Block) team2Block.innerHTML = "";
+    if (scoreCenter) scoreCenter.innerHTML = "";
+
+    // ======================
+    // TEAM COMPARISON UI
+    // ======================
+    const tcTeam1 = document.getElementById("tcTeam1");
+    const tcTeam2 = document.getElementById("tcTeam2");
+    const tcObjectives = document.getElementById("tcObjectives");
+    const teamComparisonContent = document.getElementById("teamComparisonContent");
+
+    if (tcTeam1) tcTeam1.innerHTML = "";
+    if (tcTeam2) tcTeam2.innerHTML = "";
+    if (tcObjectives) tcObjectives.innerHTML = "";
+    if (teamComparisonContent) teamComparisonContent.innerHTML = "";
+
+    // ======================
+    // PLAYER STATS
+    // ======================
+    const playersContainer = document.getElementById("players-container");
+    if (playersContainer) playersContainer.innerHTML = "";
+
+    // ======================
+    // TIMELINE
+    // ======================
+    const timelineContainer = document.getElementById("timelineContainer");
+    if (timelineContainer) timelineContainer.innerHTML = "";
+
+    // ======================
+    // ITEM PROGRESSION MODAL
+    // ======================
+    const itemTimelineBody = document.getElementById("itemTimelineBody");
+    if (itemTimelineBody) itemTimelineBody.innerHTML = "";
+
+    // ======================
+    // CLEAR MAP CANVAS
+    // ======================
+    const mapCanvas = document.getElementById("eventCanvas");
+    if (mapCanvas) {
+        const ctx = mapCanvas.getContext("2d");
+        ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
+    }
+
+    // ======================
+    // CLEAR MODAL MAP CANVAS
+    // ======================
+    const modalCanvas = document.getElementById("eventCanvasModal");
+    if (modalCanvas) {
+        const ctx = modalCanvas.getContext("2d");
+        ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
+    }
+
+    // ======================
+    // RESET BATTLE INPUT
+    // ======================
+    const battleInput = document.getElementById("battleIdInput");
+    if (battleInput) battleInput.value = "";
+
+    console.log("✅ FULL DEV RESET COMPLETE");
+}
 
     // ================= TEAM NAME =================
     function getTeamName(campId) {
@@ -6197,6 +6257,15 @@ async function startAutoRefresh(battleId) {
 }
 
 async function loadBattle() {
+
+    // 🔥 STOP OLD POLLING FIRST
+    if (pollInterval) {
+        clearInterval(pollInterval);
+        pollInterval = null;
+    }
+
+    // 🔥 FULL UI + DATA RESET
+    fullDeveloperReset();
     const battleId = document.getElementById('battleIdInput').value.trim();
     if (!battleId) return alert("Enter Battle ID");
     resetAllEventData();
@@ -6213,6 +6282,7 @@ async function loadBattle() {
 
         apiData = json.data;
         populateGoldDiffSelectors();
+        updateUI();
         heroMap = {};
         apiData.camp_list.forEach(camp => {
             camp.player_list.forEach(p => {
