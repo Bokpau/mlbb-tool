@@ -11,17 +11,13 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         
         body { 
-            font-family: 'Inter', system-ui, sans-serif;
-            background: #0a0f1c;
-            color: white;
-
+            font-family: 'Inter', system-ui, sans-serif; 
+            background: #0a0f1c; 
+            color: white; 
             margin: 0;
-            padding: 0;
-
-            min-height: 100vh;
-
-            overflow-x: hidden;
-            overflow-y: hidden;
+            padding: 8px 0;
+            height: 100vh;
+            overflow: auto;
         }
         
         .hero-icon { width: 44px; height: 44px; border-radius: 9999px; border: 2px solid #1e2937; object-fit: cover; position: relative; transition: filter 0.2s ease, opacity 0.2s ease; }
@@ -137,10 +133,7 @@
         #playerRankingContainer {
             display: flex !important;
             flex-direction: column !important;
-
-            flex: 1 !important;
-            min-height: 320px !important;
-
+            height: 440px !important;        /* Total fixed height */
             overflow: hidden;
         }
 
@@ -170,8 +163,8 @@
         }
 
         .team-logo {
-            width: clamp(34px, 4vw, 46px);
-            height: clamp(34px, 4vw, 46px);
+            width: 46px;
+            height: 46px;
             border-radius: 10px;
 
             background: #2f3a4f;
@@ -221,10 +214,8 @@
             align-items: center;
             justify-content: space-between;
 
-            width: min(100%, 420px);
-            max-width: 100%;
-            min-height: 56px;
-            height: auto;
+            width: 420px;
+            height: 60px;
 
             padding: 6px 14px;
 
@@ -591,64 +582,36 @@
         .player-row .left-team { justify-content: flex-start; min-width: 0; }
         .player-row .right-team { justify-content: flex-end; min-width: 0;}
         
-        #mapBox {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-
-            margin: 0 auto;
-
-            overflow: hidden;
-            border-radius: 20px;
-            border: 5px solid #334155;
-
-            background: #111827;
-
-            flex-shrink: 0;
+        #mapBox { 
+            position: relative; 
+            width: 100%; 
+            aspect-ratio: 1 / 1; 
+            max-height: 100%; 
+            margin: 0 auto; 
+            border: 5px solid #334155; 
+            border-radius: 20px; 
+            overflow: hidden; 
+            background: #111827; 
         }
-        canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-        }
+        canvas { position: absolute; top: 0; left: 0; }
         
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
-        #statsContainer {
-            width: 100%;
-            flex: 1 1 0%;
-            min-height: 0;
-            max-height: 100%;
-
-            padding: 12px;
-
-            display: flex;
-            flex-direction: column;
-
-            overflow: hidden;
-        }
+        #statsContainer { width: 100%; height: 440px; padding: 12px; display: flex; flex-direction: column; }
         
-        #teamChartContainer { flex: 1;
-min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
+        #teamChartContainer { height: 440px; padding: 20px; display: flex; flex-direction: column; }
         #teamChartWrapper { flex: 1; position: relative; }
 
         /* Player Gold Diff Chart */
-       #playerGoldChartContainer {
-            min-height: 180px;
-            max-height: 30vh;
-
-            padding: 15px;
-
-            display: flex;
-            flex-direction: column;
-
-            flex-shrink: 0;
-            overflow: hidden;
+        #playerGoldChartContainer { 
+            height: 340px; 
+            padding: 15px; 
+            display: flex; 
+            flex-direction: column; 
         }
 
         /* Team Gold Diff Chart */
         #teamGoldChartContainer { 
-            min-height: 260px; 
+            height: 340px; 
             padding: 15px; 
             display: flex; 
             flex-direction: column; 
@@ -845,154 +808,15 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         #itemTimingModal::after {
             animation: subtlePulse 4s infinite ease-in-out;
         }
-
-      /* =========================
-   TABLET PORTRAIT SCROLL FIX
-   ========================= */
-
-/* Portrait tablets and smaller */
-@media (orientation: portrait) and (max-width: 1024px) {
-    body {
-        overflow-y: auto !important;
-        overflow-x: hidden !important;
-        height: auto !important;
-    }
-
-    #appContent > div,
-    body > div:first-child,
-    .main-dashboard-wrapper {
-        height: auto !important;
-        min-height: 100vh !important;
-        overflow: visible !important;
-    }
-}
-
-/* ==================== TABLET LANDSCAPE FIX ==================== */
-/* Only for landscape tablets (between phone and laptop size) */
-@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
-
-    /* Force proper height distribution on left column */
-    .lg\:col-span-5.flex.flex-col.gap-3 {
-        gap: 12px !important;
-    }
-
-    /* Player Stats - Scrollable but limited height */
-    #statsContainer {
-        flex: 1 1 57% !important;
-        min-height: 0 !important;
-        max-height: 57vh !important;
-        overflow-y: auto !important;
-    }
-
-    /* Player Gold Diff Chart - Always visible */
-    #playerGoldChartContainer {
-        flex: 0 0 39% !important;
-        min-height: 165px !important;
-        max-height: 39vh !important;
-    }
-
-    #playerGoldChartContainer .flex-1 {
-        min-height: 0 !important;
-    }
-
-    /* Make rows a bit smaller on tablet */
-    .player-row {
-        padding: 6px 10px !important;
-        font-size: 12.5px !important;
-        gap: 8px !important;
-    }
-
-    .hero-icon {
-        width: 38px !important;
-        height: 38px !important;
-    }
-}
-
-/* ==================== DESKTOP & BIG SCREENS ==================== */
-/* For laptops and bigger screens */
-@media (min-width: 1367px) {
-    body {
-        overflow: hidden !important;
-        height: 100vh !important;
-    }
-
-    #appContent > div,
-    body > div:first-child,
-    .main-dashboard-wrapper {
-        height: 100vh !important;
-        overflow: hidden !important;
-    }
-}
-
-/* ==================== CONTENT SCALING FOR TABLETS ==================== */
-@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
-
-    /* 1. Player Stats Rows - Smaller & Cleaner */
-    .player-row {
-        padding: 5px 10px !important;
-        font-size: 12px !important;
-        gap: 6px !important;
-        min-height: auto !important;
-    }
-
-    .hero-icon {
-        width: 36px !important;
-        height: 36px !important;
-    }
-
-    .item-icon, .rune-icon {
-        width: 17px !important;
-        height: 17px !important;
-    }
-
-    .skill-icon {
-        width: 16px !important;
-        height: 16px !important;
-    }
-
-    /* 2. Text Sizes */
-    .font-medium, .text-xs, .text-sm {
-        font-size: 11.5px !important;
-    }
-
-    /* 3. Charts - Force Resize */
-    #playerGoldChartContainer canvas,
-    #teamGoldDiffChart canvas,
-    #playerRankingChart canvas {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* 4. Scoreboard & Header Texts */
-    .score-blue, .score-red {
-        font-size: 20px !important;
-    }
-
-    .tc-name {
-        font-size: 10px !important;
-    }
-
-    /* 5. Make sure flex children can shrink */
-    #statsContainer,
-    #playerGoldChartContainer,
-    #teamChartContainer,
-    #playerRankingContainer {
-        min-height: 0 !important;
-    }
-
-    /* 6. Timeline events - smaller */
-    #timelineContainer .text-xs {
-        font-size: 10.5px !important;
-    }
-}
     </style>
 </head>
 <body>
-    <div class="w-full min-h-screen lg:h-screen overflow-visible lg:overflow-hidden px-3 lg:px-6 flex flex-col">
+    <div class="max-w-[1920px] mx-auto px-6 h-full flex flex-col">
+        <body>
 
             <!-- 🔐 LOGIN SCREEN -->
             <div id="loginScreen" class="fixed inset-0 bg-black flex items-center justify-center z-50">
-                <div class="bg-slate-900 p-3 lg:p-6 rounded-2xl text-center w-full max-w-[320px] mx-4">
+                <div class="bg-slate-900 p-8 rounded-2xl text-center w-[320px]">
                     <h2 class="text-xl font-bold mb-4">Access Required</h2>
             
                     <input 
@@ -1016,14 +840,14 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             <!-- 🔒 YOUR APP -->
             <div id="appContent" style="display:none;">
             
-                <div class="w-full min-h-screen lg:h-screen overflow-visible lg:overflow-hidden px-3 lg:px-6 flex flex-col">
-    
+                <div class="max-w-[1920px] mx-auto px-6 h-full flex flex-col">
+        <body>
     <div>
         <!-- Header -->
-        <div class="flex flex-col xl:flex-row gap-3 xl:gap-3 lg:gap-4 justify-between xl:items-center mb-3 bg-slate-900 border border-slate-700 rounded-3xl px-3 lg:px-6 py-3 flex-shrink-0">
+        <div class="flex justify-between items-center mb-6 bg-slate-900 border border-slate-700 rounded-3xl px-6 py-3 flex-shrink-0">
 
             <!-- TITLE -->
-            <h1 class="text-lg sm:text-xl lg:text-2xl font-bold tracking-tight text-center xl:text-left">
+            <h1 class="text-2xl font-bold tracking-tight">
                 MLBB Live Tracker by the BOK
             </h1>
         
@@ -1041,45 +865,45 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             </div>
         
             <!-- RIGHT CONTROLS -->
-            <div class="flex flex-col lg:flex-row items-center gap-3 w-full xl:w-auto">
+            <div class="flex items-center gap-4">
         
                 <!-- STATUS -->
-                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-3 lg:px-3 lg:px-4 py-1.5 rounded-2xl text-xs sm:text-sm font-bold flex items-center gap-2">
+                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-4 py-1.5 rounded-2xl text-sm font-bold flex items-center gap-2">
                     <span id="stateName">READY</span>
                     <span id="stateTimer" class="font-mono"></span>
                 </div>
                 <!-- INPUT + ACTIONS -->
-                <div class="flex flex-wrap items-center justify-center xl:justify-end gap-2 w-full">
+                <div class="flex items-center gap-2">
         
                     <input id="battleIdInput"
                         type="text"
                         placeholder="Battle ID"
-                        class="bg-slate-800 border border-slate-600 rounded-2xl px-3 lg:px-4 py-1.5 w-full sm:w-56 focus:outline-none focus:border-cyan-400 text-[11px] sm:text-xs">
+                        class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-1.5 w-56 focus:outline-none focus:border-cyan-400 text-xs">
         
                     <button onclick="loadBattle()"
-                        class="px-3 lg:px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-medium">
                         Load
                     </button>
         
                     <button onclick="toggleDraftModal()"
-                        class="px-3 lg:px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium">
                         Draft
                     </button>
         
                     <button onclick="togglePlayerCompareModal()"
-                        class="px-3 lg:px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-xs font-medium">
                         PvP
                     </button>
                     <button onclick="toggleGoldDistributionModal()"
-                        class="px-3 lg:px-4 py-1.5bg-yellow-500 hover:bg-yellow-400 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-400 rounded-xl text-xs font-medium">
                         Gold Source
                     </button>
                     <button onclick="toggleMapModal()"
-                        class="px-3 lg:px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
                         Map
                     </button>
                     <button onclick="toggleItemTimingModal()"
-                        class="px-3 lg:px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-[11px] sm:text-xs font-medium">
+                        class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
                         Items
                     </button>
         
@@ -1088,14 +912,14 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             </div>
         </div>
 
-        <div class="main-dashboard-wrapper flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-visible lg:overflow-hidden min-h-0">
+        <div class="flex-1 grid grid-cols-12 gap-x-1 gap-y-4">
            <!-- LEFT COLUMN -->
-           <div class="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
-            <div id="statsContainer" class="container-box flex-1 min-h-0">
-                <div id="players-container" class="flex-1 space-y-1 overflow-y-auto min-h-0 p-3"></div>
+           <div class="col-span-5 flex flex-col gap-4">
+            <div id="statsContainer" class="container-box h-[440px]">
+                <div id="players-container" class="flex-1 space-y-1 overflow-y-auto h-full p-3"></div>
             </div>
             
-            <div id="playerGoldChartContainer" class="container-box flex flex-col relative min-h-[180px] lg:min-h-0 flex-shrink-0">
+            <div id="playerGoldChartContainer" class="container-box flex flex-col h-[340px] relative">
                 <button onclick="toggleFullscreen('playerGoldChartContainer')" 
                 class="absolute top-3 right-3 text-xs bg-slate-700 hover:bg-slate-600 px-3 py-1 rounded-lg z-10">
                     ⛶
@@ -1103,7 +927,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     
                 <!-- HEADER (selectors) -->
                 <div class="chart-header">
-                    <div class="flex items-center justify-center gap-3 lg:gap-4 w-full">
+                    <div class="flex items-center justify-center gap-4 w-full">
                 
                         <!-- Player 1 -->
                         <select id="player1Select"
@@ -1127,10 +951,10 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             </div>
         </div>
         <!-- CENTER COLUMN -->
-        <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
+        <div class="col-span-5 flex flex-col gap-4">
 
            <!-- 🔥 TOP: TEAM COMPARISON + PLAYER RANKINGS - HEIGHT ADJUSTED -->
-            <div class="grid grid-cols-1 xl:grid-cols-2 gap-3 min-h-[320px] lg:min-h-[440px]">
+            <div class="grid grid-cols-2 gap-4 h-[440px]">
 
                 <!-- TEAM COMPARISON - Adjusted Header Height -->
                 <div id="teamChartContainer" class="container-box flex flex-col">
@@ -1175,7 +999,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
             </div>
            <!-- 🔥 TEAM GOLD DIFF -->
-            <div id="teamGoldChartContainer" class="container-box flex flex-col min-h-[260px] lg:min-h-[340px] relative">
+            <div id="teamGoldChartContainer" class="container-box flex flex-col h-[340px] relative">
 
                 <!-- ✅ HEADER -->
                 <div class="chart-header">
@@ -1204,14 +1028,12 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             </div>
         </div>
         <!-- RIGHT COLUMN -->
-        <div class="lg:col-span-2 flex flex-col min-h-0 overflow-visible lg:overflow-hidden">
-            <div id="mapBox" class="relative w-full aspect-square overflow-hidden rounded-2xl">
-                <img id="mapImg" src="./Maps/Map_0.png"
-                    class="absolute inset-0 w-full h-full object-fill pointer-events-none">
-
-                <canvas id="eventCanvas" class="absolute inset-0 w-full h-full pointer-events-none"></canvas>
+        <div class="col-span-2 flex flex-col">
+            <div id="mapBox">
+                <img id="mapImg" src="./Maps/Map_0.png" class="w-full h-full object-contain">
+                <canvas id="eventCanvas"></canvas>
             </div>
-            <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 flex-1 overflow-y-auto text-xs min-h-[220px] lg:min-h-0"></div>
+            <div id="timelineContainer" class="mt-2 bg-slate-900 rounded-2xl p-3 max-h-[520px] overflow-y-auto text-xs"></div>
         </div>
     </div>
 
@@ -1220,7 +1042,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         <div class="bg-slate-900 rounded-3xl p-8 max-w-7xl w-full mx-4 max-h-[95vh] overflow-hidden flex flex-col">
             <!-- Header -->
             <div class="flex justify-between items-center mb-6 border-b border-slate-700 pb-4">
-                <h2 class="text-xl lg:text-3xl font-bold tracking-tight flex items-center gap-3">
+                <h2 class="text-3xl font-bold tracking-tight flex items-center gap-3">
                     <i class="fa-solid fa-ban text-red-400"></i>
                     DRAFT RESULTS
                 </h2>
@@ -1237,7 +1059,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     </div>
     <!-- Player Comparison Modal -->
     <div id="playerCompareModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-        <div class="bg-slate-900 rounded-3xl p-4 lg:p-6 w-full max-w-[1580px] max-h-[94vh] overflow-auto">
+        <div class="bg-slate-900 rounded-3xl p-6 w-[1580px] max-w-[96vw] max-h-[94vh] overflow-auto">
 
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">PLAYER VS PLAYER</h2>
@@ -1250,7 +1072,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     </div>
     <!-- GOLD DISTRIBUTION MODAL -->
     <div id="goldDistributionModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-        <div class="bg-slate-900 rounded-3xl p-4 lg:p-6 w-full max-w-[1580px] max-h-[94vh] overflow-auto">
+        <div class="bg-slate-900 rounded-3xl p-6 w-[1580px] max-w-[96vw] max-h-[94vh] overflow-auto">
 
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">GOLD DISTRIBUTION (ROLE VS ROLE)</h2>
@@ -1264,13 +1086,13 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     <!-- ITEM TIMINGS MODAL - Improved Design -->
     <div id="itemTimingModal" 
         onclick="if(event.target.id==='itemTimingModal') toggleItemTimingModal()"
-        class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-3 lg:p-6">
+        class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-6">
 
         <div class="border border-slate-800 rounded-3xl w-full max-w-[1950px] h-[94vh] flex flex-col overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)]">
 
         <!-- HEADER -->
         <div class="flex items-center justify-between px-8 py-5 border-b border-slate-700 bg-slate-900">
-            <div class="flex items-center gap-3 lg:gap-4">
+            <div class="flex items-center gap-4">
                 <i class="fa-solid fa-clock text-yellow-400 text-2xl"></i>
                 <h2 class="text-xl font-bold text-white tracking-tight">ITEM PROGRESSION</h2>
             </div>
@@ -1284,7 +1106,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         </div>
 
         <!-- CANVAS AREA -->
-        <div class="flex-1 p-3 lg:p-6">
+        <div class="flex-1 p-6">
             <canvas id="itemTimingCanvas" class="w-full h-full rounded-2xl"></canvas>
         </div>
 
@@ -1297,13 +1119,13 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     </div>
     <div id="mapModal" 
         onclick="if(event.target.id==='mapModal') toggleMapModal()" 
-        class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-3 lg:p-6">
+        class="hidden fixed inset-0 bg-black/95 flex items-center justify-center z-50 p-6">
 
         <div class="bg-slate-950 border border-slate-700 rounded-3xl w-full max-w-[1950px] h-[94vh] flex flex-col overflow-hidden">
 
             <!-- HEADER WITH LIVE TIMER + STATE + PAUSE -->
             <div class="flex items-center justify-between px-8 py-4 border-b border-slate-700 bg-slate-900">
-                <div class="flex items-center gap-3 lg:gap-4">
+                <div class="flex items-center gap-4">
                     <i class="fa-solid fa-map text-cyan-400 text-2xl"></i>
                     <h2 class="text-lg font-bold text-white tracking-tight">FULL MAP VIEW — DEATH REVIEW</h2>
                 </div>
@@ -1312,7 +1134,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 <div class="flex items-center gap-6">
                     <!-- Game Time -->
                     <div id="modalGameTime" 
-                        class="font-mono text-xl lg:text-3xl font-bold text-emerald-400 tabular-nums">
+                        class="font-mono text-3xl font-bold text-emerald-400 tabular-nums">
                         00:00
                     </div>
 
@@ -1331,7 +1153,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 </div>
 
                 <!-- Right side buttons -->
-                <div class="flex flex-wrap items-center gap-2 justify-center xl:justify-end">
+                <div class="flex items-center gap-2">
                     <button onclick="toggleLiveData()" 
                             id="liveDataToggleBtn"
                             class="px-5 py-2 bg-slate-800 hover:bg-slate-700 rounded-2xl text-xs font-medium flex items-center gap-2">
@@ -1353,14 +1175,14 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 </div>
             </div>
 
-            <div class="flex flex-1 overflow-hidden p-3 lg:p-6 gap-6">
+            <div class="flex flex-1 overflow-hidden p-6 gap-6">
 
                 <!-- LEFT: KILL EVENTS TIMELINE -->
                 <div id="killListPanel" 
-                    class="w-full max-w-[360px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
+                    class="w-[360px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
                     <div class="p-5 border-b border-slate-700 bg-slate-800">
                         <div class="uppercase text-xs tracking-widest text-slate-400">KILL EVENTS</div>
-                        <div id="killCount" class="text-xl lg:text-3xl font-bold text-red-400 mt-1">0</div>
+                        <div id="killCount" class="text-3xl font-bold text-red-400 mt-1">0</div>
                     </div>
                     <div id="killListContent" class="flex-1 overflow-y-auto p-3 space-y-2">
                         <!-- Populated by JS -->
@@ -1370,7 +1192,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 <!-- CENTER: MAP - FIXED 801x801 -->
                 <div class="flex-1 flex items-center justify-center">
                     <div id="mapBoxModal" 
-                        class="relative w-full max-w-[801px] aspect-square border-4 border-slate-700 rounded-3xl overflow-hidden bg-black shadow-2xl">
+                        class="relative w-[801px] h-[801px] border-4 border-slate-700 rounded-3xl overflow-hidden bg-black shadow-2xl">
                         
                         <img src="./Maps/Map_0.png" 
                             class="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-10">
@@ -1382,7 +1204,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
                 <!-- RIGHT: FILTERS PANEL -->
                 <div id="filtersPanel" 
-                    class="w-full max-w-[280px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
+                    class="w-[280px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
                     
                     <div class="p-5 border-b border-slate-700 bg-slate-800">
                         <div class="uppercase text-xs tracking-widest text-slate-400">FILTERS</div>
@@ -1919,11 +1741,11 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             const p2 = team2[i];
 
             const card = document.createElement('div');
-            card.className = "bg-slate-800 rounded-3xl p-3 lg:p-6 border border-slate-700";
+            card.className = "bg-slate-800 rounded-3xl p-6 border border-slate-700";
 
             card.innerHTML = `
                 <!-- HERO + ROLE -->
-                <div class="grid grid-cols-3 items-center gap-3 lg:gap-4 mb-4">
+                <div class="grid grid-cols-3 items-center gap-4 mb-4">
 
                     <!-- LEFT -->
                     <div class="flex flex-col items-center">
@@ -2320,7 +2142,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                     <!-- Bans -->
                     <div>
                         <p class="uppercase text-xs tracking-widest text-slate-400 mb-3">BANS</p>
-                        <div class="grid grid-cols-5 gap-3 lg:gap-4">
+                        <div class="grid grid-cols-5 gap-4">
                             ${team1Bans.map((b, i) => {
                                 if (b.isBanning && !b.heroid) {
                                     return `
@@ -2344,7 +2166,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                     <!-- Picks -->
                     <div>
                         <p class="uppercase text-xs tracking-widest text-slate-400 mb-3">PICKS</p>
-                        <div class="grid grid-cols-5 gap-3 lg:gap-4">
+                        <div class="grid grid-cols-5 gap-4">
                             ${team1Picks.map((p, i) => {
                                 if (p.isPicking && !p.heroid) {
                                     return `
@@ -2379,7 +2201,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                     <!-- Bans -->
                     <div>
                         <p class="uppercase text-xs tracking-widest text-slate-400 mb-3 text-right">BANS</p>
-                        <div class="grid grid-cols-5 gap-3 lg:gap-4 justify-end">
+                        <div class="grid grid-cols-5 gap-4 justify-end">
                             ${team2Bans.map((b, i) => {
                                 if (b.isBanning && !b.heroid) {
                                     return `
@@ -2403,7 +2225,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                     <!-- Picks -->
                     <div>
                         <p class="uppercase text-xs tracking-widest text-slate-400 mb-3 text-right">PICKS</p>
-                        <div class="grid grid-cols-5 gap-3 lg:gap-4 justify-end">
+                        <div class="grid grid-cols-5 gap-4 justify-end">
                             ${team2Picks.map((p, i) => {
                                 if (p.isPicking && !p.heroid) {
                                     return `
@@ -2444,7 +2266,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
             div.innerHTML = `
                 <div class="text-center">
-                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-xl flex items-center justify-center text-xl lg:text-3xl opacity-30">
+                    <div class="w-16 h-16 mx-auto bg-slate-800 rounded-xl flex items-center justify-center text-3xl opacity-30">
                         ?
                     </div>
                     <p class="text-[10px] text-slate-500 mt-1">${isBan ? 'BANNED' : 'PICKED'}</p>
@@ -3156,110 +2978,106 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     }
 
     function redrawMap() {
-    const canvas = document.getElementById('eventCanvas');
-    if (!canvas || !apiData) return;
+        const canvas = document.getElementById('eventCanvas');
+        if (!canvas || !apiData) return;
 
-    const ctx = canvas.getContext('2d');
-    const mapBox = canvas.parentElement;
+        const ctx = canvas.getContext('2d');           // ← Fixed: define ctx properly
+        const size = canvas.parentElement.clientWidth || BASE_MAP_SIZE || 300;
 
-    const width = mapBox.clientWidth || BASE_MAP_SIZE || 300;
-    const height = mapBox.clientHeight || width;
+        canvas.width = size;
+        canvas.height = size;
+        ctx.clearRect(0, 0, size, size);               // ← Use ctx instead of ctxEvent
 
-    canvas.width = width;
-    canvas.height = height;
+        const frame = posByTime[lastTime] || {};
+        const heroSize = Math.max(18, size * 0.05);
+        const filteredPlayerId = currentFilters.playerId;
 
-    ctx.clearRect(0, 0, width, height);
-
-    const frame = posByTime[lastTime] || {};
-    const heroSize = Math.max(18, width * 0.05);
-    const filteredPlayerId = currentFilters.playerId;
-
-    // ==================== 1. Draw Alive Players ====================
-    Object.keys(frame).forEach(roleid => {
-        const pos = frame[roleid];
-        if (!pos) return;
-
-        if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
-
-        const camp = campMap[roleid];
-        const campData = apiData?.camp_list?.find(c => c.campid === camp);
-        const player = campData?.player_list?.find(p => p.roleid == roleid);
-
-        if (player && (player.dead === true || player.dead === 1)) return;
-
-        const px = toPx(pos.x, false, width);
-        const py = toPx(pos.y, true, height);
-
-        const heroid = heroMap[roleid];
-        if (!heroid) return;
-
-        const img = loadImg(getHeroIconUrl(heroid));
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(px, py, heroSize / 2 + 2, 0, Math.PI * 2);
-        ctx.strokeStyle = camp === 1 ? '#3b82f6' : '#ef4444';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
-
-        ctx.save();
-        ctx.beginPath();
-        ctx.arc(px, py, heroSize / 2, 0, Math.PI * 2);
-        ctx.clip();
-        ctx.drawImage(img, px - heroSize / 2, py - heroSize / 2, heroSize, heroSize);
-        ctx.restore();
-    });
-
-    // ==================== 2. Draw Current Dead Players ====================
-    const deathSize = Math.max(21, width * 0.05);
-
-    apiData?.camp_list?.forEach(camp => {
-        const isTeam1 = camp.campid === 1;
-
-        camp.player_list?.forEach(player => {
-            const roleid = player.roleid;
-            if (!(player.dead === true || player.dead === 1)) return;
-
-            const reviveSeconds = parseFloat(player.revive_left_time) || 0;
-            const pos = posByTime[lastTime]?.[roleid];
+        // ==================== 1. Draw Alive Players ====================
+        Object.keys(frame).forEach(roleid => {
+            const pos = frame[roleid];
             if (!pos) return;
 
-            const px = toPx(pos.x, false, width);
-            const py = toPx(pos.y, true, height);
+            if (deathReviewMode && currentFilters.playerId && roleid == currentFilters.playerId) return;
 
-            const img = loadImg(getHeroIconUrl(player.heroid));
+            const camp = campMap[roleid];
+            const campData = apiData?.camp_list?.find(c => c.campid === camp);
+            const player = campData?.player_list?.find(p => p.roleid == roleid);
+
+            if (player && (player.dead === true || player.dead === 1)) return;
+
+            const px = toPx(pos.map_x, false, size);
+            const py = toPx(pos.map_y, true, size);
+            const heroid = heroMap[roleid];
+            if (!heroid) return;
+
+            const img = loadImg(getHeroIconUrl(heroid));
 
             ctx.save();
-
             ctx.beginPath();
-            ctx.arc(px, py, deathSize / 2 + 4, 0, Math.PI * 2);
-            ctx.strokeStyle = isTeam1 ? '#3b82f6' : '#ef4444';
-            ctx.lineWidth = 2.8;
+            ctx.arc(px, py, heroSize / 2 + 2, 0, Math.PI * 2);
+            ctx.strokeStyle = camp === 1 ? '#3b82f6' : '#ef4444';
+            ctx.lineWidth = 2;
             ctx.stroke();
+            ctx.restore();
 
-            ctx.filter = 'grayscale(100%) brightness(0.8)';
-            ctx.drawImage(img, px - deathSize / 2, py - deathSize / 2, deathSize, deathSize);
-
-            ctx.filter = 'none';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.shadowColor = '#000';
-            ctx.shadowBlur = 6;
-            ctx.font = 'bold 18px Inter, sans-serif';
-            ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
-
-            const displayText = reviveSeconds > 0 ? Math.ceil(reviveSeconds) : '✕';
-            ctx.fillText(displayText, px, py + 1);
-
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(px, py, heroSize / 2, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(img, px - heroSize/2, py - heroSize/2, heroSize, heroSize);
             ctx.restore();
         });
-    });
 
-    // ==================== 3. Draw Towers ====================
-    processTowerEvents();
-    drawAllAliveTowers(ctx, width, false); // false = main map mode
-}
+        // ==================== 2. Draw Current Dead Players ====================
+        const deathSize = Math.max(21, size * 0.05);
+
+        apiData?.camp_list?.forEach(camp => {
+            const isTeam1 = camp.campid === 1;
+
+            camp.player_list?.forEach(player => {
+                const roleid = player.roleid;
+                if (!(player.dead === true || player.dead === 1)) return;
+
+                const reviveSeconds = parseFloat(player.revive_left_time) || 0;
+                const pos = posByTime[lastTime]?.[roleid];
+                if (!pos) return;
+
+                const px = toPx(pos.map_x, false, size);
+                const py = toPx(pos.map_y, true, size);
+
+                const img = loadImg(getHeroIconUrl(player.heroid));
+
+                ctx.save();
+
+                ctx.beginPath();
+                ctx.arc(px, py, deathSize / 2 + 4, 0, Math.PI * 2);
+                ctx.strokeStyle = isTeam1 ? '#3b82f6' : '#ef4444';
+                ctx.lineWidth = 2.8;
+                ctx.stroke();
+
+                ctx.filter = 'grayscale(100%) brightness(0.8)';
+                ctx.drawImage(img, px - deathSize/2, py - deathSize/2, deathSize, deathSize);
+
+                ctx.filter = 'none';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.shadowColor = '#000';
+                ctx.shadowBlur = 6;
+                ctx.font = 'bold 18px Inter, sans-serif';
+                ctx.fillStyle = isTeam1 ? '#60a5fa' : '#f87171';
+
+                const displayText = reviveSeconds > 0 ? Math.ceil(reviveSeconds) : '✕';
+                ctx.fillText(displayText, px, py + 1);
+
+                ctx.restore();
+            });
+        });
+
+        // ==================== 3. Draw Towers ====================
+        processTowerEvents();
+        drawAllAliveTowers(ctx, size, false);   // false = main map mode
+
+    }
 
     function renderPlayersHorizontal() {
         const container = document.getElementById('players-container');
@@ -5694,11 +5512,11 @@ function renderTimeline() {
             const p2 = team2[i];
 
             const card = document.createElement('div');
-            card.className = "bg-slate-800 rounded-3xl p-3 lg:p-6 border border-slate-700";
+            card.className = "bg-slate-800 rounded-3xl p-6 border border-slate-700";
 
             card.innerHTML = `
                 <!-- HERO + ROLE -->
-                <div class="grid grid-cols-3 items-center gap-3 lg:gap-3 lg:gap-4 mb-4">
+                <div class="grid grid-cols-3 items-center gap-4 mb-4">
 
                     <!-- LEFT -->
                     <div class="flex flex-col items-center">
