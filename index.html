@@ -614,8 +614,19 @@
         }
         
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
-        #statsContainer { width: 100%; flex: 1;
-min-height: 320px; padding: 12px; display: flex; flex-direction: column; }
+        #statsContainer {
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            max-height: 100%;
+
+            padding: 12px;
+
+            display: flex;
+            flex-direction: column;
+
+            overflow: hidden;
+        }
         
         #teamChartContainer { flex: 1;
 min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
@@ -872,6 +883,18 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
                 overflow: hidden !important;
             }
         }
+
+        @media (orientation: landscape) and (max-width: 1366px) {
+            #statsContainer {
+                flex: 1 1 58%;
+            }
+
+            #playerGoldChartContainer {
+                flex: 0 0 32%;
+                min-height: 180px;
+                max-height: 28vh;
+            }
+        }
     </style>
 </head>
 <body>
@@ -977,7 +1000,7 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 
         <div class="main-dashboard-wrapper flex-1 grid grid-cols-1 lg:grid-cols-12 gap-3 overflow-visible lg:overflow-hidden min-h-0">
            <!-- LEFT COLUMN -->
-           <div class="lg:col-span-5 flex flex-col gap-3 min-h-0">
+           <div class="lg:col-span-5 flex flex-col gap-3 min-h-0 overflow-hidden">
             <div id="statsContainer" class="container-box flex-1 min-h-0">
                 <div id="players-container" class="flex-1 space-y-1 overflow-y-auto min-h-0 p-3"></div>
             </div>
