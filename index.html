@@ -2909,59 +2909,87 @@
     }
 
     // Replace your existing drawAllAliveTowers() with this improved version
-    function drawAllAliveTowers(ctx, canvasSize, isModal = false) {
-    if (!ctx || !canvasSize) return;
+   function drawAllAliveTowers(ctx, canvasSize, isModal = false) {
+    if (!ctx || !canvasSize || !TOWER_COORDS) return;
 
     const towerNames = Object.keys(TOWER_COORDS);
     const scaleFactor = isModal ? 1.8 : 1.0;
     let drawnCount = 0;
 
-    console.log(`🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers).length}`);
+    console.log(
+        `🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers || {}).length}`
+    );
 
     [1, 2].forEach(owningCamp => {
         towerNames.forEach(towerKey => {
+            // Skip destroyed towers
             if (!isTowerAlive(owningCamp, towerKey)) return;
 
-            const coords = TOWER_COORDS[towerKey][owningCamp];
+            const coords = TOWER_COORDS?.[towerKey]?.[owningCamp];
             if (!coords) return;
 
+            // Convert map coords
             const px = toPx(coords.x, false, canvasSize);
             const py = toPx(coords.y, true, canvasSize);
 
-            const sizeScale = Math.max(14, canvasSize * 0.032 * scaleFactor);
+            // Responsive icon size
+            const size = Math.max(16, canvasSize * 0.032 * scaleFactor);
 
-            const url = CUSTOM_ICONS.tower?.[owningCamp];
-            if (url) {
-                const img = loadImg(url);
-                if (img.complete && img.naturalWidth > 0) {
-                    ctx.save();
-                    ctx.globalAlpha = isModal ? 0.98 : 0.95;
-                    ctx.drawImage(img, px - sizeScale/2, py - sizeScale/2, sizeScale, sizeScale);
-                    ctx.restore();
-                    drawnCount++;
-                    return;
-                }
+            // ✅ Use existing proven icon system
+            const iconPath =
+                owningCamp === 1
+                    ? "./icons/tower-blue.png"
+                    : "./icons/tower-red.png";
+
+            const img = loadImg(iconPath);
+
+            // =========================
+            // DRAW CUSTOM ICON
+            // =========================
+            if (img && img.complete && img.naturalWidth > 0) {
+                ctx.save();
+                ctx.globalAlpha = isModal ? 0.98 : 0.95;
+
+                ctx.drawImage(
+                    img,
+                    px - size / 2,
+                    py - size / 2,
+                    size,
+                    size
+                );
+
+                ctx.restore();
+                drawnCount++;
+                return;
             }
 
-            // Fallback visible circle (so we can confirm position even if image fails)
+            // =========================
+            // FALLBACK IF ICON FAILS
+            // =========================
             ctx.save();
-            ctx.globalAlpha = 0.85;
-            ctx.fillStyle = owningCamp === 1 ? '#60a5fa' : '#f87171';
+            ctx.globalAlpha = 0.9;
+            ctx.fillStyle = owningCamp === 1 ? "#60a5fa" : "#f87171";
+
             ctx.beginPath();
-            ctx.arc(px, py, sizeScale / 2, 0, Math.PI * 2);
+            ctx.arc(px, py, size / 2, 0, Math.PI * 2);
             ctx.fill();
-            ctx.strokeStyle = '#ffffff';
-            ctx.lineWidth = 2.5;
+
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 2;
             ctx.stroke();
+
             ctx.restore();
 
             drawnCount++;
+
+            console.warn(
+                `⚠️ Tower icon failed to load for camp ${owningCamp}: ${iconPath}`
+            );
         });
     });
 
     console.log(`✅ Towers successfully drawn: ${drawnCount}`);
 }
-
 
     const loadImg = src => { if (IMG_CACHE[src]) return IMG_CACHE[src]; const img = new Image(); img.src = src; IMG_CACHE[src] = img; return img; };
     const drawIconIfReady = (ctx, img, x, y, size) => { if (img.complete && img.naturalWidth !== 0) { ctx.drawImage(img, x - size/2, y - size/2, size, size); return true; } return false; };
