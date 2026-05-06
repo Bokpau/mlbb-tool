@@ -846,11 +846,11 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
             animation: subtlePulse 4s infinite ease-in-out;
         }
 
-      /* =========================
-   TABLET PORTRAIT SCROLL FIX
-   ========================= */
+ /* =============================================
+   RESPONSIVE MEDIA QUERIES - MLBB LIVE TRACKER
+   ============================================= */
 
-/* Portrait tablets and smaller */
+/* ==================== PORTRAIT (Mobile + Portrait Tablet) ==================== */
 @media (orientation: portrait) and (max-width: 1024px) {
     body {
         overflow-y: auto !important;
@@ -865,55 +865,46 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         min-height: 100vh !important;
         overflow: visible !important;
     }
+
+    /* Make player rows easier to read in portrait */
+    .player-row {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+    }
 }
 
-/* ==================== TABLET LANDSCAPE FIX ==================== */
-/* Only for landscape tablets (between phone and laptop size) */
+/* ==================== TABLET LANDSCAPE (Main Problem Area) ==================== */
 @media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
 
-    #statsContainer {
-        flex: 1 1 55% !important;
-        max-height: 55vh !important;
+    /* Left Column - Balanced Height */
+    .lg\:col-span-5.flex.flex-col.gap-3 {
+        gap: 12px !important;
     }
 
+    /* Player Stats Container */
+    #statsContainer {
+        flex: 1 1 54% !important;
+        min-height: 0 !important;
+        max-height: 54vh !important;
+        overflow-y: auto !important;
+    }
+
+    /* Player Gold Diff Chart */
     #playerGoldChartContainer {
         flex: 0 0 42% !important;
+        min-height: 165px !important;
         max-height: 42vh !important;
     }
 
-    /* Force Chart.js to redraw properly */
-    #playerGoldDiffChart,
-    #teamGoldDiffChart,
-    #playerRankingChart {
-        max-height: 100% !important;
-    }
-}
-
-/* ==================== DESKTOP & BIG SCREENS ==================== */
-/* For laptops and bigger screens */
-@media (min-width: 1367px) {
-    body {
-        overflow: hidden !important;
-        height: 100vh !important;
+    #playerGoldChartContainer .flex-1 {
+        min-height: 0 !important;
     }
 
-    #appContent > div,
-    body > div:first-child,
-    .main-dashboard-wrapper {
-        height: 100vh !important;
-        overflow: hidden !important;
-    }
-}
-
-/* ==================== CONTENT SCALING FOR TABLETS ==================== */
-@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
-
-    /* 1. Player Stats Rows - Smaller & Cleaner */
+    /* ==================== CONTENT SCALING ==================== */
     .player-row {
         padding: 5px 10px !important;
         font-size: 12px !important;
         gap: 6px !important;
-        min-height: auto !important;
     }
 
     .hero-icon {
@@ -931,39 +922,71 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         height: 16px !important;
     }
 
-    /* 2. Text Sizes */
-    .font-medium, .text-xs, .text-sm {
-        font-size: 11.5px !important;
-    }
-
-    /* 3. Charts - Force Resize */
-    #playerGoldChartContainer canvas,
-    #teamGoldDiffChart canvas,
-    #playerRankingChart canvas {
-        width: 100% !important;
-        height: 100% !important;
-    }
-
-    /* 4. Scoreboard & Header Texts */
     .score-blue, .score-red {
-        font-size: 20px !important;
+        font-size: 21px !important;
     }
 
     .tc-name {
         font-size: 10px !important;
     }
 
-    /* 5. Make sure flex children can shrink */
+    #timelineContainer .text-xs {
+        font-size: 10.5px !important;
+    }
+
+    /* Force charts to scale properly */
+    #playerGoldDiffChart,
+    #teamGoldDiffChart,
+    #playerRankingChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Extra safety for flex items */
     #statsContainer,
     #playerGoldChartContainer,
     #teamChartContainer,
     #playerRankingContainer {
         min-height: 0 !important;
     }
+}
 
-    /* 6. Timeline events - smaller */
-    #timelineContainer .text-xs {
-        font-size: 10.5px !important;
+/* ==================== DESKTOP & LARGE SCREENS ==================== */
+@media (min-width: 1367px) {
+    body {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
+        height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    /* Reset tablet scaling on big screens */
+    .player-row {
+        padding: 7px 12px !important;
+        font-size: 13px !important;
+    }
+
+    .hero-icon {
+        width: 44px !important;
+        height: 44px !important;
+    }
+}
+
+/* ==================== VERY SMALL LANDSCAPE (Small Tablets) ==================== */
+@media (orientation: landscape) and (max-width: 900px) {
+    .hero-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .player-row {
+        font-size: 11.5px !important;
+        padding: 4px 8px !important;
     }
 }
     </style>
