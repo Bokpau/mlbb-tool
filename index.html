@@ -592,23 +592,23 @@
         .player-row .right-team { justify-content: flex-end; min-width: 0;}
         
         #mapBox {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            min-height: 280px !important;     /* Prevents zero height */
-            overflow: hidden;
-            border-radius: 20px;
-            border: 5px solid #334155;
-            background: #111827;
-            flex-shrink: 0;
-        }
+        position: relative;
+        width: 100%;
+        aspect-ratio: 1 / 1;
+        min-height: 280px !important;     /* Prevents zero height */
+        overflow: hidden;
+        border-radius: 20px;
+        border: 5px solid #334155;
+        background: #111827;
+        flex-shrink: 0;
+    }
 
-        #mapBox canvas {
-            position: absolute;
-            inset: 0;
-            width: 100% !important;
-            height: 100% !important;
-        }
+    #mapBox canvas {
+        position: absolute;
+        inset: 0;
+        width: 100% !important;
+        height: 100% !important;
+    }
         
         .container-box { border: 2px solid #334155; border-radius: 20px; background: #1a2332; }
         #statsContainer {
@@ -844,115 +844,147 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
         }
 
  /* =============================================
-   RESPONSIVE MEDIA QUERIES - MLBB LIVE TRACKER (FIXED)
+   RESPONSIVE MEDIA QUERIES - MLBB LIVE TRACKER
    ============================================= */
 
 /* ==================== PORTRAIT (Mobile + Portrait Tablet) ==================== */
 @media (orientation: portrait) and (max-width: 1024px) {
-    body { overflow-y: auto !important; height: auto !important; }
-    .main-dashboard-wrapper { height: auto !important; min-height: 100vh !important; }
+    body {
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        height: auto !important;
+    }
+
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
+        height: auto !important;
+        min-height: 100vh !important;
+        overflow: visible !important;
+    }
+
+    /* Make player rows easier to read in portrait */
+    .player-row {
+        padding: 8px 12px !important;
+        font-size: 13px !important;
+    }
 }
 
-/* ==================== TABLET LANDSCAPE (768px - 1366px) - MAIN FIX ==================== */
+/* ==================== TABLET LANDSCAPE (Main Problem Area) ==================== */
 @media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
-    body, #appContent > div, .main-dashboard-wrapper {
-        height: 100vh !important;
-        overflow: hidden !important;
-    }
 
-    .main-dashboard-wrapper {
-        grid-template-columns: 380px 1fr 260px !important;
+    /* Left Column - Balanced Height */
+    .lg\:col-span-5.flex.flex-col.gap-3 {
         gap: 12px !important;
     }
 
-    /* LEFT COLUMN - Player Stats + Gold Chart */
-    .lg\:col-span-5 {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
-    }
-
+    /* Player Stats Container */
     #statsContainer {
-        flex: 1 !important;
+        flex: 1 1 54% !important;
         min-height: 0 !important;
-        max-height: 58vh !important;
+        max-height: 54vh !important;
         overflow-y: auto !important;
     }
 
+    /* Player Gold Diff Chart */
     #playerGoldChartContainer {
-        flex: 0 0 38% !important;
+        flex: 0 0 42% !important;
         min-height: 165px !important;
+        max-height: 42vh !important;
     }
 
-    /* CENTER COLUMN - Team Comparison + Rankings + Team Gold */
-    .lg\:col-span-5 {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 12px !important;
+    #playerGoldChartContainer .flex-1 {
+        min-height: 0 !important;
     }
 
-    /* Team Comparison + Player Rankings side-by-side */
-    .grid.grid-cols-1.xl\:grid-cols-2 {
-        grid-template-columns: 1fr 1fr !important;
-        gap: 12px !important;
-        min-height: 380px !important;
+    /* ==================== CONTENT SCALING ==================== */
+    .player-row {
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+        gap: 6px !important;
     }
 
-    #teamChartContainer, #playerRankingContainer {
-        height: 380px !important;
+    .hero-icon {
+        width: 36px !important;
+        height: 36px !important;
     }
 
-    #teamGoldChartContainer {
-        flex: 1 !important;
-        min-height: 240px !important;
+    .item-icon, .rune-icon {
+        width: 17px !important;
+        height: 17px !important;
     }
 
-    /* RIGHT COLUMN - Map + Timeline */
-    .lg\:col-span-2 {
-        display: flex !important;
-        flex-direction: column !important;
-        gap: 10px !important;
+    .skill-icon {
+        width: 16px !important;
+        height: 16px !important;
     }
 
-    #mapBox {
-        aspect-ratio: 1 / 1 !important;
-        min-height: 260px !important;
-        max-height: 260px !important;
+    .score-blue, .score-red {
+        font-size: 21px !important;
     }
 
-    #timelineContainer {
-        flex: 1 !important;
-        min-height: 220px !important;
+    .tc-name {
+        font-size: 10px !important;
     }
 
-    /* Smaller text for tablet */
-    .player-row { font-size: 12.5px !important; padding: 6px 10px !important; }
-    .hero-icon { width: 38px !important; height: 38px !important; }
-    .score-blue, .score-red { font-size: 22px !important; }
+    #timelineContainer .text-xs {
+        font-size: 10.5px !important;
+    }
+
+    /* Force charts to scale properly */
+    #playerGoldDiffChart,
+    #teamGoldDiffChart,
+    #playerRankingChart {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* Extra safety for flex items */
+    #statsContainer,
+    #playerGoldChartContainer,
+    #teamChartContainer,
+    #playerRankingContainer {
+        min-height: 0 !important;
+    }
 }
 
-/* ==================== DESKTOP (Large Screens) ==================== */
+/* ==================== DESKTOP & LARGE SCREENS ==================== */
 @media (min-width: 1367px) {
-    body, #appContent > div, .main-dashboard-wrapper {
+    body {
+        overflow: hidden !important;
+        height: 100vh !important;
+    }
+
+    #appContent > div,
+    body > div:first-child,
+    .main-dashboard-wrapper {
         height: 100vh !important;
         overflow: hidden !important;
     }
 
-    .main-dashboard-wrapper {
-        grid-template-columns: 420px 1fr 280px !important;
-        gap: 16px !important;
+    /* Reset tablet scaling on big screens */
+    .player-row {
+        padding: 7px 12px !important;
+        font-size: 13px !important;
     }
 
-    #statsContainer { max-height: 62vh !important; }
-    #mapBox { min-height: 300px !important; max-height: 300px !important; }
-    .hero-icon { width: 44px !important; height: 44px !important; }
+    .hero-icon {
+        width: 44px !important;
+        height: 44px !important;
+    }
 }
 
 /* ==================== VERY SMALL LANDSCAPE (Small Tablets) ==================== */
 @media (orientation: landscape) and (max-width: 900px) {
-    .hero-icon { width: 34px !important; height: 34px !important; }
-    .player-row { font-size: 11.5px !important; padding: 5px 8px !important; }
-    #mapBox { min-height: 220px !important; max-height: 220px !important; }
+    .hero-icon {
+        width: 34px !important;
+        height: 34px !important;
+    }
+
+    .player-row {
+        font-size: 11.5px !important;
+        padding: 4px 8px !important;
+    }
 }
     </style>
 </head>
