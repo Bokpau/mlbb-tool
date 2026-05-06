@@ -1396,12 +1396,18 @@
     }
 
     function disableDevMode() {
-        DEV_MODE = false;
+    DEV_MODE = false;
 
-        document.getElementById("devControls").classList.add("hidden");
+    document.getElementById("devControls").classList.add("hidden");
 
-        console.log("🚀 Developer Mode Disabled");
+    console.log("🚀 Developer Mode Disabled");
     }
+
+    window.openDevLoginModal = openDevLoginModal;
+    window.closeDevLoginModal = closeDevLoginModal;
+    window.verifyDevPassword = verifyDevPassword;
+    window.enableDevMode = enableDevMode;
+    window.disableDevMode = disableDevMode;
 
 
     // ====================== FULL RESET FUNCTION ======================
