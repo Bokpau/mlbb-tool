@@ -2553,136 +2553,126 @@
                 }
             },
 
-            {
+           {
                 id: 'playerEventIcons',
                 afterDatasetsDraw(chart) {
-                    if (!selectedPlayer1 || !selectedPlayer2) return;
+                    if (!selectedPlayer1 || !selectedPlayer2 || !apiData) return;
 
                     const { ctx, scales: { x }, chartArea } = chart;
                     const h = chartArea.bottom - chartArea.top;
 
-                    // ✅ IMPROVED LAYOUT (more breathing space)
-                    const objY1  = chartArea.top + h * 0.28;
-                    const killY1 = chartArea.top + h * 0.22;
+                    const objY1  = chartArea.top + h * 0.25;
+                    const killY1 = chartArea.top + h * 0.18;
 
-                    const objY2  = chartArea.top + h * 0.72;
-                    const killY2 = chartArea.top + h * 0.78;
+                    const objY2  = chartArea.top + h * 0.75;
+                    const killY2 = chartArea.top + h * 0.82;
 
-                    const selected = new Set([
-                        parseInt(selectedPlayer1),
-                        parseInt(selectedPlayer2)
-                    ]);
-
+                    const selected = new Set([parseInt(selectedPlayer1), parseInt(selectedPlayer2)]);
                     const drawn = new Set();
 
-                    // ✅ CONSISTENT ICON SIZE SYSTEM
-                    const killSize = Math.max(14, getResponsiveSize(chart, 0.5));
-                    const objSize  = Math.max(16, getResponsiveSize(chart, 0.6));
+                    const killSize = Math.max(14, getResponsiveSize?.(chart, 0.5) || 16);
+                    const objSize  = Math.max(18, getResponsiveSize?.(chart, 0.65) || 20);
 
-                    // =========================
-                    // 🟥 KILLS + DEATHS
-                    // =========================
+                    // ====================== KILLS & DEATHS ======================
                     allKillEvents
                         .filter(ev => ev.type === 'kill_hero' && ev.time <= (apiData?.game_time || 0))
                         .forEach(ev => {
+                            const killer = ev.killerId || ev.roleid;
+                            const victim = ev.victimId || ev.killed_id;
 
-                            const killer = ev.killerId ?? ev.roleid; // ✅ FIX
-                            const victim = ev.victimId;
-
-                            // ✅ FIXED FILTER
                             if (!selected.has(killer) && !selected.has(victim)) return;
 
-                            let idx = chart.data.labels.findIndex(l => {
-                                const [m,s] = l.split(':').map(Number);
-                                return m*60 + s >= ev.time;
+                            const idx = chart.data.labels.findIndex(l => {
+                                const [m, s] = l.split(':').map(Number);
+                                return (m * 60 + s) >= ev.time;
                             });
 
                             if (idx === -1) return;
-
                             const xPos = x.getPixelForValue(idx);
 
-                            // 🔵 KILL ICON
+                            // KILL ICON
                             if (selected.has(killer)) {
-                                const key = `kill_${ev.time}_${killer}`;
-                                if (!drawn.has(key)) {
-                                    drawn.add(key);
+                                const key = `k_${ev.time}_${killer}`;
+                                if (drawn.has(key)) return;
+                                drawn.add(key);
 
-                                    const img = loadImg(
-                                        ev.camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png'
-                                    );
+                                const camp = ev.killer_camp || ev.camp || 1;
+                                const img = loadImg(camp === 1 ? './icons/kill-blue.png' : './icons/kill-red.png');
+                                const yPos = camp === 1 ? killY1 : killY2;
 
-                                    const yPos = ev.camp === 1 ? killY1 : killY2;
-
-                                    ctx.save();
-                                    ctx.globalAlpha = 0.95;
-                                    drawIconIfReady(ctx, img, xPos, yPos, killSize);
-                                    ctx.restore();
-                                }
+                                ctx.save();
+                                ctx.globalAlpha = 0.95;
+                                drawIconIfReady(ctx, img, xPos, yPos, killSize);
+                                ctx.restore();
                             }
 
-                            // 💀 DEATH ICON
+                            // DEATH ICON
                             if (selected.has(victim)) {
-                                const victimCamp = campMap[victim];
+                                const key = `d_${ev.time}_${victim}`;
+                                if (drawn.has(key)) return;
+                                drawn.add(key);
 
-                                const key = `death_${ev.time}_${victim}`;
-                                if (!drawn.has(key)) {
-                                    drawn.add(key);
+                                const victimCamp = campMap[victim] || ev.killed_camp || 1;
+                                const img = loadImg(victimCamp === 1 ? './icons/death-blue.png' : './icons/death-red.png');
+                                const yPos = victimCamp === 1 ? killY1 : killY2;
 
-                                    const img = loadImg(
-                                        victimCamp === 1 ? './icons/death-blue.png' : './icons/death-red.png'
-                                    );
-
-                                    const yPos = victimCamp === 1 ? killY1 : killY2;
-
-                                    ctx.save();
-                                    ctx.globalAlpha = 0.85;
-                                    drawIconIfReady(ctx, img, xPos, yPos, killSize);
-                                    ctx.restore();
-                                }
+                                ctx.save();
+                                ctx.globalAlpha = 0.85;
+                                drawIconIfReady(ctx, img, xPos, yPos, killSize);
+                                ctx.restore();
                             }
                         });
 
-                    // =========================
-                    // 🟡 OBJECTIVES
-                    // =========================
-                    allKillEvents
-                        .filter(ev =>
-                            ['kill_lord','kill_turtle','kill_tower'].includes(ev.type) &&
-                            ev.time <= (apiData?.game_time || 0) &&
-                            selected.has(ev.roleid)
-                        )
-                        .forEach(ev => {
+                    // ====================== OBJECTIVES (Lord / Turtle / Tower) ======================
+                    const allEvents = [...(apiData.incre_event_list || []), ...(apiData.event_list || [])];
 
-                            const key = `${ev.time}_${ev.type}_${ev.roleid}`;
-                            if (drawn.has(key)) return;
-                            drawn.add(key);
+                    allEvents.forEach(ev => {
+                        if (!ev.game_time || ev.game_time > (apiData.game_time || 0)) return;
 
-                            let idx = chart.data.labels.findIndex(l => {
-                                const [m,s] = l.split(':').map(Number);
-                                return m*60 + s >= ev.time;
-                            });
+                        let type = null;
+                        let roleid = null;
+                        let camp = null;
 
-                            if (idx === -1) return;
+                        if (ev.event_type === 'kill_boss') {
+                            if (ev.boss_name === 'lord') type = 'kill_lord';
+                            else if (ev.boss_name === 'tortoise') type = 'kill_turtle';
+                            roleid = ev.killer_id || ev.roleid;
+                            camp = ev.killer_camp || ev.camp;
+                        } 
+                        else if (ev.event_type === 'kill_tower' || ev.event_type === 'camp_kill_tower') {
+                            type = 'kill_tower';
+                            roleid = ev.killer_id || ev.roleid;
+                            camp = ev.killer_camp || ev.camp;
+                        }
 
-                            const xPos = x.getPixelForValue(idx);
+                        if (!type || !roleid || !selected.has(roleid)) return;
 
-                            let src;
-                            if (ev.type === 'kill_lord')
-                                src = ev.camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
-                            else if (ev.type === 'kill_turtle')
-                                src = ev.camp === 1 ? './icons/turtle-blue.png' : './icons/turtle-red.png';
-                            else if (ev.type === 'kill_tower')
-                                src = ev.camp === 1 ? './icons/tower-blue.png' : './icons/tower-red.png';
+                        const key = `${ev.game_time}_${type}_${roleid}`;
+                        if (drawn.has(key)) return;
+                        drawn.add(key);
 
-                            const yPos = ev.camp === 1 ? objY1 : objY2;
-
-                            const img = loadImg(src);
-
-                            ctx.save();
-                            ctx.globalAlpha = 1;
-                            drawIconIfReady(ctx, img, xPos, yPos, objSize);
-                            ctx.restore();
+                        const idx = chart.data.labels.findIndex(l => {
+                            const [m, s] = l.split(':').map(Number);
+                            return (m * 60 + s) >= ev.game_time;
                         });
+
+                        if (idx === -1) return;
+
+                        const xPos = x.getPixelForValue(idx);
+                        const yPos = camp === 1 ? objY1 : objY2;
+
+                        let src = '';
+                        if (type === 'kill_lord')   src = camp === 1 ? './icons/lord-blue.png' : './icons/lord-red.png';
+                        if (type === 'kill_turtle') src = camp === 1 ? './icons/turtle-blue.png' : './icons/turtle-red.png';
+                        if (type === 'kill_tower')  src = camp === 1 ? './icons/tower-blue.png' : './icons/tower-red.png';
+
+                        const img = loadImg(src);
+
+                        ctx.save();
+                        ctx.globalAlpha = 1.0;
+                        drawIconIfReady(ctx, img, xPos, yPos, objSize);
+                        ctx.restore();
+                    });
                 }
             },
             {
