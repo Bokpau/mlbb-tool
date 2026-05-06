@@ -871,40 +871,21 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
 /* Only for landscape tablets (between phone and laptop size) */
 @media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
 
-    /* Force proper height distribution on left column */
-    .lg\:col-span-5.flex.flex-col.gap-3 {
-        gap: 12px !important;
-    }
-
-    /* Player Stats - Scrollable but limited height */
     #statsContainer {
-        flex: 1 1 57% !important;
-        min-height: 0 !important;
-        max-height: 57vh !important;
-        overflow-y: auto !important;
+        flex: 1 1 55% !important;
+        max-height: 55vh !important;
     }
 
-    /* Player Gold Diff Chart - Always visible */
     #playerGoldChartContainer {
-        flex: 0 0 39% !important;
-        min-height: 165px !important;
-        max-height: 39vh !important;
+        flex: 0 0 42% !important;
+        max-height: 42vh !important;
     }
 
-    #playerGoldChartContainer .flex-1 {
-        min-height: 0 !important;
-    }
-
-    /* Make rows a bit smaller on tablet */
-    .player-row {
-        padding: 6px 10px !important;
-        font-size: 12.5px !important;
-        gap: 8px !important;
-    }
-
-    .hero-icon {
-        width: 38px !important;
-        height: 38px !important;
+    /* Force Chart.js to redraw properly */
+    #playerGoldDiffChart,
+    #teamGoldDiffChart,
+    #playerRankingChart {
+        max-height: 100% !important;
     }
 }
 
@@ -921,6 +902,68 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     .main-dashboard-wrapper {
         height: 100vh !important;
         overflow: hidden !important;
+    }
+}
+
+/* ==================== CONTENT SCALING FOR TABLETS ==================== */
+@media (orientation: landscape) and (min-width: 768px) and (max-width: 1366px) {
+
+    /* 1. Player Stats Rows - Smaller & Cleaner */
+    .player-row {
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+        gap: 6px !important;
+        min-height: auto !important;
+    }
+
+    .hero-icon {
+        width: 36px !important;
+        height: 36px !important;
+    }
+
+    .item-icon, .rune-icon {
+        width: 17px !important;
+        height: 17px !important;
+    }
+
+    .skill-icon {
+        width: 16px !important;
+        height: 16px !important;
+    }
+
+    /* 2. Text Sizes */
+    .font-medium, .text-xs, .text-sm {
+        font-size: 11.5px !important;
+    }
+
+    /* 3. Charts - Force Resize */
+    #playerGoldChartContainer canvas,
+    #teamGoldDiffChart canvas,
+    #playerRankingChart canvas {
+        width: 100% !important;
+        height: 100% !important;
+    }
+
+    /* 4. Scoreboard & Header Texts */
+    .score-blue, .score-red {
+        font-size: 20px !important;
+    }
+
+    .tc-name {
+        font-size: 10px !important;
+    }
+
+    /* 5. Make sure flex children can shrink */
+    #statsContainer,
+    #playerGoldChartContainer,
+    #teamChartContainer,
+    #playerRankingContainer {
+        min-height: 0 !important;
+    }
+
+    /* 6. Timeline events - smaller */
+    #timelineContainer .text-xs {
+        font-size: 10.5px !important;
     }
 }
     </style>
@@ -5950,7 +5993,12 @@ function updateUI() {
     if (pvpModal && !pvpModal.classList.contains('hidden')) {
         renderPlayerComparison();
     }
-    }
+
+    // Force all charts to resize on tablet
+        if (goldDiffChart) goldDiffChart.resize();
+        if (teamGoldDiffChart) teamGoldDiffChart.resize();
+        if (playerRankingChart) playerRankingChart.resize();
+ }
 
 async function startAutoRefresh(battleId) {
     if (pollInterval) clearInterval(pollInterval);
