@@ -1668,10 +1668,13 @@ min-height: 320px; padding: 20px; display: flex; flex-direction: column; }
     function updateStatusBar() {
         if (!apiData) return;
 
+            // Safe status update
         const stateInfo = getStateInfo();
-
-        document.getElementById('stateName').textContent = stateInfo.label;
-        document.getElementById('stateTimer').textContent = stateInfo.time;
+        const stateNameEl = document.getElementById('stateName');
+        const stateTimerEl = document.getElementById('stateTimer');
+        
+        if (stateNameEl) stateNameEl.textContent = stateInfo.label;
+        if (stateTimerEl) stateTimerEl.textContent = stateInfo.time;
     }
 
     function getStateInfo() {
@@ -5844,6 +5847,28 @@ function renderTimeline() {
             </div>
         `;
     }
+
+    function getStateInfo() {
+        if (!apiData) return { label: "READY", time: "" };
+        
+        const state = (apiData.state || "").toLowerCase();
+        let label = "PLAYING";
+        let time = "";
+
+        if (state === "end") {
+            label = "ENDED";
+        } else if (state === "pause") {
+            label = "PAUSED";
+        }
+
+        if (apiData.game_time) {
+            const min = Math.floor(apiData.game_time / 60);
+            const sec = (apiData.game_time % 60).toString().padStart(2, '0');
+            time = `${min}:${sec}`;
+        }
+
+        return { label, time };
+    }
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
     const camp1 = apiData.camp_list?.find(c => c.campid === 1);
@@ -6065,6 +6090,7 @@ async function startAutoRefresh(battleId) {
 async function loadBattle() {
     const battleId = document.getElementById('battleIdInput').value.trim();
     if (!battleId) return alert("Enter Battle ID");
+
     resetAllEventData();
     goldDiffHistory = []; 
     teamGoldHistory.clear(); 
@@ -6073,23 +6099,33 @@ async function loadBattle() {
     allItemEvents.clear();
 
     try {
-        const res = await fetch(`/api/mlbb?battleId=${battleId}`)
+        const res = await fetch(`/api/mlbb?battleId=${battleId}`);
         const json = await res.json();
         if (!json.data) throw new Error("No data");
 
         apiData = json.data;
+
+        // Safe hero mapping
         heroMap = {};
-        apiData.camp_list.forEach(camp => {
-            camp.player_list.forEach(p => {
-                heroMap[p.roleid] = p.heroid;
+        if (apiData.camp_list) {
+            apiData.camp_list.forEach(camp => {
+                if (camp.player_list) {
+                    camp.player_list.forEach(p => {
+                        if (p.roleid && p.heroid) {
+                            heroMap[p.roleid] = p.heroid;
+                        }
+                    });
+                }
             });
-        });
+        }
 
         preloadTeamLogos();
         lastTime = apiData.game_time || 0;
         extractPositions(apiData, lastTime);
         prevItemsMap.clear();
         processEvents();
+        
+        // Safe UI updates
         updateStatusBar();
         initAllTowers();
         createPlayerRankingChart();
@@ -6097,10 +6133,14 @@ async function loadBattle() {
         createTeamGoldDiffChart();
         updateGoldHistory();
         updateUI();
-        processEvents();
         updateTeamKillsDisplay(); 
+        
         startAutoRefresh(battleId);
+        
+        console.log("✅ Battle loaded successfully");
+        
     } catch (e) { 
+        console.error("Load error:", e);
         alert("Failed to load: " + e.message); 
     }
 }
