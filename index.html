@@ -217,7 +217,7 @@
             align-items: center;
             justify-content: space-between;
 
-            width: 420px;
+            width: min(100%, 420px);
             height: 60px;
 
             padding: 6px 14px;
@@ -818,7 +818,7 @@
 
             <!-- 🔐 LOGIN SCREEN -->
             <div id="loginScreen" class="fixed inset-0 bg-black flex items-center justify-center z-50">
-                <div class="bg-slate-900 p-8 rounded-2xl text-center w-[320px]">
+                <div class="bg-slate-900 p-6 rounded-2xl text-center w-full max-w-[320px] mx-4">
                     <h2 class="text-xl font-bold mb-4">Access Required</h2>
             
                     <input 
@@ -880,7 +880,7 @@
                     <input id="battleIdInput"
                         type="text"
                         placeholder="Battle ID"
-                        class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-1.5 w-56 focus:outline-none focus:border-cyan-400 text-xs">
+                        class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-1.5 w-full sm:w-56 focus:outline-none focus:border-cyan-400 text-xs">
         
                     <button onclick="loadBattle()"
                         class="px-4 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-medium">
@@ -1061,7 +1061,7 @@
     </div>
     <!-- Player Comparison Modal -->
     <div id="playerCompareModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-        <div class="bg-slate-900 rounded-3xl p-6 w-[1580px] max-w-[96vw] max-h-[94vh] overflow-auto">
+        <div class="bg-slate-900 rounded-3xl p-4 lg:p-6 w-full max-w-[1580px] max-h-[94vh] overflow-auto">
 
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">PLAYER VS PLAYER</h2>
@@ -1074,7 +1074,7 @@
     </div>
     <!-- GOLD DISTRIBUTION MODAL -->
     <div id="goldDistributionModal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50">
-        <div class="bg-slate-900 rounded-3xl p-6 w-[1580px] max-w-[96vw] max-h-[94vh] overflow-auto">
+        <div class="bg-slate-900 rounded-3xl p-4 lg:p-6 w-full max-w-[1580px] max-h-[94vh] overflow-auto">
 
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-2xl font-bold">GOLD DISTRIBUTION (ROLE VS ROLE)</h2>
@@ -1155,7 +1155,7 @@
                 </div>
 
                 <!-- Right side buttons -->
-                <div class="flex items-center gap-2">
+                <div class="flex flex-wrap items-center gap-2 justify-center xl:justify-end">
                     <button onclick="toggleLiveData()" 
                             id="liveDataToggleBtn"
                             class="px-5 py-2 bg-slate-800 hover:bg-slate-700 rounded-2xl text-xs font-medium flex items-center gap-2">
@@ -1181,7 +1181,7 @@
 
                 <!-- LEFT: KILL EVENTS TIMELINE -->
                 <div id="killListPanel" 
-                    class="w-[360px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
+                    class="w-full max-w-[360px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
                     <div class="p-5 border-b border-slate-700 bg-slate-800">
                         <div class="uppercase text-xs tracking-widest text-slate-400">KILL EVENTS</div>
                         <div id="killCount" class="text-3xl font-bold text-red-400 mt-1">0</div>
@@ -1194,7 +1194,7 @@
                 <!-- CENTER: MAP - FIXED 801x801 -->
                 <div class="flex-1 flex items-center justify-center">
                     <div id="mapBoxModal" 
-                        class="relative w-[801px] h-[801px] border-4 border-slate-700 rounded-3xl overflow-hidden bg-black shadow-2xl">
+                        class="relative w-full max-w-[801px] aspect-square border-4 border-slate-700 rounded-3xl overflow-hidden bg-black shadow-2xl">
                         
                         <img src="./Maps/Map_0.png" 
                             class="absolute inset-0 w-full h-full object-contain pointer-events-none select-none z-10">
@@ -1206,7 +1206,7 @@
 
                 <!-- RIGHT: FILTERS PANEL -->
                 <div id="filtersPanel" 
-                    class="w-[280px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
+                    class="w-full max-w-[280px] bg-slate-900 border border-slate-700 rounded-3xl overflow-hidden hidden flex flex-col">
                     
                     <div class="p-5 border-b border-slate-700 bg-slate-800">
                         <div class="uppercase text-xs tracking-widest text-slate-400">FILTERS</div>
