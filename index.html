@@ -2952,11 +2952,9 @@
         key = `${destroyedCamp}_${varKey}`;
         if (activeTowers[key] !== undefined) {
             activeTowers[key] = false;
-            console.log(`✅ Tower destroyed (variation): Camp ${destroyedCamp} - ${varKey}`);
             return;
         }
         }
-        console.warn(`⚠️ Tower key not found: ${key} | Original: "${towerName}"`);
     }
 
     function isTowerAlive(campId, towerKey) {
@@ -2968,7 +2966,6 @@
     // Direct exact match (most common)
     if (activeTowers[exactKey] !== undefined) {
         const alive = activeTowers[exactKey] !== false;
-        console.log(`Tower check: ${exactKey} → ${alive ? '✅ ALIVE' : '❌ DESTROYED'}`);
         return alive;
     }
 
@@ -2976,12 +2973,9 @@
     for (const key in activeTowers) {
         if (key.startsWith(`${campId}_`) && key.includes(normalized)) {
             const alive = activeTowers[key] !== false;
-            console.log(`Tower partial match: ${key} → ${alive ? '✅ ALIVE' : '❌ DESTROYED'}`);
             return alive;
         }
     }
-
-    console.log(`⚠️ Tower not found in activeTowers: ${exactKey} (original key: ${towerKey})`);
     return false;
 }
 
@@ -3003,10 +2997,6 @@
     const towerNames = Object.keys(TOWER_COORDS);
     const scaleFactor = isModal ? 1.8 : 1.0;
     let drawnCount = 0;
-
-    console.log(
-        `🎯 drawAllAliveTowers called | isModal=${isModal} | activeTowers=${Object.keys(activeTowers || {}).length}`
-    );
 
     [1, 2].forEach(owningCamp => {
         towerNames.forEach(towerKey => {
@@ -3075,8 +3065,6 @@
             );
         });
     });
-
-    console.log(`✅ Towers successfully drawn: ${drawnCount}`);
 }
 
     const loadImg = src => { if (IMG_CACHE[src]) return IMG_CACHE[src]; const img = new Image(); img.src = src; IMG_CACHE[src] = img; return img; };
@@ -3200,7 +3188,6 @@
 
         // ==================== 3. Draw Towers ====================
         processTowerEvents();                    // process latest destructions
-        console.log(`🗼 redrawMap() → drawing towers on main map | size=${size}`);
         drawAllAliveTowers(ctx, size, false);    // false = main map
 
     }
@@ -5360,8 +5347,6 @@ function renderTimeline() {
             </span>
         `;
     }
-
-    console.log(`✅ Score updated → ${score1} - ${score2}`);
 }
 
     function renderItemTimings() {
@@ -6205,10 +6190,7 @@ window.onload = () => {
             return;
         }
 
-        console.log("✅ Player Comparison Modal listener attached");
-
         function fixComparisonCharts() {
-            console.log("Modal opened - fixing charts...");
 
             setTimeout(() => {
                 let fixedCount = 0;
@@ -6220,8 +6202,6 @@ window.onload = () => {
                         fixedCount++;
                     }
                 });
-
-                console.log(`✅ Fixed ${fixedCount} comparison charts`);
             }, 300);   // Increased delay because your modal uses transition
         }
 
