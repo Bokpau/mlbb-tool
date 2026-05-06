@@ -1640,18 +1640,37 @@
 }
 
 function updateMapHeader() {
-    if (!apiData) return;
+    if (!apiData) {
+        console.warn("⚠️ apiData missing for map header");
+        return;
+    }
 
-    const playModeId = apiData.play_mode_id ?? 0;
+    // 🔥 Correct API path
+    const playModeId = Number(apiData.play_mode_id ?? 0);
+
+    console.log("🗺 Detected play_mode_id:", playModeId);
 
     const mapName = MAP_NAMES[playModeId] || "Default";
-    const mapIconPath = `./Maps/MAP_${playModeId}.png`;
+    const mapIconPath = `./mapicon/${playModeId}.png`;
 
     const mapNameEl = document.getElementById("mapNameHeader");
     const mapIconEl = document.getElementById("mapIconHeader");
 
-    if (mapNameEl) mapNameEl.textContent = mapName;
-    if (mapIconEl) mapIconEl.src = mapIconPath;
+    if (mapNameEl) {
+        mapNameEl.textContent = mapName;
+    }
+
+    if (mapIconEl) {
+        mapIconEl.src = mapIconPath;
+
+        // Optional fallback
+        mapIconEl.onerror = () => {
+            console.warn(`❌ Missing map icon for play_mode_id ${playModeId}`);
+            mapIconEl.src = "./mapicon/0.png";
+        };
+    }
+
+    console.log(`✅ Map header updated: ${mapName}`);
 }
 
     // ================= TEAM NAME =================
@@ -6311,7 +6330,6 @@ async function loadBattle() {
 
     // 🔥 FULL UI + DATA RESET
     fullDeveloperReset();
-    updateMapHeader();
     const battleId = document.getElementById('battleIdInput').value.trim();
     if (!battleId) return alert("Enter Battle ID");
     resetAllEventData();
@@ -6328,6 +6346,7 @@ async function loadBattle() {
 
         apiData = json.data;
         populateGoldDiffSelectors();
+        updateMapHeader();
         updateUI();
         heroMap = {};
         apiData.camp_list.forEach(camp => {
