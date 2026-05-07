@@ -6442,51 +6442,42 @@ function renderStatsDonut() {
     const total2     = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
     const grandTotal = total1 + total2 || 1;
 
-    // ── Update right-side list ──
+    // ── Right-side list ──
     const teamConfigs = [
         { players: team1Players, total: total1, campId: 1, camp: camp1,
           listId: 'donutListTeam1', logoId: 'donutListLogo1',
-          nameId: 'donutListName1', totalId: 'donutListTotal1',
-          barColor: '#3b82f6' },
+          nameId: 'donutListName1', totalId: 'donutListTotal1', barColor: '#3b82f6' },
         { players: team2Players, total: total2, campId: 2, camp: camp2,
           listId: 'donutListTeam2', logoId: 'donutListLogo2',
-          nameId: 'donutListName2', totalId: 'donutListTotal2',
-          barColor: '#ef4444' },
+          nameId: 'donutListName2', totalId: 'donutListTotal2', barColor: '#ef4444' },
     ];
 
     teamConfigs.forEach(({ players, total, campId, camp, listId, logoId, nameId, totalId, barColor }) => {
-        // Team name + total
-        const nameEl = document.getElementById(nameId);
+        const nameEl  = document.getElementById(nameId);
         const totalEl = document.getElementById(totalId);
-        if (nameEl) nameEl.textContent = camp.team_simple_name || `Team ${campId}`;
+        if (nameEl)  nameEl.textContent  = camp.team_simple_name || `Team ${campId}`;
         if (totalEl) totalEl.textContent = formatVal(total);
 
-        // Team logo
         const logoEl = document.getElementById(logoId);
         if (logoEl) {
             const logoUrl = getTeamLogoUrl(campId);
-            if (logoUrl) {
-                logoEl.innerHTML = `<img src="${logoUrl}" alt="">`;
-            } else {
-                const initials = getTeamInitials(camp.team_simple_name || '');
-                logoEl.innerHTML = `<span style="font-size:9px;font-weight:800;color:${campId===1?'#60a5fa':'#f87171'}">${initials}</span>`;
-            }
+            logoEl.innerHTML = logoUrl
+                ? `<img src="${logoUrl}" alt="">`
+                : `<span style="font-size:9px;font-weight:800;color:${campId===1?'#60a5fa':'#f87171'}">${getTeamInitials(camp.team_simple_name||'')}</span>`;
         }
 
-        // Player rows
         const listEl = document.getElementById(listId);
         if (!listEl) return;
         listEl.innerHTML = '';
 
         players.forEach(p => {
-            const val  = getStatValue(p, stat);
-            const pct  = ((val / grandTotal) * 100).toFixed(1);
-            const isZero = val === 0;
-            const isSmall = (val / grandTotal) < 0.10; // <10% = small slice
+            const val    = getStatValue(p, stat);
+            const teamPct = total > 0 ? ((val / total) * 100).toFixed(1) : '0.0'; // % of team total
+            const isZero  = val === 0;
+            const isSmall = (val / grandTotal) < 0.10;
 
             const row = document.createElement('div');
             row.className = `donut-player-row${isZero ? ' zero' : ''}`;
-
             row.innerHTML = `
                 <img class="dpr-hero" src="${getHeroIconUrl(p.heroid)}" alt="">
                 <img class="dpr-role" src="${getRoleIcon(getPlayerRoleSafe(p.name))}" alt="">
@@ -6494,10 +6485,10 @@ function renderStatsDonut() {
                     <div class="dpr-name">${p.name || '—'}</div>
                     <div class="dpr-val">${isZero ? 'No data' : formatVal(val)}</div>
                     <div class="dpr-bar-wrap">
-                        <div class="dpr-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+                        <div class="dpr-bar-fill" style="width:${teamPct}%;background:${barColor}"></div>
                     </div>
                 </div>
-                <div class="dpr-pct">${isZero ? '—' : pct + '%'}${isSmall && !isZero ? ' ◂' : ''}</div>
+                <div class="dpr-pct">${isZero ? '—' : teamPct + '%'}${isSmall && !isZero ? ' ◂' : ''}</div>
             `;
             listEl.appendChild(row);
         });
@@ -6510,6 +6501,8 @@ function renderStatsDonut() {
     const availH    = container.clientHeight || 600;
     const size      = Math.max(300, Math.min(availW, availH) - 32);
 
+    if (size <= 0) { setTimeout(() => renderStatsDonut(), 150); return; }
+
     canvas.width        = size * dpr;
     canvas.height       = size * dpr;
     canvas.style.width  = size + 'px';
@@ -6519,14 +6512,12 @@ function renderStatsDonut() {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, size, size);
 
-    if (size <= 0) { setTimeout(() => renderStatsDonut(), 150); return; }
-
     const cx     = size / 2;
     const cy     = size / 2;
-    const outerR = size * 0.40;
-    const midR   = size * 0.25;
-    const innerR = size * 0.12;
-    const heroR  = size * 0.475;
+    const outerR = size * 0.38;  // ← reduced so hero icons don't get clipped
+    const midR   = size * 0.24;
+    const innerR = size * 0.11;
+    const heroR  = size * 0.455; // ← hero orbit just outside outerR
     const gap    = 2;
 
     const blue = ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
@@ -6573,147 +6564,164 @@ function renderStatsDonut() {
     ctx.fillStyle = '#060d1a';
     ctx.fill();
 
-    // Grand total center
-    txt(formatVal(grandTotal), cx, cy - size * 0.025,
-        `bold ${Math.round(size * 0.05)}px Inter`, '#f1f5f9');
-    txt('TOTAL', cx, cy + size * 0.032,
-        `${Math.round(size * 0.025)}px Inter`, '#475569');
+    // Grand total
+    txt(formatVal(grandTotal), cx, cy - size * 0.022,
+        `bold ${Math.round(size * 0.048)}px Inter`, '#f1f5f9');
+    txt('TOTAL', cx, cy + size * 0.03,
+        `${Math.round(size * 0.024)}px Inter`, '#475569');
 
-    // ── Inner slice labels ──
-    const logoSz = size * 0.065;
+    // Inner slice labels
+    const logoSz = size * 0.062;
     innerSlices.forEach(s => {
         if (s.sweep < 0.15) return;
         const ringMid = innerR + (midR - gap - innerR) / 2;
-        const lx = cx + Math.cos(s.midAngle) * ringMid;
-        const ly = cy + Math.sin(s.midAngle) * ringMid;
+        const lx  = cx + Math.cos(s.midAngle) * ringMid;
+        const ly  = cy + Math.sin(s.midAngle) * ringMid;
         const pct = ((s.value / grandTotal) * 100).toFixed(1);
 
         const logoImg = getTeamLogo(s.campId);
         if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
             ctx.save();
             ctx.beginPath();
-            ctx.arc(lx, ly - logoSz * 0.5, logoSz * 0.42, 0, Math.PI * 2);
+            ctx.arc(lx, ly - logoSz * 0.48, logoSz * 0.4, 0, Math.PI * 2);
             ctx.clip();
-            ctx.drawImage(logoImg, lx - logoSz * 0.42, ly - logoSz * 0.92, logoSz * 0.84, logoSz * 0.84);
+            ctx.drawImage(logoImg,
+                lx - logoSz * 0.4, ly - logoSz * 0.88,
+                logoSz * 0.8, logoSz * 0.8);
             ctx.restore();
         } else {
             const init = getTeamInitials(s.campId === 1
                 ? (camp1.team_simple_name || 'T1')
                 : (camp2.team_simple_name || 'T2'));
-            txt(init, lx, ly - logoSz * 0.5,
-                `bold ${Math.round(size * 0.02)}px Inter`,
+            txt(init, lx, ly - logoSz * 0.48,
+                `bold ${Math.round(size * 0.019)}px Inter`,
                 s.campId === 1 ? '#60a5fa' : '#f87171');
         }
 
-        txt(formatVal(s.value), lx, ly + logoSz * 0.15,
-            `bold ${Math.round(size * 0.024)}px Inter`, '#ffffff');
-        txt(pct + '%', lx, ly + logoSz * 0.62,
-            `${Math.round(size * 0.018)}px Inter`, 'rgba(255,255,255,0.5)');
+        txt(formatVal(s.value), lx, ly + logoSz * 0.12,
+            `bold ${Math.round(size * 0.022)}px Inter`, '#ffffff');
+        txt(pct + '%', lx, ly + logoSz * 0.58,
+            `${Math.round(size * 0.017)}px Inter`, 'rgba(255,255,255,0.5)');
     });
 
     // ── OUTER RING ──
     const playerData = allPlayers.map(p => {
-        const isTeam1 = camp1.player_list.some(x => x.roleid === p.roleid);
+        const isTeam1  = camp1.player_list.some(x => x.roleid === p.roleid);
+        const teamTotal = isTeam1 ? total1 : total2;
         const palette  = isTeam1 ? blue : red;
         const idx      = isTeam1
             ? team1Players.findIndex(x => x.roleid === p.roleid)
             : team2Players.findIndex(x => x.roleid === p.roleid);
+        const val = getStatValue(p, stat);
         return {
-            player: p,
-            value:  getStatValue(p, stat),
-            color:  palette[Math.min(idx, palette.length - 1)],
-            isSmall: (getStatValue(p, stat) / grandTotal) < 0.10,
-            isZero:  getStatValue(p, stat) === 0,
+            player: p, val, isTeam1, teamTotal,
+            color:   palette[Math.min(idx, palette.length - 1)],
+            isSmall: (val / grandTotal) < 0.10,
+            isZero:  val === 0,
         };
     });
 
     const sliceJobs = [];
     sa = -Math.PI / 2;
 
-    playerData.forEach(({ player, value, color, isSmall, isZero }) => {
-        // Zero-value players get a thin placeholder slice
-        const sweep = isZero
-            ? (0.015 * Math.PI)
-            : (value / grandTotal) * 2 * Math.PI;
-
+    playerData.forEach(({ player, val, color, isSmall, isZero, teamTotal }) => {
+        const sweep      = isZero ? 0.015 * Math.PI : (val / grandTotal) * 2 * Math.PI;
         const sliceColor = isZero ? 'rgba(255,255,255,0.06)' : color;
+
         drawDonutSlice(midR + gap, outerR, sa, sa + sweep, sliceColor, false);
 
         const midAngle = sa + sweep / 2;
+        const ringMid  = midR + gap + (outerR - midR - gap) / 2;
+
         sliceJobs.push({
-            player, midAngle, value, sweep, isSmall, isZero,
-            sliceCx: cx + Math.cos(midAngle) * (midR + gap + (outerR - midR - gap) / 2),
-            sliceCy: cy + Math.sin(midAngle) * (midR + gap + (outerR - midR - gap) / 2),
-            heroX:   cx + Math.cos(midAngle) * heroR,
-            heroY:   cy + Math.sin(midAngle) * heroR,
+            player, val, sweep, isSmall, isZero, teamTotal,
+            midAngle,
+            // center of slice (for icons + text inside)
+            sliceCx: cx + Math.cos(midAngle) * ringMid,
+            sliceCy: cy + Math.sin(midAngle) * ringMid,
+            // hero icon position — clamped so it stays inside canvas
+            heroX: cx + Math.cos(midAngle) * heroR,
+            heroY: cy + Math.sin(midAngle) * heroR,
         });
         sa += sweep;
     });
 
-    // ── Draw labels ──
-    const roleIconSz = size * 0.042;
-    const heroIconSz = size * 0.062;
-    const nameFsz    = Math.round(size * 0.022);
-    const valFsz     = Math.round(size * 0.026);
-    const pctFsz     = Math.round(size * 0.020);
+    // ── Draw all labels ──
+    const roleIconSz = size * 0.040;
+    const heroIconSz = size * 0.058;
+    const nameFsz    = Math.round(size * 0.021);
+    const valFsz     = Math.round(size * 0.025);
+    const pctFsz     = Math.round(size * 0.019);
 
     function drawLabels() {
-        sliceJobs.forEach(({ player, midAngle, sliceCx, sliceCy, heroX, heroY, value, sweep, isSmall, isZero }) => {
-            const pct     = ((value / grandTotal) * 100).toFixed(1);
+        sliceJobs.forEach(({ player, val, midAngle, sliceCx, sliceCy,
+                             heroX, heroY, sweep, isSmall, isZero, teamTotal }) => {
+
+            const teamPct = teamTotal > 0 ? ((val / teamTotal) * 100).toFixed(1) : '0.0';
             const heroImg = loadImg(getHeroIconUrl(player.heroid));
             const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
 
-            // ── Inside slice: role icon + value + pct (only if big enough) ──
-            if (!isSmall && !isZero && sweep >= 0.18) {
+            // ── ALWAYS draw role icon inside slice ──
+            if (!isZero && sweep >= 0.08) {
+                const roleY = isSmall
+                    ? sliceCy  // center vertically if small
+                    : sliceCy - roleIconSz * 1.4;
+
                 if (roleImg.complete && roleImg.naturalWidth > 0) {
                     ctx.drawImage(roleImg,
                         sliceCx - roleIconSz / 2,
-                        sliceCy - roleIconSz * 1.55,
+                        roleY - roleIconSz / 2,
                         roleIconSz, roleIconSz);
                 }
-                txt(formatVal(value), sliceCx, sliceCy - roleIconSz * 0.15,
-                    `bold ${valFsz}px Inter`, '#ffffff');
-                txt(pct + '%', sliceCx, sliceCy + roleIconSz * 0.9,
-                    `${pctFsz}px Inter`, 'rgba(255,255,255,0.5)');
+
+                // Only show value + % if slice is big enough
+                if (!isSmall && sweep >= 0.18) {
+                    txt(formatVal(val), sliceCx, sliceCy + roleIconSz * 0.1,
+                        `bold ${valFsz}px Inter`, '#ffffff');
+                    txt(teamPct + '%', sliceCx, sliceCy + roleIconSz * 1.1,
+                        `${pctFsz}px Inter`, 'rgba(255,255,255,0.5)');
+                }
             }
 
-            // ── Outside: hero icon + name ──
-            // For zero-value or small slices, still show the hero icon outside
-            if (isZero) return; // skip hero icon for zero — too crowded
+            // ── Hero icon outside ring ──
+            if (isZero) return;
+
+            // Clamp hero icon inside canvas bounds
+            const margin = heroIconSz / 2 + 4;
+            const hx = Math.max(margin, Math.min(size - margin, heroX));
+            const hy = Math.max(margin, Math.min(size - margin, heroY));
 
             if (heroImg.complete && heroImg.naturalWidth > 0) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(heroX, heroY, heroIconSz / 2 + 2, 0, Math.PI * 2);
-                ctx.strokeStyle = isSmall ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)';
+                ctx.arc(hx, hy, heroIconSz / 2 + 2, 0, Math.PI * 2);
+                ctx.strokeStyle = isSmall ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.4)';
                 ctx.lineWidth   = 2;
                 ctx.stroke();
                 ctx.beginPath();
-                ctx.arc(heroX, heroY, heroIconSz / 2, 0, Math.PI * 2);
+                ctx.arc(hx, hy, heroIconSz / 2, 0, Math.PI * 2);
                 ctx.clip();
-                ctx.globalAlpha = isSmall ? 0.6 : 1.0;
+                ctx.globalAlpha = isSmall ? 0.55 : 1.0;
                 ctx.drawImage(heroImg,
-                    heroX - heroIconSz / 2,
-                    heroY - heroIconSz / 2,
+                    hx - heroIconSz / 2, hy - heroIconSz / 2,
                     heroIconSz, heroIconSz);
                 ctx.restore();
             }
 
             // Player name below hero icon
             if (sweep >= 0.10) {
-                const nameY = heroY + heroIconSz / 2 + size * 0.02;
+                const nameY = hy + heroIconSz / 2 + size * 0.019;
                 ctx.save();
                 ctx.shadowColor = 'rgba(0,0,0,0.95)';
                 ctx.shadowBlur  = 8;
-                txt(player.name || '', heroX, nameY,
+                txt(player.name || '', hx, nameY,
                     `${isSmall ? 'italic ' : 'bold '}${nameFsz}px Inter`,
-                    isSmall ? 'rgba(255,255,255,0.45)' : '#e2e8f0');
+                    isSmall ? 'rgba(255,255,255,0.4)' : '#e2e8f0');
                 ctx.restore();
             }
         });
     }
 
-    // Wait for images
     const allImgs = sliceJobs.flatMap(({ player }) => [
         loadImg(getHeroIconUrl(player.heroid)),
         loadImg(getRoleIcon(getPlayerRoleSafe(player.name))),
