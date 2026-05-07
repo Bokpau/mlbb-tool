@@ -1176,7 +1176,7 @@
         onclick="if(event.target.id==='statsDonutModal') toggleStatsDonutModal()"
         class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-6">
 
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-[900px] max-h-[94vh] flex flex-col overflow-hidden">
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-[900px] h-[90vh] flex flex-col overflow-hidden">
 
             <!-- HEADER -->
             <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
@@ -6203,7 +6203,6 @@ function renderStatsDonut() {
     const camp2 = apiData.camp_list.find(c => c.campid === 2);
     if (!camp1 || !camp2) return;
 
-    // Update legend names
     document.getElementById('donutTeam1Name').textContent = camp1.team_simple_name || 'Team 1';
     document.getElementById('donutTeam2Name').textContent = camp2.team_simple_name || 'Team 2';
 
@@ -6211,13 +6210,13 @@ function renderStatsDonut() {
 
     function getStatValue(player, key) {
         switch (key) {
-            case 'gold':    return player.total_money || player.gold || 0;
-            case 'damage':  return player.total_damage || 0;
-            case 'taken':   return player.total_hurt || 0;
-            case 'turret':  return player.total_damage_tower || 0;
-            case 'heal':    return player.total_heal || 0;
-            case 'cc':      return (player.control_time_ms || 0) / 1000;
-            default:        return 0;
+            case 'gold':   return player.total_money || player.gold || 0;
+            case 'damage': return player.total_damage || 0;
+            case 'taken':  return player.total_hurt || 0;
+            case 'turret': return player.total_damage_tower || 0;
+            case 'heal':   return player.total_heal || 0;
+            case 'cc':     return (player.control_time_ms || 0) / 1000;
+            default:       return 0;
         }
     }
 
@@ -6228,25 +6227,21 @@ function renderStatsDonut() {
 
     const team1Players = sortPlayersByRoleSafe([...camp1.player_list]);
     const team2Players = sortPlayersByRoleSafe([...camp2.player_list]);
-    const allPlayers = [...team1Players, ...team2Players];
+    const allPlayers   = [...team1Players, ...team2Players];
 
-    const total1 = team1Players.reduce((s, p) => s + getStatValue(p, stat), 0);
-    const total2 = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
+    const total1     = team1Players.reduce((s, p) => s + getStatValue(p, stat), 0);
+    const total2     = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
     const grandTotal = total1 + total2 || 1;
 
-    // ── Canvas setup ──
-    const dpr = window.devicePixelRatio || 1;
+    // ── Canvas sizing ──
+    const dpr      = window.devicePixelRatio || 1;
     const container = canvas.parentElement;
-    const availW = container.clientWidth  || 700;
-    const availH = container.clientHeight || 600;
-    const size = Math.min(availW, availH) - 80;
+    const availW   = container.clientWidth  || 700;
+    const availH   = container.clientHeight || 700;
+    const size     = Math.max(300, Math.min(availW, availH) - 40);
 
-    if (size <= 0) {
-        setTimeout(() => renderStatsDonut(), 150);
-        return;
-    }
-    canvas.width  = size * dpr;
-    canvas.height = size * dpr;
+    canvas.width        = size * dpr;
+    canvas.height       = size * dpr;
     canvas.style.width  = size + 'px';
     canvas.style.height = size + 'px';
 
@@ -6254,56 +6249,55 @@ function renderStatsDonut() {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, size, size);
 
-    const cx = size / 2;
-    const cy = size / 2;
+    const cx     = size / 2;
+    const cy     = size / 2;
+    const outerR = size * 0.46;
+    const midR   = size * 0.30;
+    const innerR = size * 0.16;
+    const gap    = 2; // px gap between inner and outer ring
 
-    const outerR  = size * 0.46;   // outer ring outer edge
-    const midR    = size * 0.30;   // outer ring inner edge / inner ring outer edge
-    const innerR  = size * 0.16;   // inner ring inner edge (hole)
+    const blue = ['#1e40af','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
+    const red  = ['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444'];
 
-    // ── Colors ──
-    const blue  = ['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'];
-    const red   = ['#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
-
-    // ── INNER RING: team totals ──
-    const innerSlices = [
-        { value: total1, color: '#3b82f6', label: camp1.team_simple_name || 'Team 1' },
-        { value: total2, color: '#ef4444', label: camp2.team_simple_name || 'Team 2' },
-    ];
-
-    let startAngle = -Math.PI / 2;
-    innerSlices.forEach(slice => {
-        const sweep = (slice.value / grandTotal) * 2 * Math.PI;
+    // ── Draw donut arc helper ──
+    function drawDonutSlice(ctx, cx, cy, innerR, outerR, startAngle, endAngle, color) {
         ctx.beginPath();
-        ctx.moveTo(cx, cy);
-        ctx.arc(cx, cy, midR, startAngle, startAngle + sweep);
+        ctx.arc(cx, cy, outerR, startAngle, endAngle);
+        ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
         ctx.closePath();
-        ctx.fillStyle = slice.color;
+        ctx.fillStyle = color;
         ctx.fill();
         ctx.strokeStyle = '#0f172a';
         ctx.lineWidth = 2;
         ctx.stroke();
+    }
+
+    // ── INNER RING: team totals ──
+    let startAngle = -Math.PI / 2;
+    [{ value: total1, color: '#3b82f6' }, { value: total2, color: '#ef4444' }].forEach(slice => {
+        const sweep = (slice.value / grandTotal) * 2 * Math.PI;
+        drawDonutSlice(ctx, cx, cy, innerR, midR - gap, startAngle, startAngle + sweep, slice.color);
         startAngle += sweep;
     });
 
-    // Inner hole
+    // Center hole fill
     ctx.beginPath();
-    ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+    ctx.arc(cx, cy, innerR - 2, 0, 2 * Math.PI);
     ctx.fillStyle = '#0f172a';
     ctx.fill();
 
     // Center text
-    ctx.textAlign = 'center';
+    ctx.textAlign    = 'center';
     ctx.textBaseline = 'middle';
-    ctx.font = `bold ${size * 0.045}px Inter, sans-serif`;
-    ctx.fillStyle = '#e2e8f0';
+    ctx.font         = `bold ${Math.round(size * 0.05)}px Inter, sans-serif`;
+    ctx.fillStyle    = '#e2e8f0';
     ctx.fillText(formatVal(grandTotal), cx, cy - size * 0.025);
-    ctx.font = `${size * 0.028}px Inter, sans-serif`;
+    ctx.font      = `${Math.round(size * 0.028)}px Inter, sans-serif`;
     ctx.fillStyle = '#64748b';
-    ctx.fillText('TOTAL', cx, cy + size * 0.03);
+    ctx.fillText('TOTAL', cx, cy + size * 0.033);
 
     // ── OUTER RING: per-player ──
-    const playerData = allPlayers.map((p, i) => {
+    const playerData = allPlayers.map((p) => {
         const isTeam1 = camp1.player_list.some(x => x.roleid === p.roleid);
         const palette  = isTeam1 ? blue : red;
         const idx      = isTeam1
@@ -6312,104 +6306,108 @@ function renderStatsDonut() {
         return {
             player: p,
             value:  getStatValue(p, stat),
-            color:  palette[idx] || (isTeam1 ? '#3b82f6' : '#ef4444'),
-            isTeam1
+            color:  palette[Math.min(idx, palette.length - 1)],
         };
     });
 
-    const iconJobs = []; // draw hero icons after arcs
-
+    // Store slice midAngles for icon drawing
+    const iconJobs = [];
     startAngle = -Math.PI / 2;
+
     playerData.forEach(({ player, value, color }) => {
         const sweep = (value / grandTotal) * 2 * Math.PI;
-        if (sweep < 0.01) { startAngle += sweep; return; }
+        if (sweep < 0.005) { startAngle += sweep; return; }
 
-        // Arc
-        ctx.beginPath();
-        ctx.arc(cx, cy, outerR,  startAngle, startAngle + sweep);
-        ctx.arc(cx, cy, midR + 4, startAngle + sweep, startAngle, true);
-        ctx.closePath();
-        ctx.fillStyle = color;
-        ctx.fill();
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2;
-        ctx.stroke();
+        drawDonutSlice(ctx, cx, cy, midR + gap, outerR, startAngle, startAngle + sweep, color);
 
         const midAngle = startAngle + sweep / 2;
-        const labelR   = (outerR + midR) / 2 + 2;
-        const lx = cx + Math.cos(midAngle) * labelR;
-        const ly = cy + Math.sin(midAngle) * labelR;
+        const labelR   = (outerR + midR) / 2;
 
-        const pct = grandTotal > 0 ? ((value / grandTotal) * 100).toFixed(1) : '0.0';
-
-        // Queue icon drawing (needs image load)
-        iconJobs.push({ player, midAngle, lx, ly, value, pct, sweep });
+        iconJobs.push({
+            player,
+            midAngle,
+            lx: cx + Math.cos(midAngle) * labelR,
+            ly: cy + Math.sin(midAngle) * labelR,
+            value,
+            pct:   ((value / grandTotal) * 100).toFixed(1),
+            sweep,
+        });
 
         startAngle += sweep;
     });
 
-    // ── Draw hero icons + role icons + labels after arcs ──
-    const iconSize = size * 0.07;
-    const roleSize = size * 0.04;
+    // ── Draw icons + labels ──
+    const iconSize = size * 0.072;
+    const roleSize = size * 0.038;
 
-    function drawAll() {
+    function drawLabels() {
         iconJobs.forEach(({ player, lx, ly, value, pct, sweep }) => {
-            if (sweep < 0.15) return; // too small to label
+            if (sweep < 0.18) return; // too small to label
 
             const heroImg = loadImg(getHeroIconUrl(player.heroid));
             const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
 
-            // Hero circle
+            // Hero icon circle
             if (heroImg.complete && heroImg.naturalWidth > 0) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(lx, ly - iconSize * 0.1, iconSize / 2, 0, Math.PI * 2);
+                ctx.arc(lx, ly - iconSize * 0.15, iconSize / 2, 0, Math.PI * 2);
                 ctx.clip();
-                ctx.drawImage(heroImg, lx - iconSize / 2, ly - iconSize * 0.6, iconSize, iconSize);
+                ctx.drawImage(heroImg, lx - iconSize / 2, ly - iconSize * 0.65, iconSize, iconSize);
                 ctx.restore();
 
-                // Ring around hero
+                // White ring
                 ctx.beginPath();
-                ctx.arc(lx, ly - iconSize * 0.1, iconSize / 2 + 1.5, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.arc(lx, ly - iconSize * 0.15, iconSize / 2 + 1, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
             }
 
-            // Role icon (small, bottom-right of hero)
+            // Role icon (bottom-right of hero)
             if (roleImg.complete && roleImg.naturalWidth > 0) {
-                const rx = lx + iconSize * 0.3;
-                const ry = ly - iconSize * 0.3;
-                ctx.drawImage(roleImg, rx - roleSize / 2, ry - roleSize / 2, roleSize, roleSize);
+                ctx.drawImage(
+                    roleImg,
+                    lx + iconSize * 0.28 - roleSize / 2,
+                    ly - iconSize * 0.28 - roleSize / 2,
+                    roleSize, roleSize
+                );
             }
 
             // Stat value
-            ctx.textAlign = 'center';
+            ctx.textAlign    = 'center';
             ctx.textBaseline = 'top';
-            ctx.font = `bold ${size * 0.028}px Inter, sans-serif`;
-            ctx.fillStyle = '#ffffff';
-            ctx.fillText(formatVal(value), lx, ly + iconSize * 0.5);
+            ctx.font         = `bold ${Math.round(size * 0.03)}px Inter, sans-serif`;
+            ctx.fillStyle    = '#ffffff';
+            ctx.fillText(formatVal(value), lx, ly + iconSize * 0.42);
 
             // Percentage
-            ctx.font = `${size * 0.022}px Inter, sans-serif`;
-            ctx.fillStyle = 'rgba(255,255,255,0.65)';
-            ctx.fillText(pct + '%', lx, ly + iconSize * 0.5 + size * 0.032);
+            ctx.font      = `${Math.round(size * 0.024)}px Inter, sans-serif`;
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            ctx.fillText(pct + '%', lx, ly + iconSize * 0.42 + Math.round(size * 0.034));
         });
     }
 
-    // Wait for all images then draw
-    let pending = iconJobs.length * 2;
-    if (pending === 0) { drawAll(); return; }
-
+    // Wait for all images before drawing labels
+    const allImgs = [];
     iconJobs.forEach(({ player }) => {
-        const heroImg = loadImg(getHeroIconUrl(player.heroid));
-        const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
-        const check = () => { pending--; if (pending <= 0) drawAll(); };
-        if (heroImg.complete && heroImg.naturalWidth > 0) { pending--; } else { heroImg.onload = check; heroImg.onerror = check; }
-        if (roleImg.complete && roleImg.naturalWidth > 0) { pending--; } else { roleImg.onload = check; roleImg.onerror = check; }
+        allImgs.push(loadImg(getHeroIconUrl(player.heroid)));
+        allImgs.push(loadImg(getRoleIcon(getPlayerRoleSafe(player.name))));
     });
 
-    if (pending <= 0) drawAll();
+    const unloaded = allImgs.filter(img => !img.complete || img.naturalWidth === 0);
+
+    if (unloaded.length === 0) {
+        drawLabels();
+    } else {
+        let loaded = 0;
+        unloaded.forEach(img => {
+            img.onload = img.onerror = () => {
+                loaded++;
+                if (loaded >= unloaded.length) drawLabels();
+            };
+        });
+    }
 }
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
