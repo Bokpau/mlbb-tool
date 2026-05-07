@@ -918,25 +918,6 @@
                 <!-- INPUT + ACTIONS -->
                 <div class="flex items-center gap-2">
         
-                    <div id="devControls" class="hidden flex items-center gap-2">
-
-                        <input id="battleIdInput"
-                            type="text"
-                            placeholder="Battle ID"
-                            class="bg-slate-800 border border-slate-600 rounded-2xl px-4 py-1.5 w-56 focus:outline-none focus:border-yellow-400 text-xs">
-
-                        <button onclick="loadBattle()"
-                            class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-400 rounded-xl text-xs font-bold text-black">
-                            Load
-                        </button>
-
-                        <button onclick="fullDeveloperReset()"
-                            class="px-4 py-1.5 bg-red-600 hover:bg-red-500 rounded-xl text-xs font-bold text-white">
-                            Full Reset
-                        </button>
-
-                    </div>
-        
                     <button onclick="toggleDraftModal()"
                         class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium">
                         Draft
@@ -1357,6 +1338,7 @@
     let selectedDeathIndex = -1;
     let showLivePositions = true;
     let showLiveData = true;
+    let currentBattleId = null;
     let currentFilters = {
     team: "all",
     playerId: ""
@@ -1373,8 +1355,6 @@
     let animationTime = 0;
     const goldDistCharts = {};
 
-    let DEV_MODE = false;
-
     const MAP_NAMES = {
         0: 'Default',
         1: 'Broken Walls',
@@ -1382,83 +1362,6 @@
         3: 'Flying Cloud',
         4: 'Expanding Rivers'
     };
-
-    function openDevLoginModal() {
-        document.getElementById("devLoginModal").classList.remove("hidden");
-    }
-
-    function closeDevLoginModal() {
-        document.getElementById("devLoginModal").classList.add("hidden");
-    }
-
-    async function verifyDevPassword() {
-        const password = document.getElementById("devPasswordInput").value;
-
-        try {
-            const res = await fetch("/api/verify-dev-password", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json"
-                },
-                body: JSON.stringify({ password })
-            });
-
-            const data = await res.json();
-
-            if (data.success) {
-                enableDevMode();
-                closeDevLoginModal();
-            } else {
-                document.getElementById("devLoginError").classList.remove("hidden");
-            }
-
-        } catch (err) {
-            console.error("Dev verification failed:", err);
-        }
-    }
-
-    function enableDevMode() {
-        DEV_MODE = true;
-
-        // 🔥 STOP ALL ACTIVE POLLING
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
-        }
-
-        if (draftInterval) {
-            clearInterval(draftInterval);
-            draftInterval = null;
-        }
-
-        if (mapModalInterval) {
-            clearInterval(mapModalInterval);
-            mapModalInterval = null;
-        }
-
-        // 🔥 FULL RESET
-        fullDeveloperReset();
-
-        // 🔥 Show developer controls
-        document.getElementById("devControls").classList.remove("hidden");
-
-        console.log("🛠 Developer Mode Activated - All polling stopped");
-    }
-
-    function disableDevMode() {
-    DEV_MODE = false;
-
-    document.getElementById("devControls").classList.add("hidden");
-
-    console.log("🚀 Developer Mode Disabled");
-    }
-
-    window.openDevLoginModal = openDevLoginModal;
-    window.closeDevLoginModal = closeDevLoginModal;
-    window.verifyDevPassword = verifyDevPassword;
-    window.enableDevMode = enableDevMode;
-    window.fullDeveloperReset = fullDeveloperReset;
-    window.disableDevMode = disableDevMode;
 
 
     // ====================== FULL RESET FUNCTION ======================
@@ -1527,148 +1430,6 @@
 
         console.log("✅ Full reset completed - old battle data cleared");
     }
-
-    function fullDeveloperReset() {
-    console.log("🔥 FULL DEV RESET START");
-
-    // ======================
-    // STOP ALL ACTIVE POLLING FIRST
-    // ======================
-    if (pollInterval) {
-        clearInterval(pollInterval);
-        pollInterval = null;
-    }
-
-    if (draftInterval) {
-        clearInterval(draftInterval);
-        draftInterval = null;
-    }
-
-    if (mapModalInterval) {
-        clearInterval(mapModalInterval);
-        mapModalInterval = null;
-    }
-
-    // ======================
-    // CORE RESET
-    // ======================
-    resetAllEventData();
-
-    // ======================
-    // DESTROY OLD GOLD DIFF CHART
-    // ======================
-    if (window.goldDiffChart) {
-        window.goldDiffChart.destroy();
-        window.goldDiffChart = null;
-    }
-
-    // ======================
-    // TEAM LOGOS
-    // ======================
-    if (typeof TEAM_LOGOS === "object") {
-        Object.keys(TEAM_LOGOS).forEach(key => delete TEAM_LOGOS[key]);
-    }
-
-    // ======================
-    // ACTIVE TOWERS
-    // ======================
-    if (typeof DEFAULT_ACTIVE_TOWERS !== "undefined") {
-        activeTowers = JSON.parse(JSON.stringify(DEFAULT_ACTIVE_TOWERS));
-    }
-
-    // ======================
-    // PLAYER FILTER DROPDOWNS
-    // ======================
-    const p1 = document.getElementById("player1Select");
-    const p2 = document.getElementById("player2Select");
-
-    if (p1) {
-        p1.innerHTML = "";
-        p1.selectedIndex = -1;
-        delete p1.dataset.loaded;
-    }
-
-    if (p2) {
-        p2.innerHTML = "";
-        p2.selectedIndex = -1;
-        delete p2.dataset.loaded;
-    }
-
-    selectedPlayer1 = null;
-    selectedPlayer2 = null;
-
-    // ======================
-    // SCOREBOARD UI
-    // ======================
-    const team1Block = document.getElementById("team1Block");
-    const team2Block = document.getElementById("team2Block");
-    const scoreCenter = document.getElementById("scoreCenter");
-
-    if (team1Block) team1Block.innerHTML = "";
-    if (team2Block) team2Block.innerHTML = "";
-    if (scoreCenter) scoreCenter.innerHTML = "";
-
-    // ======================
-    // TEAM COMPARISON UI
-    // ======================
-    const tcTeam1 = document.getElementById("tcTeam1");
-    const tcTeam2 = document.getElementById("tcTeam2");
-    const tcObjectives = document.getElementById("tcObjectives");
-    const teamComparisonContent = document.getElementById("teamComparisonContent");
-
-    if (tcTeam1) tcTeam1.innerHTML = "";
-    if (tcTeam2) tcTeam2.innerHTML = "";
-    if (tcObjectives) tcObjectives.innerHTML = "";
-    if (teamComparisonContent) teamComparisonContent.innerHTML = "";
-
-    // ======================
-    // PLAYER STATS
-    // ======================
-    const playersContainer = document.getElementById("players-container");
-    if (playersContainer) playersContainer.innerHTML = "";
-
-    // ======================
-    // TIMELINE
-    // ======================
-    const timelineContainer = document.getElementById("timelineContainer");
-    if (timelineContainer) timelineContainer.innerHTML = "";
-
-    // ======================
-    // ITEM PROGRESSION MODAL
-    // ======================
-    const itemTimelineBody = document.getElementById("itemTimelineBody");
-    if (itemTimelineBody) itemTimelineBody.innerHTML = "";
-
-    // ======================
-    // CLEAR MAP CANVAS
-    // ======================
-    const mapCanvas = document.getElementById("eventCanvas");
-    if (mapCanvas) {
-        const ctx = mapCanvas.getContext("2d");
-        ctx.clearRect(0, 0, mapCanvas.width, mapCanvas.height);
-    }
-
-    // ======================
-    // CLEAR MODAL MAP CANVAS
-    // ======================
-    const modalCanvas = document.getElementById("eventCanvasModal");
-    if (modalCanvas) {
-        const ctx = modalCanvas.getContext("2d");
-        ctx.clearRect(0, 0, modalCanvas.width, modalCanvas.height);
-    }
-
-    const mapNameEl = document.getElementById("mapNameHeader");
-    const mapIconEl = document.getElementById("mapIconHeader");
-
-    if (mapNameEl) mapNameEl.textContent = "Default";
-    if (mapIconEl) mapIconEl.src = "./mapicon/0.png";
-
-    // ======================
-    // RESET BATTLE INPUT
-    // ======================
-
-    console.log("✅ FULL DEV RESET COMPLETE");
-}
 
 function updateMapHeader() {
     if (!apiData) {
@@ -6522,9 +6283,8 @@ async function loadBattle() {
     }
 
     // 🔥 FULL UI + DATA RESET
-    fullDeveloperReset();
-    const battleId = document.getElementById('battleIdInput').value.trim();
-    if (!battleId) return alert("Enter Battle ID");
+    const battleId = currentBattleId;
+    if (!battleId) return console.error("No battle ID available");
     resetAllEventData();
     goldDiffHistory = []; 
     teamGoldHistory.clear(); 
@@ -6570,20 +6330,13 @@ async function loadBattle() {
 window.loadBattle = loadBattle;
 
 async function loadLatestBattle() {
-    if (DEV_MODE) {
-        console.log("⏸ DEV MODE ACTIVE - Auto latest battle bypassed");
-        return;
-    }
-
     try {
         const res = await fetch("/api/latestbattle");
         const data = await res.json();
 
         if (!data.battleId) throw new Error("No battle ID");
 
-        const battleId = data.battleId;
-
-        document.getElementById("battleIdInput").value = battleId;
+        currentBattleId = data.battleId;
 
         await loadBattle();
 
@@ -6941,7 +6694,7 @@ window.onload = () => {
         renderMapModal();
     };
 
-   async function checkAccessMode() {
+  async function checkAccessMode() {
     const password = document.getElementById("passwordInput").value.trim();
 
     try {
@@ -6963,21 +6716,9 @@ window.onload = () => {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
 
-        if (data.mode === "dev") {
-            DEV_MODE = true;
+        console.log("🚀 LOGIN SUCCESS");
 
-            document.getElementById("devControls").classList.remove("hidden");
-
-            fullDeveloperReset();
-
-            console.log("🛠 DEV MODE LOGIN SUCCESS");
-        } else {
-            DEV_MODE = false;
-
-            console.log("🚀 NORMAL MODE LOGIN SUCCESS");
-
-            loadLatestBattle();
-        }
+        loadLatestBattle();
 
     } catch (err) {
         console.error("Access verification failed:", err);
