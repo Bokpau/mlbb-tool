@@ -6283,23 +6283,124 @@ async function fetchGame() {
             pollInterval = null;
         }
 
-        // 🔥 FULL RESET
+        // 🔥 FULL DATA RESET
         resetAllEventData();
+
         goldDiffHistory = [];
         teamGoldHistory.clear();
-        allKillEvents.length = 0;
-        allDeathEvents.length = 0;
+        playerGoldHistory.clear();
+
+        allKillEvents = [];
+        allDeathEvents = [];
+        deathReviewData = [];
+
         allItemEvents.clear();
         prevItemsMap.clear();
-        playerGoldHistory.clear();
 
         apiData = null;
         lastTime = 0;
         currentBattleId = null;
 
+        heroMap = {};
+        posByTime = {};
+        nameMap = {};
+        campMap = {};
+
+        selectedPlayer1 = null;
+        selectedPlayer2 = null;
+
+        // 🔥 DESTROY OLD CHARTS
+        if (goldDiffChart) {
+            goldDiffChart.destroy();
+            goldDiffChart = null;
+        }
+
+        if (teamGoldDiffChart) {
+            teamGoldDiffChart.destroy();
+            teamGoldDiffChart = null;
+        }
+
+        if (playerRankingChart) {
+            playerRankingChart.destroy();
+            playerRankingChart = null;
+        }
+
+        // 🔥 CLEAR PLAYER COMPARE CHARTS
+        Object.keys(pvpCharts).forEach(id => {
+            if (pvpCharts[id]) {
+                pvpCharts[id].destroy();
+                delete pvpCharts[id];
+            }
+        });
+
+        // 🔥 CLEAR UI CONTAINERS
+        const safeClear = (id) => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = "";
+        };
+
+        safeClear("players-container");
+        safeClear("timelineContainer");
+        safeClear("team1Block");
+        safeClear("team2Block");
+        safeClear("scoreCenter");
+        safeClear("teamComparisonContent");
+        safeClear("goldDiffHeader");
+        safeClear("killListContent");
+        safeClear("draftContent");
+        safeClear("playerCompareContent");
+        safeClear("goldDistributionContent");
+        safeClear("tcTeam1");
+        safeClear("tcTeam2");
+        safeClear("tcObjectives");
+
+        // 🔥 RESET PLAYER SELECTORS
+        const p1 = document.getElementById("player1Select");
+        const p2 = document.getElementById("player2Select");
+
+        if (p1) {
+            p1.innerHTML = "";
+            p1.selectedIndex = -1;
+            delete p1.dataset.loaded;
+        }
+
+        if (p2) {
+            p2.innerHTML = "";
+            p2.selectedIndex = -1;
+            delete p2.dataset.loaded;
+        }
+
+        // 🔥 CLEAR MAIN MAP CANVAS
+        const eventCanvas = document.getElementById("eventCanvas");
+        if (eventCanvas) {
+            const ctx = eventCanvas.getContext("2d");
+            ctx.clearRect(0, 0, eventCanvas.width, eventCanvas.height);
+        }
+
+        // 🔥 CLEAR MODAL MAP CANVAS
+        const eventCanvasModal = document.getElementById("eventCanvasModal");
+        if (eventCanvasModal) {
+            const ctxModal = eventCanvasModal.getContext("2d");
+            ctxModal.clearRect(0, 0, eventCanvasModal.width, eventCanvasModal.height);
+        }
+
+        // 🔥 RESET STATUS BAR
+        const stateName = document.getElementById("stateName");
+        const stateTimer = document.getElementById("stateTimer");
+
+        if (stateName) stateName.textContent = "READY";
+        if (stateTimer) stateTimer.textContent = "";
+
+        // 🔥 RESET MAP HEADER
+        const mapNameHeader = document.getElementById("mapNameHeader");
+        const mapIconHeader = document.getElementById("mapIconHeader");
+
+        if (mapNameHeader) mapNameHeader.textContent = "Default";
+        if (mapIconHeader) mapIconHeader.src = "./mapicon/0.png";
+
+        // 🔥 FETCH NEWEST BATTLE
         alert("Fetching latest match...");
 
-        // 🔥 Force fresh latest battle
         const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
         const data = await res.json();
 
