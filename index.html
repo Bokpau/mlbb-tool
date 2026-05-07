@@ -879,79 +879,78 @@
         <body>
     <div>
         <!-- Header -->
-        <div class="flex justify-between items-center mb-6 bg-slate-900 border border-slate-700 rounded-3xl px-6 py-3 flex-shrink-0">
+        <div class="flex items-center mb-3 bg-slate-900 border border-slate-700 rounded-2xl px-4 py-2 flex-shrink-0 gap-4">
 
-            <!-- TITLE -->
-            <h1 class="text-2xl font-bold tracking-tight">
-                MLBB Live Tracker by the BOK
-            </h1>
-        
-            <!-- TEAM KILLS -->
-            <div id="teamKillsDisplay" class="w-full flex items-center justify-center">
+            <!-- TITLE (compact, single line) -->
+            <div class="flex flex-col leading-tight flex-shrink-0">
+                <span class="text-xs font-bold text-cyan-400 tracking-widest uppercase">MLBB Live</span>
+                <span class="text-[10px] text-slate-500 tracking-wide">by the BOK</span>
+            </div>
+
+            <!-- DIVIDER -->
+            <div class="w-px h-8 bg-slate-700 flex-shrink-0"></div>
+
+            <!-- TEAM KILLS (centered, takes remaining space) -->
+            <div id="teamKillsDisplay" class="flex-1 flex items-center justify-center">
                 <div class="scoreboard">
                     <div id="team1Block" class="team-side blue"></div>
-            
                     <div class="score-center">
                         <div id="scoreCenter" class="score-center"></div>
                     </div>
-            
                     <div id="team2Block" class="team-side red"></div>
                 </div>
             </div>
 
-            <div id="mapInfoHeader">
-                <img id="mapIconHeader"
-                    src="./mapicon/0.png"
-                    alt="Map Icon">
+            <!-- DIVIDER -->
+            <div class="w-px h-8 bg-slate-700 flex-shrink-0"></div>
 
-                <span id="mapNameHeader">Default</span>
+            <!-- STATUS BADGE -->
+            <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 flex-shrink-0">
+                <span id="stateName">READY</span>
+                <span id="stateTimer" class="font-mono"></span>
             </div>
-        
-            <!-- RIGHT CONTROLS -->
-            <div class="flex items-center gap-4">
-        
-                <!-- STATUS -->
-                <div id="statusBar" class="bg-emerald-600/20 text-emerald-400 px-4 py-1.5 rounded-2xl text-sm font-bold flex items-center gap-2">
-                    <span id="stateName">READY</span>
-                    <span id="stateTimer" class="font-mono"></span>
-                </div>
-                <!-- INPUT + ACTIONS -->
-                <div class="flex items-center gap-2">
 
-                   <button onclick="fetchGame()"
-                        class="px-4 py-2 bg-cyan-600 hover:bg-cyan-500 rounded-xl text-xs font-medium">
-                        FetchGame
-                    </button>
+            <!-- DIVIDER -->
+            <div class="w-px h-8 bg-slate-700 flex-shrink-0"></div>
 
-                    <button onclick="loadGame()"
-                        class="px-4 py-2 bg-green-600 hover:bg-green-500 rounded-xl text-xs font-medium">
-                        LoadGame
-                    </button>
-        
-                    <button onclick="toggleDraftModal()"
-                        class="px-4 py-1.5 bg-slate-800 hover:bg-slate-700 rounded-xl text-xs font-medium">
-                        Draft
-                    </button>
-        
-                    <button onclick="togglePlayerCompareModal()"
-                        class="px-4 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-xl text-xs font-medium">
-                        PvP
-                    </button>
-                    <button onclick="toggleGoldDistributionModal()"
-                        class="px-4 py-1.5 bg-yellow-500 hover:bg-yellow-400 rounded-xl text-xs font-medium">
-                        Gold Source
-                    </button>
-                    <button onclick="toggleMapModal()"
-                        class="px-4 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-xl text-xs font-medium">
-                        Map
-                    </button>
-                     <button onclick="toggleItemTimingModal()"
-                        class="px-4 py-1.5 bg-yellow-600 hover:bg-yellow-500 rounded-xl text-xs font-medium">
-                        Items
-                    </button>
-        
-                </div>
-        
+            <!-- CONTROLS: FetchGame + LoadGame grouped, then modal buttons -->
+            <div class="flex items-center gap-1.5 flex-shrink-0">
+
+                <!-- Primary actions -->
+                <button onclick="fetchGame()"
+                    class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-xs font-semibold">
+                    Fetch
+                </button>
+                <button onclick="loadGame()"
+                    class="px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-xs font-semibold">
+                    Load
+                </button>
+
+                <!-- Separator dot -->
+                <span class="text-slate-600 text-xs px-0.5">·</span>
+
+                <!-- Modal buttons (icon + short label) -->
+                <button onclick="toggleDraftModal()"
+                    class="px-2.5 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-shield-halved text-slate-300 text-[10px]"></i> Draft
+                </button>
+                <button onclick="togglePlayerCompareModal()"
+                    class="px-2.5 py-1.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:opacity-90 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-sword text-white text-[10px]"></i> PvP
+                </button>
+                <button onclick="toggleGoldDistributionModal()"
+                    class="px-2.5 py-1.5 bg-yellow-500 hover:bg-yellow-400 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-coins text-white text-[10px]"></i> Gold
+                </button>
+                <button onclick="toggleMapModal()"
+                    class="px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-map text-white text-[10px]"></i> Map
+                </button>
+                <button onclick="toggleItemTimingModal()"
+                    class="px-2.5 py-1.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-bag-shopping text-white text-[10px]"></i> Items
+                </button>
+
             </div>
         </div>
 
