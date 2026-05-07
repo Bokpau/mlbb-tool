@@ -843,6 +843,206 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* ══════════════════════════════════
+        STATS DONUT MODAL
+        ══════════════════════════════════ */
+        .donut-modal-box {
+            width: 92vw;
+            height: 88vh;
+            max-width: 1400px;
+            display: flex;
+            flex-direction: column;
+            background: radial-gradient(ellipse at top left, #0f1f3d 0%, #060d1a 100%);
+            border: 1px solid rgba(56,189,248,0.15);
+            border-radius: 24px;
+            overflow: hidden;
+            box-shadow: 0 0 80px rgba(0,0,0,0.9);
+        }
+
+        .donut-modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 14px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+            background: rgba(15,23,42,0.85);
+            flex-shrink: 0;
+        }
+
+        .donut-modal-body {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            gap: 0;
+        }
+
+        /* LEFT — chart takes 3/4 */
+        .donut-canvas-area {
+            flex: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+            min-width: 0;
+        }
+
+        /* RIGHT — list takes 1/4 */
+        .donut-list-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            border-left: 1px solid rgba(255,255,255,0.07);
+            overflow-y: auto;
+            min-width: 220px;
+            max-width: 300px;
+        }
+
+        .donut-select {
+            background: #1e293b;
+            color: #e2e8f0;
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 10px;
+            padding: 6px 12px;
+            font-size: 12px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .donut-select:focus { border-color: #22d3ee; }
+
+        .donut-close-btn {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: #1e293b;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 10px;
+            font-size: 12px;
+            color: #e2e8f0;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .donut-close-btn:hover { background: #ef4444; border-color: #ef4444; }
+
+        /* Team block in the list */
+        .donut-team-block {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-height: 0;
+        }
+
+        .donut-team-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+        .donut-team-header.blue { background: rgba(29,78,216,0.25); border-bottom: 1px solid rgba(59,130,246,0.3); }
+        .donut-team-header.red  { background: rgba(185,28,28,0.25); border-bottom: 1px solid rgba(239,68,68,0.3); border-top: 1px solid rgba(255,255,255,0.06); }
+
+        .donut-list-logo {
+            width: 26px;
+            height: 26px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .donut-list-logo img { width: 100%; height: 100%; object-fit: contain; }
+
+        .donut-team-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            flex: 1;
+        }
+        .donut-team-label.blue { color: #60a5fa; }
+        .donut-team-label.red  { color: #f87171; }
+
+        .donut-team-total {
+            font-size: 11px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.5);
+        }
+
+        .donut-player-list {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Each player row in the list */
+        .donut-player-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 14px;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            transition: background 0.15s;
+        }
+        .donut-player-row:hover { background: rgba(255,255,255,0.04); }
+
+        .donut-player-row .dpr-hero {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+            border: 1.5px solid rgba(255,255,255,0.15);
+        }
+        .donut-player-row .dpr-role {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+            opacity: 0.8;
+        }
+        .donut-player-row .dpr-info {
+            flex: 1;
+            min-width: 0;
+        }
+        .donut-player-row .dpr-name {
+            font-size: 10px;
+            font-weight: 600;
+            color: #e2e8f0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .donut-player-row .dpr-val {
+            font-size: 10px;
+            color: rgba(255,255,255,0.45);
+        }
+        .donut-player-row .dpr-pct {
+            font-size: 10px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.5);
+            flex-shrink: 0;
+            min-width: 36px;
+            text-align: right;
+        }
+        /* Zero value row — dimmed */
+        .donut-player-row.zero { opacity: 0.35; }
+
+        /* Small pct bar in list */
+        .dpr-bar-wrap {
+            width: 100%;
+            height: 3px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            margin-top: 2px;
+            overflow: hidden;
+        }
+        .dpr-bar-fill {
+            height: 100%;
+            border-radius: 2px;
+            transition: width 0.4s ease;
+        }
     </style>
 </head>
 <body>
@@ -1172,24 +1372,20 @@
         </div>
     </div>
     <!-- STATS DONUT MODAL -->
-    <div id="statsDonutModal" 
+    <div id="statsDonutModal"
         onclick="if(event.target.id==='statsDonutModal') toggleStatsDonutModal()"
-        class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-6">
+        class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4">
 
-        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-[900px] h-[90vh] flex flex-col overflow-hidden">
+        <div class="donut-modal-box">
 
             <!-- HEADER -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+            <div class="donut-modal-header">
                 <div class="flex items-center gap-3">
-                    <i class="fa-solid fa-chart-pie text-cyan-400 text-xl"></i>
-                    <h2 class="text-lg font-bold tracking-tight">TEAM STATS BREAKDOWN</h2>
+                    <i class="fa-solid fa-chart-pie text-cyan-400 text-lg"></i>
+                    <h2 class="text-base font-bold tracking-widest uppercase text-white">Team Stats Breakdown</h2>
                 </div>
-
-                <!-- STAT FILTER -->
                 <div class="flex items-center gap-2">
-                    <select id="donutStatSelect"
-                        onchange="renderStatsDonut()"
-                        class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-cyan-400">
+                    <select id="donutStatSelect" onchange="renderStatsDonut()" class="donut-select">
                         <option value="gold">Gold</option>
                         <option value="damage">Total Damage</option>
                         <option value="taken">Damage Taken</option>
@@ -1197,27 +1393,43 @@
                         <option value="heal">Total Heal</option>
                         <option value="cc">CC Time</option>
                     </select>
-                    <button onclick="toggleStatsDonutModal()"
-                        class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-medium flex items-center gap-1.5">
+                    <button onclick="toggleStatsDonutModal()" class="donut-close-btn">
                         <i class="fa-solid fa-xmark"></i> Close (ESC)
                     </button>
                 </div>
             </div>
 
-            <!-- CHART AREA -->
-            <div class="flex-1 flex items-center justify-center p-6 relative">
-                <canvas id="statsDonutCanvas"></canvas>
+            <!-- BODY: chart left, list right -->
+            <div class="donut-modal-body">
 
-                <!-- LEGEND -->
-                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-6 text-xs">
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
-                        <span id="donutTeam1Name" class="text-slate-300">Team 1</span>
+                <!-- LEFT: Canvas -->
+                <div class="donut-canvas-area">
+                    <canvas id="statsDonutCanvas"></canvas>
+                </div>
+
+                <!-- RIGHT: Player list -->
+                <div class="donut-list-area">
+
+                    <!-- Team 1 -->
+                    <div class="donut-team-block">
+                        <div class="donut-team-header blue">
+                            <div id="donutListLogo1" class="donut-list-logo"></div>
+                            <span id="donutListName1" class="donut-team-label blue">Team 1</span>
+                            <span id="donutListTotal1" class="donut-team-total"></span>
+                        </div>
+                        <div id="donutListTeam1" class="donut-player-list"></div>
                     </div>
-                    <div class="flex items-center gap-1.5">
-                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
-                        <span id="donutTeam2Name" class="text-slate-300">Team 2</span>
+
+                    <!-- Team 2 -->
+                    <div class="donut-team-block">
+                        <div class="donut-team-header red">
+                            <div id="donutListLogo2" class="donut-list-logo"></div>
+                            <span id="donutListName2" class="donut-team-label red">Team 2</span>
+                            <span id="donutListTotal2" class="donut-team-total"></span>
+                        </div>
+                        <div id="donutListTeam2" class="donut-player-list"></div>
                     </div>
+
                 </div>
             </div>
 
@@ -6203,9 +6415,6 @@ function renderStatsDonut() {
     const camp2 = apiData.camp_list.find(c => c.campid === 2);
     if (!camp1 || !camp2) return;
 
-    document.getElementById('donutTeam1Name').textContent = camp1.team_simple_name || 'Team 1';
-    document.getElementById('donutTeam2Name').textContent = camp2.team_simple_name || 'Team 2';
-
     const stat = document.getElementById('donutStatSelect')?.value || 'gold';
 
     function getStatValue(player, key) {
@@ -6233,12 +6442,73 @@ function renderStatsDonut() {
     const total2     = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
     const grandTotal = total1 + total2 || 1;
 
+    // ── Update right-side list ──
+    const teamConfigs = [
+        { players: team1Players, total: total1, campId: 1, camp: camp1,
+          listId: 'donutListTeam1', logoId: 'donutListLogo1',
+          nameId: 'donutListName1', totalId: 'donutListTotal1',
+          barColor: '#3b82f6' },
+        { players: team2Players, total: total2, campId: 2, camp: camp2,
+          listId: 'donutListTeam2', logoId: 'donutListLogo2',
+          nameId: 'donutListName2', totalId: 'donutListTotal2',
+          barColor: '#ef4444' },
+    ];
+
+    teamConfigs.forEach(({ players, total, campId, camp, listId, logoId, nameId, totalId, barColor }) => {
+        // Team name + total
+        const nameEl = document.getElementById(nameId);
+        const totalEl = document.getElementById(totalId);
+        if (nameEl) nameEl.textContent = camp.team_simple_name || `Team ${campId}`;
+        if (totalEl) totalEl.textContent = formatVal(total);
+
+        // Team logo
+        const logoEl = document.getElementById(logoId);
+        if (logoEl) {
+            const logoUrl = getTeamLogoUrl(campId);
+            if (logoUrl) {
+                logoEl.innerHTML = `<img src="${logoUrl}" alt="">`;
+            } else {
+                const initials = getTeamInitials(camp.team_simple_name || '');
+                logoEl.innerHTML = `<span style="font-size:9px;font-weight:800;color:${campId===1?'#60a5fa':'#f87171'}">${initials}</span>`;
+            }
+        }
+
+        // Player rows
+        const listEl = document.getElementById(listId);
+        if (!listEl) return;
+        listEl.innerHTML = '';
+
+        players.forEach(p => {
+            const val  = getStatValue(p, stat);
+            const pct  = ((val / grandTotal) * 100).toFixed(1);
+            const isZero = val === 0;
+            const isSmall = (val / grandTotal) < 0.10; // <10% = small slice
+
+            const row = document.createElement('div');
+            row.className = `donut-player-row${isZero ? ' zero' : ''}`;
+
+            row.innerHTML = `
+                <img class="dpr-hero" src="${getHeroIconUrl(p.heroid)}" alt="">
+                <img class="dpr-role" src="${getRoleIcon(getPlayerRoleSafe(p.name))}" alt="">
+                <div class="dpr-info">
+                    <div class="dpr-name">${p.name || '—'}</div>
+                    <div class="dpr-val">${isZero ? 'No data' : formatVal(val)}</div>
+                    <div class="dpr-bar-wrap">
+                        <div class="dpr-bar-fill" style="width:${pct}%;background:${barColor}"></div>
+                    </div>
+                </div>
+                <div class="dpr-pct">${isZero ? '—' : pct + '%'}${isSmall && !isZero ? ' ◂' : ''}</div>
+            `;
+            listEl.appendChild(row);
+        });
+    });
+
     // ── Canvas sizing ──
-    const dpr      = window.devicePixelRatio || 1;
+    const dpr       = window.devicePixelRatio || 1;
     const container = canvas.parentElement;
-    const availW   = container.clientWidth  || 700;
-    const availH   = container.clientHeight || 700;
-    const size     = Math.max(300, Math.min(availW, availH) - 40);
+    const availW    = container.clientWidth  || 600;
+    const availH    = container.clientHeight || 600;
+    const size      = Math.max(300, Math.min(availW, availH) - 32);
 
     canvas.width        = size * dpr;
     canvas.height       = size * dpr;
@@ -6249,55 +6519,100 @@ function renderStatsDonut() {
     ctx.scale(dpr, dpr);
     ctx.clearRect(0, 0, size, size);
 
+    if (size <= 0) { setTimeout(() => renderStatsDonut(), 150); return; }
+
     const cx     = size / 2;
     const cy     = size / 2;
-    const outerR = size * 0.46;
-    const midR   = size * 0.30;
-    const innerR = size * 0.16;
-    const gap    = 2; // px gap between inner and outer ring
+    const outerR = size * 0.40;
+    const midR   = size * 0.25;
+    const innerR = size * 0.12;
+    const heroR  = size * 0.475;
+    const gap    = 2;
 
-    const blue = ['#1e40af','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
+    const blue = ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
     const red  = ['#7f1d1d','#991b1b','#b91c1c','#dc2626','#ef4444'];
 
-    // ── Draw donut arc helper ──
-    function drawDonutSlice(ctx, cx, cy, innerR, outerR, startAngle, endAngle, color) {
+    function drawDonutSlice(iR, oR, sA, eA, color, glow) {
         ctx.beginPath();
-        ctx.arc(cx, cy, outerR, startAngle, endAngle);
-        ctx.arc(cx, cy, innerR, endAngle, startAngle, true);
+        ctx.arc(cx, cy, oR, sA, eA);
+        ctx.arc(cx, cy, iR, eA, sA, true);
         ctx.closePath();
-        ctx.fillStyle = color;
+        if (glow) { ctx.shadowColor = color; ctx.shadowBlur = 14; }
+        ctx.fillStyle   = color;
         ctx.fill();
-        ctx.strokeStyle = '#0f172a';
-        ctx.lineWidth = 2;
+        ctx.shadowBlur  = 0;
+        ctx.strokeStyle = '#060d1a';
+        ctx.lineWidth   = 2.5;
         ctx.stroke();
     }
 
-    // ── INNER RING: team totals ──
-    let startAngle = -Math.PI / 2;
-    [{ value: total1, color: '#3b82f6' }, { value: total2, color: '#ef4444' }].forEach(slice => {
-        const sweep = (slice.value / grandTotal) * 2 * Math.PI;
-        drawDonutSlice(ctx, cx, cy, innerR, midR - gap, startAngle, startAngle + sweep, slice.color);
-        startAngle += sweep;
+    function txt(text, x, y, font, color, align = 'center') {
+        ctx.font = font; ctx.fillStyle = color;
+        ctx.textAlign = align; ctx.textBaseline = 'middle';
+        ctx.fillText(text, x, y);
+    }
+
+    // ── INNER RING ──
+    const innerSlices = [
+        { value: total1, color: '#1d4ed8', campId: 1 },
+        { value: total2, color: '#b91c1c', campId: 2 },
+    ];
+
+    let sa = -Math.PI / 2;
+    innerSlices.forEach(s => {
+        const sw = (s.value / grandTotal) * 2 * Math.PI;
+        drawDonutSlice(innerR, midR - gap, sa, sa + sw, s.color, true);
+        s.midAngle = sa + sw / 2;
+        s.sweep    = sw;
+        sa        += sw;
     });
 
-    // Center hole fill
+    // Hole
     ctx.beginPath();
-    ctx.arc(cx, cy, innerR - 2, 0, 2 * Math.PI);
-    ctx.fillStyle = '#0f172a';
+    ctx.arc(cx, cy, innerR - 1, 0, Math.PI * 2);
+    ctx.fillStyle = '#060d1a';
     ctx.fill();
 
-    // Center text
-    ctx.textAlign    = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.font         = `bold ${Math.round(size * 0.05)}px Inter, sans-serif`;
-    ctx.fillStyle    = '#e2e8f0';
-    ctx.fillText(formatVal(grandTotal), cx, cy - size * 0.025);
-    ctx.font      = `${Math.round(size * 0.028)}px Inter, sans-serif`;
-    ctx.fillStyle = '#64748b';
-    ctx.fillText('TOTAL', cx, cy + size * 0.033);
+    // Grand total center
+    txt(formatVal(grandTotal), cx, cy - size * 0.025,
+        `bold ${Math.round(size * 0.05)}px Inter`, '#f1f5f9');
+    txt('TOTAL', cx, cy + size * 0.032,
+        `${Math.round(size * 0.025)}px Inter`, '#475569');
 
-    // ── OUTER RING: per-player ──
-    const playerData = allPlayers.map((p) => {
+    // ── Inner slice labels ──
+    const logoSz = size * 0.065;
+    innerSlices.forEach(s => {
+        if (s.sweep < 0.15) return;
+        const ringMid = innerR + (midR - gap - innerR) / 2;
+        const lx = cx + Math.cos(s.midAngle) * ringMid;
+        const ly = cy + Math.sin(s.midAngle) * ringMid;
+        const pct = ((s.value / grandTotal) * 100).toFixed(1);
+
+        const logoImg = getTeamLogo(s.campId);
+        if (logoImg && logoImg.complete && logoImg.naturalWidth > 0) {
+            ctx.save();
+            ctx.beginPath();
+            ctx.arc(lx, ly - logoSz * 0.5, logoSz * 0.42, 0, Math.PI * 2);
+            ctx.clip();
+            ctx.drawImage(logoImg, lx - logoSz * 0.42, ly - logoSz * 0.92, logoSz * 0.84, logoSz * 0.84);
+            ctx.restore();
+        } else {
+            const init = getTeamInitials(s.campId === 1
+                ? (camp1.team_simple_name || 'T1')
+                : (camp2.team_simple_name || 'T2'));
+            txt(init, lx, ly - logoSz * 0.5,
+                `bold ${Math.round(size * 0.02)}px Inter`,
+                s.campId === 1 ? '#60a5fa' : '#f87171');
+        }
+
+        txt(formatVal(s.value), lx, ly + logoSz * 0.15,
+            `bold ${Math.round(size * 0.024)}px Inter`, '#ffffff');
+        txt(pct + '%', lx, ly + logoSz * 0.62,
+            `${Math.round(size * 0.018)}px Inter`, 'rgba(255,255,255,0.5)');
+    });
+
+    // ── OUTER RING ──
+    const playerData = allPlayers.map(p => {
         const isTeam1 = camp1.player_list.some(x => x.roleid === p.roleid);
         const palette  = isTeam1 ? blue : red;
         const idx      = isTeam1
@@ -6307,105 +6622,110 @@ function renderStatsDonut() {
             player: p,
             value:  getStatValue(p, stat),
             color:  palette[Math.min(idx, palette.length - 1)],
+            isSmall: (getStatValue(p, stat) / grandTotal) < 0.10,
+            isZero:  getStatValue(p, stat) === 0,
         };
     });
 
-    // Store slice midAngles for icon drawing
-    const iconJobs = [];
-    startAngle = -Math.PI / 2;
+    const sliceJobs = [];
+    sa = -Math.PI / 2;
 
-    playerData.forEach(({ player, value, color }) => {
-        const sweep = (value / grandTotal) * 2 * Math.PI;
-        if (sweep < 0.005) { startAngle += sweep; return; }
+    playerData.forEach(({ player, value, color, isSmall, isZero }) => {
+        // Zero-value players get a thin placeholder slice
+        const sweep = isZero
+            ? (0.015 * Math.PI)
+            : (value / grandTotal) * 2 * Math.PI;
 
-        drawDonutSlice(ctx, cx, cy, midR + gap, outerR, startAngle, startAngle + sweep, color);
+        const sliceColor = isZero ? 'rgba(255,255,255,0.06)' : color;
+        drawDonutSlice(midR + gap, outerR, sa, sa + sweep, sliceColor, false);
 
-        const midAngle = startAngle + sweep / 2;
-        const labelR   = (outerR + midR) / 2;
-
-        iconJobs.push({
-            player,
-            midAngle,
-            lx: cx + Math.cos(midAngle) * labelR,
-            ly: cy + Math.sin(midAngle) * labelR,
-            value,
-            pct:   ((value / grandTotal) * 100).toFixed(1),
-            sweep,
+        const midAngle = sa + sweep / 2;
+        sliceJobs.push({
+            player, midAngle, value, sweep, isSmall, isZero,
+            sliceCx: cx + Math.cos(midAngle) * (midR + gap + (outerR - midR - gap) / 2),
+            sliceCy: cy + Math.sin(midAngle) * (midR + gap + (outerR - midR - gap) / 2),
+            heroX:   cx + Math.cos(midAngle) * heroR,
+            heroY:   cy + Math.sin(midAngle) * heroR,
         });
-
-        startAngle += sweep;
+        sa += sweep;
     });
 
-    // ── Draw icons + labels ──
-    const iconSize = size * 0.072;
-    const roleSize = size * 0.038;
+    // ── Draw labels ──
+    const roleIconSz = size * 0.042;
+    const heroIconSz = size * 0.062;
+    const nameFsz    = Math.round(size * 0.022);
+    const valFsz     = Math.round(size * 0.026);
+    const pctFsz     = Math.round(size * 0.020);
 
     function drawLabels() {
-        iconJobs.forEach(({ player, lx, ly, value, pct, sweep }) => {
-            if (sweep < 0.18) return; // too small to label
-
+        sliceJobs.forEach(({ player, midAngle, sliceCx, sliceCy, heroX, heroY, value, sweep, isSmall, isZero }) => {
+            const pct     = ((value / grandTotal) * 100).toFixed(1);
             const heroImg = loadImg(getHeroIconUrl(player.heroid));
             const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
 
-            // Hero icon circle
+            // ── Inside slice: role icon + value + pct (only if big enough) ──
+            if (!isSmall && !isZero && sweep >= 0.18) {
+                if (roleImg.complete && roleImg.naturalWidth > 0) {
+                    ctx.drawImage(roleImg,
+                        sliceCx - roleIconSz / 2,
+                        sliceCy - roleIconSz * 1.55,
+                        roleIconSz, roleIconSz);
+                }
+                txt(formatVal(value), sliceCx, sliceCy - roleIconSz * 0.15,
+                    `bold ${valFsz}px Inter`, '#ffffff');
+                txt(pct + '%', sliceCx, sliceCy + roleIconSz * 0.9,
+                    `${pctFsz}px Inter`, 'rgba(255,255,255,0.5)');
+            }
+
+            // ── Outside: hero icon + name ──
+            // For zero-value or small slices, still show the hero icon outside
+            if (isZero) return; // skip hero icon for zero — too crowded
+
             if (heroImg.complete && heroImg.naturalWidth > 0) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(lx, ly - iconSize * 0.15, iconSize / 2, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.drawImage(heroImg, lx - iconSize / 2, ly - iconSize * 0.65, iconSize, iconSize);
-                ctx.restore();
-
-                // White ring
-                ctx.beginPath();
-                ctx.arc(lx, ly - iconSize * 0.15, iconSize / 2 + 1, 0, Math.PI * 2);
-                ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-                ctx.lineWidth = 1.5;
+                ctx.arc(heroX, heroY, heroIconSz / 2 + 2, 0, Math.PI * 2);
+                ctx.strokeStyle = isSmall ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.35)';
+                ctx.lineWidth   = 2;
                 ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(heroX, heroY, heroIconSz / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.globalAlpha = isSmall ? 0.6 : 1.0;
+                ctx.drawImage(heroImg,
+                    heroX - heroIconSz / 2,
+                    heroY - heroIconSz / 2,
+                    heroIconSz, heroIconSz);
+                ctx.restore();
             }
 
-            // Role icon (bottom-right of hero)
-            if (roleImg.complete && roleImg.naturalWidth > 0) {
-                ctx.drawImage(
-                    roleImg,
-                    lx + iconSize * 0.28 - roleSize / 2,
-                    ly - iconSize * 0.28 - roleSize / 2,
-                    roleSize, roleSize
-                );
+            // Player name below hero icon
+            if (sweep >= 0.10) {
+                const nameY = heroY + heroIconSz / 2 + size * 0.02;
+                ctx.save();
+                ctx.shadowColor = 'rgba(0,0,0,0.95)';
+                ctx.shadowBlur  = 8;
+                txt(player.name || '', heroX, nameY,
+                    `${isSmall ? 'italic ' : 'bold '}${nameFsz}px Inter`,
+                    isSmall ? 'rgba(255,255,255,0.45)' : '#e2e8f0');
+                ctx.restore();
             }
-
-            // Stat value
-            ctx.textAlign    = 'center';
-            ctx.textBaseline = 'top';
-            ctx.font         = `bold ${Math.round(size * 0.03)}px Inter, sans-serif`;
-            ctx.fillStyle    = '#ffffff';
-            ctx.fillText(formatVal(value), lx, ly + iconSize * 0.42);
-
-            // Percentage
-            ctx.font      = `${Math.round(size * 0.024)}px Inter, sans-serif`;
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
-            ctx.fillText(pct + '%', lx, ly + iconSize * 0.42 + Math.round(size * 0.034));
         });
     }
 
-    // Wait for all images before drawing labels
-    const allImgs = [];
-    iconJobs.forEach(({ player }) => {
-        allImgs.push(loadImg(getHeroIconUrl(player.heroid)));
-        allImgs.push(loadImg(getRoleIcon(getPlayerRoleSafe(player.name))));
-    });
-
+    // Wait for images
+    const allImgs = sliceJobs.flatMap(({ player }) => [
+        loadImg(getHeroIconUrl(player.heroid)),
+        loadImg(getRoleIcon(getPlayerRoleSafe(player.name))),
+    ]);
     const unloaded = allImgs.filter(img => !img.complete || img.naturalWidth === 0);
 
     if (unloaded.length === 0) {
         drawLabels();
     } else {
-        let loaded = 0;
+        let done = 0;
         unloaded.forEach(img => {
-            img.onload = img.onerror = () => {
-                loaded++;
-                if (loaded >= unloaded.length) drawLabels();
-            };
+            img.onload = img.onerror = () => { done++; if (done >= unloaded.length) drawLabels(); };
         });
     }
 }
