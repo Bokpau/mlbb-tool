@@ -963,6 +963,10 @@
                     class="px-2.5 py-1.5 bg-orange-600 hover:bg-orange-500 rounded-lg text-xs font-medium flex items-center gap-1">
                     <i class="fa-solid fa-bag-shopping text-white text-[10px]"></i> Items
                 </button>
+                <button onclick="toggleStatsDonutModal()"
+                    class="px-2.5 py-1.5 bg-cyan-700 hover:bg-cyan-600 rounded-lg text-xs font-medium flex items-center gap-1">
+                    <i class="fa-solid fa-chart-pie text-white text-[10px]"></i> Stats
+                </button>
 
             </div>
         </div>
@@ -1165,6 +1169,58 @@
         <div class="flex-1 p-6">
             <canvas id="itemTimingCanvas" class="w-full h-full rounded-2xl"></canvas>
         </div>
+        </div>
+    </div>
+    <!-- STATS DONUT MODAL -->
+    <div id="statsDonutModal" 
+        onclick="if(event.target.id==='statsDonutModal') toggleStatsDonutModal()"
+        class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-6">
+
+        <div class="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-[900px] max-h-[94vh] flex flex-col overflow-hidden">
+
+            <!-- HEADER -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-slate-700">
+                <div class="flex items-center gap-3">
+                    <i class="fa-solid fa-chart-pie text-cyan-400 text-xl"></i>
+                    <h2 class="text-lg font-bold tracking-tight">TEAM STATS BREAKDOWN</h2>
+                </div>
+
+                <!-- STAT FILTER -->
+                <div class="flex items-center gap-2">
+                    <select id="donutStatSelect"
+                        onchange="renderStatsDonut()"
+                        class="bg-slate-800 border border-slate-600 rounded-xl px-3 py-1.5 text-xs font-medium focus:outline-none focus:border-cyan-400">
+                        <option value="gold">Gold</option>
+                        <option value="damage">Total Damage</option>
+                        <option value="taken">Damage Taken</option>
+                        <option value="turret">Turret Damage</option>
+                        <option value="heal">Total Heal</option>
+                        <option value="cc">CC Time</option>
+                    </select>
+                    <button onclick="toggleStatsDonutModal()"
+                        class="px-4 py-1.5 bg-slate-700 hover:bg-slate-600 rounded-xl text-xs font-medium flex items-center gap-1.5">
+                        <i class="fa-solid fa-xmark"></i> Close (ESC)
+                    </button>
+                </div>
+            </div>
+
+            <!-- CHART AREA -->
+            <div class="flex-1 flex items-center justify-center p-6 relative">
+                <canvas id="statsDonutCanvas"></canvas>
+
+                <!-- LEGEND -->
+                <div class="absolute bottom-4 left-0 right-0 flex justify-center gap-6 text-xs">
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-blue-500"></div>
+                        <span id="donutTeam1Name" class="text-slate-300">Team 1</span>
+                    </div>
+                    <div class="flex items-center gap-1.5">
+                        <div class="w-3 h-3 rounded-full bg-red-500"></div>
+                        <span id="donutTeam2Name" class="text-slate-300">Team 2</span>
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
     <div id="mapModal" 
@@ -6125,6 +6181,228 @@ document.getElementById("player2Select")?.addEventListener("change", e => {
     selectedPlayer2 = e.target.value;
     updateGoldDiffChart();
 });
+
+function toggleStatsDonutModal() {
+    const modal = document.getElementById('statsDonutModal');
+    if (!modal) return;
+    modal.classList.toggle('hidden');
+    if (!modal.classList.contains('hidden')) {
+        setTimeout(() => renderStatsDonut(), 100);
+    }
+}
+window.toggleStatsDonutModal = toggleStatsDonutModal;
+window.renderStatsDonut = renderStatsDonut;
+
+function renderStatsDonut() {
+    if (!apiData?.camp_list) return;
+
+    const canvas = document.getElementById('statsDonutCanvas');
+    if (!canvas) return;
+
+    const camp1 = apiData.camp_list.find(c => c.campid === 1);
+    const camp2 = apiData.camp_list.find(c => c.campid === 2);
+    if (!camp1 || !camp2) return;
+
+    // Update legend names
+    document.getElementById('donutTeam1Name').textContent = camp1.team_simple_name || 'Team 1';
+    document.getElementById('donutTeam2Name').textContent = camp2.team_simple_name || 'Team 2';
+
+    const stat = document.getElementById('donutStatSelect')?.value || 'gold';
+
+    function getStatValue(player, key) {
+        switch (key) {
+            case 'gold':    return player.total_money || player.gold || 0;
+            case 'damage':  return player.total_damage || 0;
+            case 'taken':   return player.total_hurt || 0;
+            case 'turret':  return player.total_damage_tower || 0;
+            case 'heal':    return player.total_heal || 0;
+            case 'cc':      return (player.control_time_ms || 0) / 1000;
+            default:        return 0;
+        }
+    }
+
+    function formatVal(v) {
+        if (stat === 'cc') return v.toFixed(1) + 's';
+        return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : Math.round(v).toString();
+    }
+
+    const team1Players = sortPlayersByRoleSafe([...camp1.player_list]);
+    const team2Players = sortPlayersByRoleSafe([...camp2.player_list]);
+    const allPlayers = [...team1Players, ...team2Players];
+
+    const total1 = team1Players.reduce((s, p) => s + getStatValue(p, stat), 0);
+    const total2 = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
+    const grandTotal = total1 + total2 || 1;
+
+    // ── Canvas setup ──
+    const dpr = window.devicePixelRatio || 1;
+    const size = Math.min(canvas.parentElement.clientWidth, canvas.parentElement.clientHeight) - 80;
+    canvas.width  = size * dpr;
+    canvas.height = size * dpr;
+    canvas.style.width  = size + 'px';
+    canvas.style.height = size + 'px';
+
+    const ctx = canvas.getContext('2d');
+    ctx.scale(dpr, dpr);
+    ctx.clearRect(0, 0, size, size);
+
+    const cx = size / 2;
+    const cy = size / 2;
+
+    const outerR  = size * 0.46;   // outer ring outer edge
+    const midR    = size * 0.30;   // outer ring inner edge / inner ring outer edge
+    const innerR  = size * 0.16;   // inner ring inner edge (hole)
+
+    // ── Colors ──
+    const blue  = ['#1d4ed8','#2563eb','#3b82f6','#60a5fa','#93c5fd'];
+    const red   = ['#991b1b','#b91c1c','#dc2626','#ef4444','#f87171'];
+
+    // ── INNER RING: team totals ──
+    const innerSlices = [
+        { value: total1, color: '#3b82f6', label: camp1.team_simple_name || 'Team 1' },
+        { value: total2, color: '#ef4444', label: camp2.team_simple_name || 'Team 2' },
+    ];
+
+    let startAngle = -Math.PI / 2;
+    innerSlices.forEach(slice => {
+        const sweep = (slice.value / grandTotal) * 2 * Math.PI;
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        ctx.arc(cx, cy, midR, startAngle, startAngle + sweep);
+        ctx.closePath();
+        ctx.fillStyle = slice.color;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        startAngle += sweep;
+    });
+
+    // Inner hole
+    ctx.beginPath();
+    ctx.arc(cx, cy, innerR, 0, 2 * Math.PI);
+    ctx.fillStyle = '#0f172a';
+    ctx.fill();
+
+    // Center text
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.font = `bold ${size * 0.045}px Inter, sans-serif`;
+    ctx.fillStyle = '#e2e8f0';
+    ctx.fillText(formatVal(grandTotal), cx, cy - size * 0.025);
+    ctx.font = `${size * 0.028}px Inter, sans-serif`;
+    ctx.fillStyle = '#64748b';
+    ctx.fillText('TOTAL', cx, cy + size * 0.03);
+
+    // ── OUTER RING: per-player ──
+    const playerData = allPlayers.map((p, i) => {
+        const isTeam1 = camp1.player_list.some(x => x.roleid === p.roleid);
+        const palette  = isTeam1 ? blue : red;
+        const idx      = isTeam1
+            ? team1Players.findIndex(x => x.roleid === p.roleid)
+            : team2Players.findIndex(x => x.roleid === p.roleid);
+        return {
+            player: p,
+            value:  getStatValue(p, stat),
+            color:  palette[idx] || (isTeam1 ? '#3b82f6' : '#ef4444'),
+            isTeam1
+        };
+    });
+
+    const iconJobs = []; // draw hero icons after arcs
+
+    startAngle = -Math.PI / 2;
+    playerData.forEach(({ player, value, color }) => {
+        const sweep = (value / grandTotal) * 2 * Math.PI;
+        if (sweep < 0.01) { startAngle += sweep; return; }
+
+        // Arc
+        ctx.beginPath();
+        ctx.arc(cx, cy, outerR,  startAngle, startAngle + sweep);
+        ctx.arc(cx, cy, midR + 4, startAngle + sweep, startAngle, true);
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        ctx.strokeStyle = '#0f172a';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        const midAngle = startAngle + sweep / 2;
+        const labelR   = (outerR + midR) / 2 + 2;
+        const lx = cx + Math.cos(midAngle) * labelR;
+        const ly = cy + Math.sin(midAngle) * labelR;
+
+        const pct = grandTotal > 0 ? ((value / grandTotal) * 100).toFixed(1) : '0.0';
+
+        // Queue icon drawing (needs image load)
+        iconJobs.push({ player, midAngle, lx, ly, value, pct, sweep });
+
+        startAngle += sweep;
+    });
+
+    // ── Draw hero icons + role icons + labels after arcs ──
+    const iconSize = size * 0.07;
+    const roleSize = size * 0.04;
+
+    function drawAll() {
+        iconJobs.forEach(({ player, lx, ly, value, pct, sweep }) => {
+            if (sweep < 0.15) return; // too small to label
+
+            const heroImg = loadImg(getHeroIconUrl(player.heroid));
+            const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
+
+            // Hero circle
+            if (heroImg.complete && heroImg.naturalWidth > 0) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(lx, ly - iconSize * 0.1, iconSize / 2, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(heroImg, lx - iconSize / 2, ly - iconSize * 0.6, iconSize, iconSize);
+                ctx.restore();
+
+                // Ring around hero
+                ctx.beginPath();
+                ctx.arc(lx, ly - iconSize * 0.1, iconSize / 2 + 1.5, 0, Math.PI * 2);
+                ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            }
+
+            // Role icon (small, bottom-right of hero)
+            if (roleImg.complete && roleImg.naturalWidth > 0) {
+                const rx = lx + iconSize * 0.3;
+                const ry = ly - iconSize * 0.3;
+                ctx.drawImage(roleImg, rx - roleSize / 2, ry - roleSize / 2, roleSize, roleSize);
+            }
+
+            // Stat value
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'top';
+            ctx.font = `bold ${size * 0.028}px Inter, sans-serif`;
+            ctx.fillStyle = '#ffffff';
+            ctx.fillText(formatVal(value), lx, ly + iconSize * 0.5);
+
+            // Percentage
+            ctx.font = `${size * 0.022}px Inter, sans-serif`;
+            ctx.fillStyle = 'rgba(255,255,255,0.65)';
+            ctx.fillText(pct + '%', lx, ly + iconSize * 0.5 + size * 0.032);
+        });
+    }
+
+    // Wait for all images then draw
+    let pending = iconJobs.length * 2;
+    if (pending === 0) { drawAll(); return; }
+
+    iconJobs.forEach(({ player }) => {
+        const heroImg = loadImg(getHeroIconUrl(player.heroid));
+        const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
+        const check = () => { pending--; if (pending <= 0) drawAll(); };
+        if (heroImg.complete && heroImg.naturalWidth > 0) { pending--; } else { heroImg.onload = check; heroImg.onerror = check; }
+        if (roleImg.complete && roleImg.naturalWidth > 0) { pending--; } else { roleImg.onload = check; roleImg.onerror = check; }
+    });
+
+    if (pending <= 0) drawAll();
+}
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
     const camp1 = apiData.camp_list?.find(c => c.campid === 1);
@@ -6237,6 +6515,11 @@ function updateUI() {
 
     if (pvpModal && !pvpModal.classList.contains('hidden')) {
         renderPlayerComparison();
+    }
+
+    const donutModal = document.getElementById('statsDonutModal');
+    if (donutModal && !donutModal.classList.contains('hidden')) {
+        renderStatsDonut();
     }
     }
 
@@ -6368,6 +6651,19 @@ function clearAllUI() {
         const el = document.getElementById(id);
         if (el) { el.innerHTML = ""; el.selectedIndex = -1; delete el.dataset.loaded; }
     });
+
+    // Hide all modals
+    ['draftModal', 'playerCompareModal', 'goldDistributionModal',
+     'itemTimingModal', 'mapModal', 'statsDonutModal'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+    });
+
+    // Clear donut canvas
+    const donutCanvas = document.getElementById('statsDonutCanvas');
+    if (donutCanvas) {
+        donutCanvas.getContext('2d').clearRect(0, 0, donutCanvas.width, donutCanvas.height);
+    }
 }
 
 async function fetchGame() {
@@ -6653,6 +6949,11 @@ window.onload = () => {
             const pvpModal = document.getElementById('playerCompareModal');
             if (pvpModal && !pvpModal.classList.contains('hidden')) {
                 togglePlayerCompareModal();
+            }
+
+            const donutModal = document.getElementById('statsDonutModal');
+            if (donutModal && !donutModal.classList.contains('hidden')) {
+                donutModal.classList.add('hidden');
             }
         }
     });
