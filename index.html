@@ -1554,12 +1554,14 @@
     // ======================
     resetAllEventData();
 
-    // ======================
-    // DESTROY OLD GOLD DIFF CHART
-    // ======================
-    if (window.goldDiffChart) {
-        window.goldDiffChart.destroy();
-        window.goldDiffChart = null;
+    if (goldDiffChart) {
+        goldDiffChart.destroy();
+        goldDiffChart = null;
+    }
+
+    if (teamGoldDiffChart) {
+        teamGoldDiffChart.destroy();
+        teamGoldDiffChart = null;
     }
 
     // ======================
