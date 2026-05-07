@@ -6497,11 +6497,16 @@ function renderStatsDonut() {
     // ── Canvas sizing ──
     const dpr       = window.devicePixelRatio || 1;
     const container = canvas.parentElement;
-    const availW    = container.clientWidth  || 600;
-    const availH    = container.clientHeight || 600;
-    const size      = Math.max(300, Math.min(availW, availH) - 32);
 
-    if (size <= 0) { setTimeout(() => renderStatsDonut(), 150); return; }
+    // Force a reflow read after layout
+    const rect   = container.getBoundingClientRect();
+    const availW = rect.width  || container.clientWidth  || 500;
+    const availH = rect.height || container.clientHeight || 500;
+
+    // Use the smaller dimension so the circle fits, leave room for hero icons + names
+    const size = Math.max(280, Math.min(availW, availH) - 24);
+
+    if (size <= 50) { setTimeout(() => renderStatsDonut(), 150); return; }
 
     canvas.width        = size * dpr;
     canvas.height       = size * dpr;
@@ -6514,10 +6519,10 @@ function renderStatsDonut() {
 
     const cx     = size / 2;
     const cy     = size / 2;
-    const outerR = size * 0.38;  // ← reduced so hero icons don't get clipped
-    const midR   = size * 0.24;
-    const innerR = size * 0.11;
-    const heroR  = size * 0.455; // ← hero orbit just outside outerR
+    const outerR = size * 0.33;  // was 0.38
+    const midR   = size * 0.21;  // was 0.24
+    const innerR = size * 0.10;  // was 0.11
+    const heroR  = size * 0.43;  // was 0.455 — must be < 0.5 minus margin
     const gap    = 2;
 
     const blue = ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
@@ -6616,7 +6621,7 @@ function renderStatsDonut() {
         return {
             player: p, val, isTeam1, teamTotal,
             color:   palette[Math.min(idx, palette.length - 1)],
-            isSmall: (val / grandTotal) < 0.10,
+            isSmall: (val / grandTotal) < 0.05,
             isZero:  val === 0,
         };
     });
@@ -6675,7 +6680,7 @@ function renderStatsDonut() {
                 }
 
                 // Only show value + % if slice is big enough
-                if (!isSmall && sweep >= 0.18) {
+                if (!isSmall && sweep >= 0.10) {
                     txt(formatVal(val), sliceCx, sliceCy + roleIconSz * 0.1,
                         `bold ${valFsz}px Inter`, '#ffffff');
                     txt(teamPct + '%', sliceCx, sliceCy + roleIconSz * 1.1,
@@ -6687,9 +6692,9 @@ function renderStatsDonut() {
             if (isZero) return;
 
             // Clamp hero icon inside canvas bounds
-            const margin = heroIconSz / 2 + 4;
+            const margin = heroIconSz / 2 + nameFsz + 8;
             const hx = Math.max(margin, Math.min(size - margin, heroX));
-            const hy = Math.max(margin, Math.min(size - margin, heroY));
+            const hy = Math.max(margin + nameFsz, Math.min(size - margin - nameFsz, heroY));
 
             if (heroImg.complete && heroImg.naturalWidth > 0) {
                 ctx.save();
