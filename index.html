@@ -4048,6 +4048,7 @@ function updateMapHeader() {
 
     teamGoldDiffChart = new Chart(ctx, {
         type: 'line',
+
         data: {
             labels: [],
             datasets: [{
@@ -4059,12 +4060,13 @@ function updateMapHeader() {
                 tension: 0.25,
                 pointRadius: 0,
                 borderWidth: 3,
+
                 segment: {
                     borderColor: ctx =>
-                        ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
+                        ctx.p1.parsed.y >= 0 ? '#3b82f6' : '#ef4444',
 
                     backgroundColor: ctx =>
-                        ctx.p1.parsed.y > 0
+                        ctx.p1.parsed.y >= 0
                             ? 'rgba(59,130,246,0.25)'
                             : 'rgba(239,68,68,0.25)'
                 }
@@ -4075,7 +4077,12 @@ function updateMapHeader() {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 40, right: 5 } },
+            layout: {
+                padding: {
+                    top: 45,
+                    right: 8
+                }
+            },
 
             scales: {
                 // ======================
@@ -4083,23 +4090,21 @@ function updateMapHeader() {
                 // ======================
                 x: {
                     ticks: {
-                        color: '#94a3b8',
-                        autoSkip: false,
-                        maxRotation: 0,
-                        minRotation: 0,
-
-                        callback: function(value, index) {
-                            const label = this.getLabelForValue(value);
-
-                            // Only show milestone minute points
-                            return index % 60 === 0 ? label : '';
-                        }
+                        display: false
                     },
 
                     grid: {
-                        drawOnChartArea: false,
-                        drawTicks: true,
-                        color: '#334155'
+                        drawTicks: false,
+                        drawBorder: false,
+
+                        // Keep only vertical lines
+                        color: 'rgba(148,163,184,0.18)',
+
+                        lineWidth: 1
+                    },
+
+                    border: {
+                        display: false
                     }
                 },
 
@@ -4119,59 +4124,68 @@ function updateMapHeader() {
                         }
                     },
 
-                    beginAtZero: true,
-
-                    suggestedMin: function() {
-                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
-                        const min = Math.min(...data, 0);
-                        return -Math.ceil(Math.abs(min) / 1000) * 1000;
-                    },
-
-                    suggestedMax: function() {
-                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
-                        const max = Math.max(...data, 0);
-                        return Math.ceil(max / 1000) * 1000;
-                    },
-
                     ticks: {
                         color: '#94a3b8',
 
-                        callback: function(value, index, ticks) {
+                        callback: function(value) {
                             const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
 
-                            const max = Math.ceil(Math.max(...data, 0) / 1000) * 1000;
-                            const min = Math.ceil(Math.abs(Math.min(...data, 0)) / 1000) * 1000;
+                            const maxPositive = Math.max(...data, 0);
+                            const maxNegative = Math.min(...data, 0);
+
+                            const roundedPositive =
+                                Math.ceil(maxPositive / 100) * 100;
+
+                            const roundedNegative =
+                                Math.ceil(Math.abs(maxNegative) / 100) * 100;
 
                             if (value === 0) return '0';
 
-                            if (value === max) {
-                                return max >= 1000
-                                    ? `+${(max / 1000).toFixed(1)}K`
-                                    : `+${max}`;
+                            if (value === roundedPositive) {
+                                return roundedPositive >= 1000
+                                    ? `+${(roundedPositive / 1000).toFixed(1)}K`
+                                    : `+${roundedPositive}`;
                             }
 
-                            if (value === -min) {
-                                return min >= 1000
-                                    ? `-${(min / 1000).toFixed(1)}K`
-                                    : `-${min}`;
+                            if (value === -roundedNegative) {
+                                return roundedNegative >= 1000
+                                    ? `-${(roundedNegative / 1000).toFixed(1)}K`
+                                    : `-${roundedNegative}`;
                             }
 
                             return '';
                         }
                     },
 
+                    suggestedMax: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxPositive = Math.max(...data, 0);
+                        return Math.ceil(maxPositive / 100) * 100;
+                    },
+
+                    suggestedMin: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxNegative = Math.min(...data, 0);
+                        return -Math.ceil(Math.abs(maxNegative) / 100) * 100;
+                    },
+
                     grid: {
                         drawBorder: false,
 
+                        // Only keep 0 line
                         color: function(context) {
                             return context.tick.value === 0
-                                ? 'rgba(255,255,255,0.25)'
+                                ? 'rgba(255,255,255,0.28)'
                                 : 'rgba(0,0,0,0)';
                         },
 
                         lineWidth: function(context) {
                             return context.tick.value === 0 ? 2 : 0;
                         }
+                    },
+
+                    border: {
+                        display: false
                     }
                 }
             },
@@ -4279,48 +4293,38 @@ function updateMapHeader() {
                         const isBlue = value >= 0;
 
                         // ======================
-                        // ONLY MILESTONE POINTS
+                        // MILESTONE TIME LABEL ONLY
                         // ======================
-
-                        // 🔹 Vertical milestone line
                         ctx.save();
-                        ctx.beginPath();
-                        ctx.setLineDash([4, 6]);
-                        ctx.moveTo(xPos, y.top);
-                        ctx.lineTo(xPos, y.bottom);
-                        ctx.strokeStyle = 'rgba(148,163,184,0.28)';
-                        ctx.lineWidth = 1.2;
-                        ctx.stroke();
-                        ctx.restore();
+                        ctx.font = `bold ${getFontSize(chart, 12)}px Inter`;
+                        ctx.fillStyle = '#cbd5e1';
 
-                        // 🔹 Minute label
-                        ctx.save();
-                        ctx.font = `600 ${getFontSize(chart, 11)}px Inter`;
-                        ctx.fillStyle = '#94a3b8';
                         ctx.fillText(
                             `${String(minute).padStart(2, '0')}:00`,
                             xPos,
-                            y.top - 10
+                            y.top - 14
                         );
                         ctx.restore();
 
                         // ======================
-                        // GOLD DIFF POINT
+                        // MILESTONE POINT ONLY
                         // ======================
                         const size = getPointSize(chart);
 
                         ctx.save();
                         ctx.beginPath();
                         ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
+
                         ctx.fillStyle = '#FFFFFF';
                         ctx.strokeStyle = isBlue ? '#3b82f6' : '#ef4444';
                         ctx.lineWidth = 2.5;
+
                         ctx.fill();
                         ctx.stroke();
                         ctx.restore();
 
                         // ======================
-                        // GOLD DIFF VALUE
+                        // MILESTONE VALUE ONLY
                         // ======================
                         const displayVal = Math.abs(value) >= 1000
                             ? (Math.abs(value) / 1000).toFixed(1) + 'K'
