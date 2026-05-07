@@ -1438,43 +1438,6 @@
         }
     }
 
-    // ====================== FETCH LATEST GAME ONLY ======================
-    async function fetchGame() {
-        try {
-            const response = await fetch('/api/latest-battle');
-            const data = await response.json();
-
-            if (!data?.battle_id) {
-                alert("No latest battle ID found.");
-                return;
-            }
-
-            currentBattleId = data.battle_id;
-
-            console.log("Fetched Latest Battle ID:", currentBattleId);
-
-            alert(`Latest Battle ID Ready: ${currentBattleId}`);
-
-        } catch (err) {
-            console.error("FetchGame failed:", err);
-            alert("Failed to fetch latest battle ID.");
-        }
-    }
-
-    // ====================== LOAD FETCHED GAME ======================
-    async function loadGame() {
-        if (!currentBattleId) {
-            alert("Please click FetchGame first.");
-            return;
-        }
-
-        console.log("Loading Battle ID:", currentBattleId);
-
-        resetAllEventData();
-
-        await fetchLiveData();
-    }
-
 function updateMapHeader() {
     if (!apiData) {
         console.warn("⚠️ apiData missing for map header");
@@ -6312,6 +6275,36 @@ async function startAutoRefresh(battleId) {
     }, 500);
 }
 
+async function fetchGame() {
+    try {
+        alert("Fetching latest match...");
+
+        // 🔥 Force fresh API request
+        const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
+
+        const data = await res.json();
+
+        if (!data.battleId) throw new Error("No battle ID");
+
+        currentBattleId = data.battleId;
+
+        console.log("Fetched Latest Battle ID:", currentBattleId);
+
+        alert(`Latest match ready: ${currentBattleId}`);
+
+    } catch (err) {
+        console.error("Failed to fetch latest battle:", err);
+        alert("Failed to fetch latest match.");
+    }
+}
+async function loadGame() {
+    if (!currentBattleId) {
+        alert("Please click FetchGame first.");
+        return;
+    }
+
+    await loadBattle();
+}
 async function loadBattle() {
 
     // 🔥 STOP OLD POLLING FIRST
@@ -6365,26 +6358,10 @@ async function loadBattle() {
         alert("Failed to load: " + e.message); 
     }
 }
+
+window.fetchGame = fetchGame;
+window.loadGame = loadGame;
 window.loadBattle = loadBattle;
-
-async function loadLatestBattle() {
-    try {
-        const res = await fetch("/api/latestbattle");
-        const data = await res.json();
-
-        if (!data.battleId) throw new Error("No battle ID");
-
-        currentBattleId = data.battleId;
-
-        await loadBattle();
-
-    } catch (err) {
-        console.error("Failed to load latest battle:", err);
-        alert("Failed to auto load latest match");
-    }
-}
-
-window.loadLatestBattle = loadLatestBattle;
 
 window.onload = () => {
     initAllTowers();
@@ -6748,7 +6725,7 @@ window.onload = () => {
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
 
-        loadLatestBattle();
+        //loadLatestBattle();
 
     } catch (err) {
         console.error("Access verification failed:", err);
