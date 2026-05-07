@@ -6599,9 +6599,19 @@ function renderStatsDonut() {
     }
 
     function txt(text, x, y, font, color, align = 'center') {
-        ctx.font = font; ctx.fillStyle = color;
-        ctx.textAlign = align; ctx.textBaseline = 'middle';
+        ctx.save();
+
+        ctx.font = font;
+        ctx.fillStyle = color;
+        ctx.textAlign = align;
+        ctx.textBaseline = 'middle';
+
+        ctx.shadowColor = 'rgba(0,0,0,0.85)';
+        ctx.shadowBlur = 6;
+
         ctx.fillText(text, x, y);
+
+        ctx.restore();
     }
 
     // ── INNER RING ──
@@ -6711,8 +6721,8 @@ function renderStatsDonut() {
     const roleIconSz = size * 0.040;
     const heroIconSz = size * 0.058;
     const nameFsz = Math.round(size * 0.018);
-    const valFsz     = Math.round(size * 0.025);
-    const pctFsz     = Math.round(size * 0.019);
+    const valFsz = Math.round(size * 0.022);
+    const pctFsz = Math.round(size * 0.017);
 
     function drawLabels() {
         sliceJobs.forEach(({ player, val, midAngle, sliceCx, sliceCy,
@@ -6724,23 +6734,44 @@ function renderStatsDonut() {
 
             // ── ALWAYS draw role icon inside slice ──
             if (!isZero && sweep >= 0.08) {
-                const roleY = isSmall
-                    ? sliceCy  // center vertically if small
-                    : sliceCy - roleIconSz * 1.4;
+
+                const groupOffset = sweep >= 0.14
+                    ? roleIconSz * 0.9
+                    : roleIconSz * 0.55;
+
+                const roleY  = sliceCy - groupOffset;
+                const valueY = sliceCy;
+                const pctY   = sliceCy + groupOffset;
 
                 if (roleImg.complete && roleImg.naturalWidth > 0) {
-                    ctx.drawImage(roleImg,
+                    ctx.drawImage(
+                        roleImg,
                         sliceCx - roleIconSz / 2,
                         roleY - roleIconSz / 2,
-                        roleIconSz, roleIconSz);
+                        roleIconSz,
+                        roleIconSz
+                    );
                 }
 
-                // Only show value + % if slice is big enough
                 if (!isSmall && sweep >= 0.10) {
-                    txt(formatVal(val), sliceCx, sliceCy + roleIconSz * 0.1,
-                        `bold ${valFsz}px Inter`, '#ffffff');
-                    txt(teamPct + '%', sliceCx, sliceCy + roleIconSz * 1.1,
-                        `${pctFsz}px Inter`, 'rgba(255,255,255,0.5)');
+
+                    txt(
+                        formatVal(val),
+                        sliceCx,
+                        valueY,
+                        `bold ${valFsz}px Inter`,
+                        '#ffffff'
+                    );
+
+                    if (sweep >= 0.14) {
+                        txt(
+                            teamPct + '%',
+                            sliceCx,
+                            pctY,
+                            `${pctFsz}px Inter`,
+                            'rgba(255,255,255,0.55)'
+                        );
+                    }
                 }
             }
 
