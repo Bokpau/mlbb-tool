@@ -4077,7 +4077,6 @@ function updateMapHeader() {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
-
             layout: {
                 padding: {
                     top: 45,
@@ -4090,16 +4089,18 @@ function updateMapHeader() {
                 // X AXIS
                 // ======================
                 x: {
-                    display: false,
-
                     ticks: {
                         display: false
                     },
 
                     grid: {
-                        display: false,
                         drawTicks: false,
-                        drawBorder: false
+                        drawBorder: false,
+
+                        // Keep only vertical lines
+                        color: 'rgba(148,163,184,0.18)',
+
+                        lineWidth: 1
                     },
 
                     border: {
@@ -4112,17 +4113,6 @@ function updateMapHeader() {
                 // ======================
                 y: {
                     position: 'right',
-
-                    title: {
-                        display: true,
-                        text: 'Gold Lead',
-                        color: '#e2e8f0',
-                        font: {
-                            size: 14,
-                            weight: '600'
-                        }
-                    },
-
                     ticks: {
                         color: '#94a3b8',
 
@@ -4170,8 +4160,8 @@ function updateMapHeader() {
 
                     grid: {
                         drawBorder: false,
-                        drawTicks: false,
 
+                        // Only keep 0 line
                         color: function(context) {
                             return context.tick.value === 0
                                 ? 'rgba(255,255,255,0.28)'
@@ -4195,93 +4185,62 @@ function updateMapHeader() {
                 }
             }
         },
-
         plugins: [
-            // ======================
-            // MILESTONE VERTICAL LINES
-            // ======================
             {
                 id: 'milestoneLines',
-
                 beforeDatasetsDraw(chart) {
                     const { ctx, scales: { x }, chartArea } = chart;
                     const labels = chart.data.labels;
-
                     if (!labels.length) return;
-
                     for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
                         const t = m * 60;
-
                         const idx = labels.findIndex(l => {
-                            const [mm, ss] = l.split(':').map(Number);
-                            return mm * 60 + ss >= t;
+                            const [mm,ss] = l.split(':').map(Number);
+                            return mm*60 + ss >= t;
                         });
-
                         if (idx === -1) continue;
-
                         const xPos = x.getPixelForValue(idx);
-
                         ctx.save();
                         ctx.strokeStyle = 'rgba(140,140,140,0.75)';
                         ctx.lineWidth = 1.5;
-                        ctx.setLineDash([4, 4]);
-
+                        ctx.setLineDash([4,4]);
                         ctx.beginPath();
                         ctx.moveTo(xPos, chartArea.top);
                         ctx.lineTo(xPos, chartArea.bottom);
                         ctx.stroke();
-
                         ctx.restore();
                     }
                 }
             },
-
-            // ======================
-            // TOP TIME LABELS (MILESTONES ONLY)
-            // ======================
             {
                 id: 'teamLinesAndLabels',
-
                 afterDraw(chart) {
-                    const { ctx, scales: { x } } = chart;
+                    const { ctx, scales: { x }, chartArea } = chart;
                     const labels = chart.data.labels;
-
                     if (!labels.length) return;
-
                     const labelY = 20;
-
-                    for (const t of milestones) {
-                        if (t > (apiData?.game_time || 0)) continue;
-
+                    for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
+                        const t = m * 60;
                         const idx = labels.findIndex(l => {
-                            const [mm, ss] = l.split(':').map(Number);
-                            return mm * 60 + ss >= t;
+                            const [mm,ss] = l.split(':').map(Number);
+                            return mm*60 + ss >= t;
                         });
-
                         if (idx === -1) continue;
-
                         const xPos = x.getPixelForValue(idx);
-
-                        ctx.save();
-
-                        ctx.fillStyle = 'rgba(12,12,12,0.8)';
-                        ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
-
-                        ctx.fillStyle = '#FFFFFF';
-                        ctx.font = 'bold 11px Inter, sans-serif';
-                        ctx.textAlign = 'center';
-                        ctx.textBaseline = 'middle';
-
-                        ctx.fillText(fmtTime(t), xPos, labelY + 1);
-
-                        ctx.restore();
+                        if (milestones.includes(t)) {
+                            ctx.save();
+                            ctx.fillStyle = 'rgba(12,12,12,0.8)';
+                            ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
+                            ctx.fillStyle = '#FFFFFF';
+                            ctx.font = 'bold 11px Inter, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.textBaseline = 'middle';
+                            ctx.fillText(fmtTime(t), xPos, labelY + 1);
+                            ctx.restore();
+                        }
                     }
                 }
             },
-
-            // ======================
-            // MILESTONE POINTS ONLY
-            // ======================
             {
                 id: 'minutePoints',
 
@@ -4293,10 +4252,11 @@ function updateMapHeader() {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
 
-                    for (const targetSec of milestones) {
-                        if (targetSec > (apiData?.game_time || 0)) continue;
+                    const currentGameTime = apiData?.game_time || 0;
+                    const maxMinute = Math.floor(currentGameTime / 60);
 
-                        const minute = Math.floor(targetSec / 60);
+                    for (let minute = 1; minute <= maxMinute; minute++) {
+                        const targetSec = minute * 60;
 
                         let closestIdx = -1;
                         let minDiff = Infinity;
@@ -4304,7 +4264,6 @@ function updateMapHeader() {
                         data.labels.forEach((label, i) => {
                             const [m, s] = label.split(':').map(Number);
                             const sec = m * 60 + s;
-
                             const diff = Math.abs(sec - targetSec);
 
                             if (diff < minDiff) {
@@ -4322,11 +4281,26 @@ function updateMapHeader() {
                         const yPos = y.getPixelForValue(value);
                         const isBlue = value >= 0;
 
+                        // ======================
+                        // MILESTONE TIME LABEL ONLY
+                        // ======================
+                        ctx.save();
+                        ctx.font = `bold ${getFontSize(chart, 12)}px Inter`;
+                        ctx.fillStyle = '#cbd5e1';
+
+                        ctx.fillText(
+                            `${String(minute).padStart(2, '0')}:00`,
+                            xPos,
+                            y.top - 14
+                        );
+                        ctx.restore();
+
+                        // ======================
+                        // MILESTONE POINT ONLY
+                        // ======================
                         const size = getPointSize(chart);
 
-                        // POINT
                         ctx.save();
-
                         ctx.beginPath();
                         ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
 
@@ -4336,10 +4310,11 @@ function updateMapHeader() {
 
                         ctx.fill();
                         ctx.stroke();
-
                         ctx.restore();
 
-                        // VALUE LABEL
+                        // ======================
+                        // MILESTONE VALUE ONLY
+                        // ======================
                         const displayVal = Math.abs(value) >= 1000
                             ? (Math.abs(value) / 1000).toFixed(1) + 'K'
                             : Math.round(Math.abs(value)).toString();
@@ -4350,7 +4325,6 @@ function updateMapHeader() {
 
                         ctx.strokeStyle = '#FFFFFF';
                         ctx.lineWidth = 4;
-
                         ctx.strokeText(displayVal, xPos, yPos - offset);
 
                         ctx.fillStyle = isBlue ? '#3b82f6' : '#ef4444';
