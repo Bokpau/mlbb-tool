@@ -4042,17 +4042,13 @@ function updateMapHeader() {
     }
 
 
-    function createTeamGoldDiffChart(canvasId = 'teamGoldDiffChart') {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return;
+    function createTeamGoldDiffChart() {
+    const ctx = document.getElementById('teamGoldDiffChart').getContext('2d');
+    if (teamGoldDiffChart) teamGoldDiffChart.destroy();
 
-        const ctx = canvas.getContext('2d');
-
-        if (teamGoldDiffChart) teamGoldDiffChart.destroy();
-
-        teamGoldDiffChart = new Chart(ctx, {
- 
+    teamGoldDiffChart = new Chart(ctx, {
         type: 'line',
+
         data: {
             labels: [],
             datasets: [{
@@ -4064,87 +4060,231 @@ function updateMapHeader() {
                 tension: 0.25,
                 pointRadius: 0,
                 borderWidth: 3,
+
                 segment: {
-                    borderColor: ctx => ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
-                    backgroundColor: ctx => ctx.p1.parsed.y > 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'
+                    borderColor: ctx =>
+                        ctx.p1.parsed.y >= 0 ? '#3b82f6' : '#ef4444',
+
+                    backgroundColor: ctx =>
+                        ctx.p1.parsed.y >= 0
+                            ? 'rgba(59,130,246,0.25)'
+                            : 'rgba(239,68,68,0.25)'
                 }
             }]
         },
+
         options: {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 40, right: 5 } },
-            scales: {
-                x: { display: false },
-                y: {
-                    position: 'right',
-                    title: { display: true, text: 'Gold Lead', color: '#e2e8f0', font: { size: 14, weight: '600' } },
-                    ticks: { color: '#94a3b8', callback: v => Math.abs(v) >= 1000 ? (v/1000).toFixed(1)+'K' : v },
-                    grid: { color: '#334155', display: true },
-                    beginAtZero: true
+
+            layout: {
+                padding: {
+                    top: 45,
+                    right: 8
                 }
             },
-            plugins: { legend: { display: false } }
+
+            scales: {
+                // ======================
+                // X AXIS
+                // ======================
+                x: {
+                    display: false,
+
+                    ticks: {
+                        display: false
+                    },
+
+                    grid: {
+                        display: false,
+                        drawTicks: false,
+                        drawBorder: false
+                    },
+
+                    border: {
+                        display: false
+                    }
+                },
+
+                // ======================
+                // Y AXIS
+                // ======================
+                y: {
+                    position: 'right',
+
+                    title: {
+                        display: true,
+                        text: 'Gold Lead',
+                        color: '#e2e8f0',
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        }
+                    },
+
+                    ticks: {
+                        color: '#94a3b8',
+
+                        callback: function(value) {
+                            const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+
+                            const maxPositive = Math.max(...data, 0);
+                            const maxNegative = Math.min(...data, 0);
+
+                            const roundedPositive =
+                                Math.ceil(maxPositive / 100) * 100;
+
+                            const roundedNegative =
+                                Math.ceil(Math.abs(maxNegative) / 100) * 100;
+
+                            if (value === 0) return '0';
+
+                            if (value === roundedPositive) {
+                                return roundedPositive >= 1000
+                                    ? `+${(roundedPositive / 1000).toFixed(1)}K`
+                                    : `+${roundedPositive}`;
+                            }
+
+                            if (value === -roundedNegative) {
+                                return roundedNegative >= 1000
+                                    ? `-${(roundedNegative / 1000).toFixed(1)}K`
+                                    : `-${roundedNegative}`;
+                            }
+
+                            return '';
+                        }
+                    },
+
+                    suggestedMax: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxPositive = Math.max(...data, 0);
+                        return Math.ceil(maxPositive / 100) * 100;
+                    },
+
+                    suggestedMin: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxNegative = Math.min(...data, 0);
+                        return -Math.ceil(Math.abs(maxNegative) / 100) * 100;
+                    },
+
+                    grid: {
+                        drawBorder: false,
+                        drawTicks: false,
+
+                        color: function(context) {
+                            return context.tick.value === 0
+                                ? 'rgba(255,255,255,0.28)'
+                                : 'rgba(0,0,0,0)';
+                        },
+
+                        lineWidth: function(context) {
+                            return context.tick.value === 0 ? 2 : 0;
+                        }
+                    },
+
+                    border: {
+                        display: false
+                    }
+                }
+            },
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
         },
+
         plugins: [
+            // ======================
+            // MILESTONE VERTICAL LINES
+            // ======================
             {
                 id: 'milestoneLines',
+
                 beforeDatasetsDraw(chart) {
                     const { ctx, scales: { x }, chartArea } = chart;
                     const labels = chart.data.labels;
+
                     if (!labels.length) return;
+
                     for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
                         const t = m * 60;
+
                         const idx = labels.findIndex(l => {
-                            const [mm,ss] = l.split(':').map(Number);
-                            return mm*60 + ss >= t;
+                            const [mm, ss] = l.split(':').map(Number);
+                            return mm * 60 + ss >= t;
                         });
+
                         if (idx === -1) continue;
+
                         const xPos = x.getPixelForValue(idx);
+
                         ctx.save();
                         ctx.strokeStyle = 'rgba(140,140,140,0.75)';
                         ctx.lineWidth = 1.5;
-                        ctx.setLineDash([4,4]);
+                        ctx.setLineDash([4, 4]);
+
                         ctx.beginPath();
                         ctx.moveTo(xPos, chartArea.top);
                         ctx.lineTo(xPos, chartArea.bottom);
                         ctx.stroke();
+
                         ctx.restore();
                     }
                 }
             },
+
+            // ======================
+            // TOP TIME LABELS (MILESTONES ONLY)
+            // ======================
             {
                 id: 'teamLinesAndLabels',
+
                 afterDraw(chart) {
-                    const { ctx, scales: { x }, chartArea } = chart;
+                    const { ctx, scales: { x } } = chart;
                     const labels = chart.data.labels;
+
                     if (!labels.length) return;
+
                     const labelY = 20;
-                    for (let m = 1; m <= Math.ceil((apiData?.game_time || 0) / 60); m++) {
-                        const t = m * 60;
+
+                    for (const t of milestones) {
+                        if (t > (apiData?.game_time || 0)) continue;
+
                         const idx = labels.findIndex(l => {
-                            const [mm,ss] = l.split(':').map(Number);
-                            return mm*60 + ss >= t;
+                            const [mm, ss] = l.split(':').map(Number);
+                            return mm * 60 + ss >= t;
                         });
+
                         if (idx === -1) continue;
+
                         const xPos = x.getPixelForValue(idx);
-                        if (milestones.includes(t)) {
-                            ctx.save();
-                            ctx.fillStyle = 'rgba(12,12,12,0.8)';
-                            ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
-                            ctx.fillStyle = '#FFFFFF';
-                            ctx.font = 'bold 11px Inter, sans-serif';
-                            ctx.textAlign = 'center';
-                            ctx.textBaseline = 'middle';
-                            ctx.fillText(fmtTime(t), xPos, labelY + 1);
-                            ctx.restore();
-                        }
+
+                        ctx.save();
+
+                        ctx.fillStyle = 'rgba(12,12,12,0.8)';
+                        ctx.fillRect(xPos - 24, labelY - 12, 48, 24);
+
+                        ctx.fillStyle = '#FFFFFF';
+                        ctx.font = 'bold 11px Inter, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.textBaseline = 'middle';
+
+                        ctx.fillText(fmtTime(t), xPos, labelY + 1);
+
+                        ctx.restore();
                     }
                 }
             },
+
+            // ======================
+            // MILESTONE POINTS ONLY
+            // ======================
             {
                 id: 'minutePoints',
+
                 afterDatasetsDraw(chart) {
                     const { ctx, scales: { x, y }, data } = chart;
                     if (!data.labels.length) return;
@@ -4153,11 +4293,10 @@ function updateMapHeader() {
                     ctx.textAlign = 'center';
                     ctx.textBaseline = 'bottom';
 
-                    const currentGameTime = apiData?.game_time || 0;
-                    const maxMinute = Math.floor(currentGameTime / 60);
+                    for (const targetSec of milestones) {
+                        if (targetSec > (apiData?.game_time || 0)) continue;
 
-                    for (let minute = 1; minute <= maxMinute; minute++) {
-                        const targetSec = minute * 60;
+                        const minute = Math.floor(targetSec / 60);
 
                         let closestIdx = -1;
                         let minDiff = Infinity;
@@ -4165,6 +4304,7 @@ function updateMapHeader() {
                         data.labels.forEach((label, i) => {
                             const [m, s] = label.split(':').map(Number);
                             const sec = m * 60 + s;
+
                             const diff = Math.abs(sec - targetSec);
 
                             if (diff < minDiff) {
@@ -4182,21 +4322,24 @@ function updateMapHeader() {
                         const yPos = y.getPixelForValue(value);
                         const isBlue = value >= 0;
 
-                        // ✅ MATCHED SIZE
                         const size = getPointSize(chart);
 
-                        // 🔵 POINT
+                        // POINT
                         ctx.save();
+
                         ctx.beginPath();
                         ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
+
                         ctx.fillStyle = '#FFFFFF';
                         ctx.strokeStyle = isBlue ? '#3b82f6' : '#ef4444';
                         ctx.lineWidth = 2.5;
+
                         ctx.fill();
                         ctx.stroke();
+
                         ctx.restore();
 
-                        // 🔢 LABEL
+                        // VALUE LABEL
                         const displayVal = Math.abs(value) >= 1000
                             ? (Math.abs(value) / 1000).toFixed(1) + 'K'
                             : Math.round(Math.abs(value)).toString();
@@ -4204,8 +4347,10 @@ function updateMapHeader() {
                         const offset = getOffset(chart, 0.6);
 
                         ctx.font = `bold ${getFontSize(chart, 11)}px Inter`;
+
                         ctx.strokeStyle = '#FFFFFF';
                         ctx.lineWidth = 4;
+
                         ctx.strokeText(displayVal, xPos, yPos - offset);
 
                         ctx.fillStyle = isBlue ? '#3b82f6' : '#ef4444';
