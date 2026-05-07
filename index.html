@@ -1657,35 +1657,73 @@ function updateMapHeader() {
         if (!apiData) return;
 
         const stateInfo = getStateInfo();
+        const isPaused = apiData.paused === true;
 
-        document.getElementById('stateName').textContent = stateInfo.label;
-        document.getElementById('stateTimer').textContent = stateInfo.time;
+        const bar = document.getElementById('statusBar');
+        const stateName = document.getElementById('stateName');
+        const stateTimer = document.getElementById('stateTimer');
+
+        stateName.textContent = isPaused ? "PAUSED" : stateInfo.label;
+        stateTimer.textContent = isPaused ? "" : stateInfo.time;
+
+        // Change badge color based on state
+        bar.className = "px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 flex-shrink-0 ";
+
+        if (isPaused) {
+            bar.className += "bg-orange-600/30 text-orange-400 animate-pulse";
+        } else {
+            const state = (apiData.state || "").toLowerCase();
+            if (state === "ban" || state === "pick" || state === "adjustment") {
+                bar.className += "bg-blue-600/20 text-blue-400";
+            } else if (state === "play") {
+                bar.className += "bg-emerald-600/20 text-emerald-400";
+            } else if (state === "end") {
+                bar.className += "bg-slate-600/20 text-slate-400";
+            } else if (state === "loading") {
+                bar.className += "bg-amber-600/20 text-amber-400";
+            } else {
+                bar.className += "bg-emerald-600/20 text-emerald-400";
+            }
+        }
     }
 
     function getStateInfo() {
         if (!apiData) return { label: "READY", time: "" };
 
         const state = (apiData.state || "").toLowerCase().trim();
-        let label = apiData.state || "READY";
-        let timeStr = "";
+        const isPaused = apiData.paused === true;
 
-        if (["ban", "pick", "adjustment", "loading"].includes(state)) {
-            const seconds = parseInt(apiData.state_left_time) || 0;
-            timeStr = seconds > 0 ? `${seconds}s` : "";
-            label = state.toUpperCase();
-        } else {
-            const seconds = parseInt(apiData.game_time) || 0;
-            const min = Math.floor(seconds / 60);
-            const sec = seconds % 60;
-            timeStr = `${min}:${sec.toString().padStart(2, '0')}`;
-            label =
-                state === "play" ? "PLAY" :
-                state === "pause" ? "PAUSE" :
-                state === "end" ? "END" :
-                "LIVE";
+        // Format game time as MM:SS
+        const gameSeconds = parseInt(apiData.game_time) || 0;
+        const gameMin = Math.floor(gameSeconds / 60);
+        const gameSec = gameSeconds % 60;
+        const gameTimeStr = `${gameMin}:${gameSec.toString().padStart(2, '0')}`;
+
+        // Ban / Pick / Adjustment → countdown from state_left_time
+        if (["ban", "pick", "adjustment"].includes(state)) {
+            const left = parseInt(apiData.state_left_time) || 0;
+            return {
+                label: state.toUpperCase(),
+                time: left > 0 ? `${left}s` : ""
+            };
         }
 
-        return { label, time: timeStr };
+        // Loading → label only, no timer
+        if (state === "loading") {
+            return { label: "LOADING", time: "" };
+        }
+
+        // Paused → show game time but override label
+        if (isPaused) {
+            return { label: "PAUSED", time: gameTimeStr };
+        }
+
+        // Play / End → show game time
+        if (state === "play") return { label: "PLAY", time: gameTimeStr };
+        if (state === "end")  return { label: "END",  time: gameTimeStr };
+
+        // Fallback
+        return { label: "LIVE", time: gameTimeStr };
     }
 
     function updateScoreboardResult() {
@@ -3351,8 +3389,8 @@ function updateMapHeader() {
             const gold2 = p2 ? (p2.total_money || p2.gold || 0) : 0;
             const diff = gold1 - gold2;
 
-            const leadLeft = diff > 200 ? formatGoldLead(diff) : '';
-            const leadRight = diff < -200 ? formatGoldLead(Math.abs(diff)) : '';
+            const leadLeft = diff > 0 ? formatGoldLead(diff) : '';
+            const leadRight = diff < 0 ? formatGoldLead(Math.abs(diff)) : '';
 
             let rowHTML = `<div class="player-row">`;
 
@@ -3732,12 +3770,13 @@ function updateMapHeader() {
             document.body.style.overflow = 'auto';
         }
 
-        // 🔥 IMPORTANT: resize charts after toggle
         setTimeout(() => {
             goldDiffChart?.resize();
             teamGoldDiffChart?.resize();
         }, 200);
     }
+
+    window.toggleFullscreen = toggleFullscreen;
 
     function processEvents() {
         if (!apiData?.incre_event_list) return;
