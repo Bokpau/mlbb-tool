@@ -4082,24 +4082,20 @@ function updateMapHeader() {
                 // X AXIS
                 // ======================
                 x: {
+                    display: false,
+
                     ticks: {
-                        color: '#94a3b8',
-                        autoSkip: false,
-                        maxRotation: 0,
-                        minRotation: 0,
-
-                        callback: function(value, index) {
-                            const label = this.getLabelForValue(value);
-
-                            // Only show milestone minute points
-                            return index % 60 === 0 ? label : '';
-                        }
+                        display: false
                     },
 
                     grid: {
-                        drawOnChartArea: false,
-                        drawTicks: true,
-                        color: '#334155'
+                        display: false,
+                        drawTicks: false,
+                        drawBorder: false
+                    },
+
+                    border: {
+                        display: false
                     }
                 },
 
@@ -4107,17 +4103,7 @@ function updateMapHeader() {
                 // Y AXIS
                 // ======================
                 y: {
-                    position: 'right',
-
-                    title: {
-                        display: true,
-                        text: 'Gold Lead',
-                        color: '#e2e8f0',
-                        font: {
-                            size: 14,
-                            weight: '600'
-                        }
-                    },
+                    position: 'left',
 
                     beginAtZero: true,
 
