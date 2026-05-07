@@ -6276,119 +6276,109 @@ async function startAutoRefresh(battleId) {
     }, 500);
 }
 
+function clearAllUI() {
+    // Clear containers that render functions won't touch when apiData is null
+    const safeClear = (id) => { const el = document.getElementById(id); if (el) el.innerHTML = ""; };
+
+    safeClear("players-container");
+    safeClear("timelineContainer");
+    safeClear("teamComparisonContent");
+    safeClear("goldDiffHeader");
+    safeClear("killListContent");
+    safeClear("draftContent");
+    safeClear("playerCompareContent");
+    safeClear("goldDistributionContent");
+    safeClear("tcTeam1");
+    safeClear("tcTeam2");
+    safeClear("tcObjectives");
+
+    // These are the ones being LEFT BEHIND — clear them explicitly
+    const team1Block = document.getElementById("team1Block");
+    const team2Block = document.getElementById("team2Block");
+    const scoreCenter = document.getElementById("scoreCenter");
+
+    if (team1Block) team1Block.innerHTML = "";
+    if (team2Block) team2Block.innerHTML = "";
+    if (scoreCenter) scoreCenter.innerHTML = `<span class="vs">VS</span>`;
+
+    // Clear canvases
+    ["eventCanvas", "eventCanvasModal"].forEach(id => {
+        const canvas = document.getElementById(id);
+        if (canvas) canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+    });
+
+    // ✅ Clear team logos cache — this is the key missing piece
+    Object.keys(TEAM_LOGOS).forEach(key => delete TEAM_LOGOS[key]);
+
+    // Reset status bar
+    const stateName = document.getElementById("stateName");
+    const stateTimer = document.getElementById("stateTimer");
+    if (stateName) stateName.textContent = "Fetching...";
+    if (stateTimer) stateTimer.textContent = "";
+
+    // Reset map header
+    const mapNameHeader = document.getElementById("mapNameHeader");
+    const mapIconHeader = document.getElementById("mapIconHeader");
+    if (mapNameHeader) mapNameHeader.textContent = "Default";
+    if (mapIconHeader) mapIconHeader.src = "./mapicon/0.png";
+
+    // Reset player selectors
+    ["player1Select", "player2Select"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) { el.innerHTML = ""; el.selectedIndex = -1; delete el.dataset.loaded; }
+    });
+}
+
 async function fetchGame() {
-    // 🔒 Prevent double-click / rapid re-click
     if (isFetching) return;
     isFetching = true;
 
     try {
-        // 🔥 STOP OLD POLLING
-        if (pollInterval) {
-            clearInterval(pollInterval);
-            pollInterval = null;
-        }
+        if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
 
-        // 🔥 FULL DATA RESET
+        // Data reset
         resetAllEventData();
-
         goldDiffHistory = [];
         teamGoldHistory.clear();
         playerGoldHistory.clear();
-
         allKillEvents = [];
         allDeathEvents = [];
         deathReviewData = [];
-
         allItemEvents.clear();
         prevItemsMap.clear();
-
         apiData = null;
         lastTime = 0;
         currentBattleId = null;
-
-        heroMap = {};
-        posByTime = {};
-        nameMap = {};
-        campMap = {};
-
+        heroMap = {}; posByTime = {}; nameMap = {}; campMap = {};
         selectedPlayer1 = null;
         selectedPlayer2 = null;
 
-        // 🔥 DESTROY OLD CHARTS
+        // Destroy charts
         if (goldDiffChart) { goldDiffChart.destroy(); goldDiffChart = null; }
         if (teamGoldDiffChart) { teamGoldDiffChart.destroy(); teamGoldDiffChart = null; }
         if (playerRankingChart) { playerRankingChart.destroy(); playerRankingChart = null; }
+        Object.keys(pvpCharts).forEach(id => { if (pvpCharts[id]) { pvpCharts[id].destroy(); delete pvpCharts[id]; } });
 
-        Object.keys(pvpCharts).forEach(id => {
-            if (pvpCharts[id]) { pvpCharts[id].destroy(); delete pvpCharts[id]; }
-        });
+        // ✅ Clear the screen immediately
+        clearAllUI();
 
-        // 🔥 CLEAR UI CONTAINERS
-        const safeClear = (id) => { const el = document.getElementById(id); if (el) el.innerHTML = ""; };
-        safeClear("players-container");
-        safeClear("timelineContainer");
-        safeClear("team1Block");
-        safeClear("team2Block");
-        safeClear("scoreCenter");
-        safeClear("teamComparisonContent");
-        safeClear("goldDiffHeader");
-        safeClear("killListContent");
-        safeClear("draftContent");
-        safeClear("playerCompareContent");
-        safeClear("goldDistributionContent");
-        safeClear("tcTeam1");
-        safeClear("tcTeam2");
-        safeClear("tcObjectives");
-
-        // 🔥 RESET PLAYER SELECTORS
-        const p1 = document.getElementById("player1Select");
-        const p2 = document.getElementById("player2Select");
-        if (p1) { p1.innerHTML = ""; p1.selectedIndex = -1; delete p1.dataset.loaded; }
-        if (p2) { p2.innerHTML = ""; p2.selectedIndex = -1; delete p2.dataset.loaded; }
-
-        // 🔥 CLEAR CANVASES
-        const clearCanvas = (id) => {
-            const canvas = document.getElementById(id);
-            if (canvas) canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
-        };
-        clearCanvas("eventCanvas");
-        clearCanvas("eventCanvasModal");
-
-        // 🔥 RESET STATUS BAR
-        const stateName = document.getElementById("stateName");
-        const stateTimer = document.getElementById("stateTimer");
-        if (stateName) stateName.textContent = "READY";
-        if (stateTimer) stateTimer.textContent = "";
-
-        // 🔥 RESET MAP HEADER
-        const mapNameHeader = document.getElementById("mapNameHeader");
-        const mapIconHeader = document.getElementById("mapIconHeader");
-        if (mapNameHeader) mapNameHeader.textContent = "Default";
-        if (mapIconHeader) mapIconHeader.src = "./mapicon/0.png";
-
-        // ✅ Show status WITHOUT alert (alert blocks the browser)
-        if (stateName) stateName.textContent = "Fetching...";
-
-        // 🔥 FETCH NEWEST BATTLE
+        // Fetch new battle ID
         const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
         const data = await res.json();
-
         if (!data.battleId) throw new Error("No battle ID");
 
         currentBattleId = data.battleId;
         console.log("Fetched Latest Battle ID:", currentBattleId);
 
-        // ✅ Show success WITHOUT alert
+        const stateName = document.getElementById("stateName");
         if (stateName) stateName.textContent = `Ready: ${currentBattleId}`;
 
     } catch (err) {
         console.error("Failed to fetch latest battle:", err);
-
         const stateName = document.getElementById("stateName");
         if (stateName) stateName.textContent = "Fetch Failed";
-
     } finally {
-        isFetching = false; // 🔓 Always unlock, even if it errored
+        isFetching = false;
     }
 }
 async function loadGame() {
