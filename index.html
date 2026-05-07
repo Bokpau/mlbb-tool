@@ -1322,7 +1322,8 @@
     } from './main-config.js';
 
     let apiData = null;
-    let isFetching = false; 
+    let isFetching = false;
+    let fetchSession = 0;
     let lastTime = 0;
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
     let pollInterval = null;
@@ -6191,22 +6192,24 @@ function updateUI() {
 async function startAutoRefresh(battleId) {
     if (pollInterval) clearInterval(pollInterval);
 
+    const mySession = ++fetchSession; // capture this session's number
+
     pollInterval = setInterval(async () => {
+        if (fetchSession !== mySession) return; // stale tick — old game, ignore it
+
         try {
-            const res = await fetch(`/api/mlbb?battleId=${battleId}`)
+            const res = await fetch(`/api/mlbb?battleId=${battleId}`);
             const json = await res.json();
 
             if (!json.data) return;
+            if (fetchSession !== mySession) return; // check again after await — could have changed while fetching
 
             apiData = json.data;
             const currentTime = apiData.game_time || 0;
             updateTeamKillsDisplay();
-
-            // ====================== POSITION + BASIC DATA ======================
             lastTime = currentTime;
             extractPositions(apiData, lastTime);
 
-            // ====================== TEAM GOLD TRACKING ======================
             if (apiData.camp_list) {
                 let camp1Total = 0;
                 let camp2Total = 0;
@@ -6223,51 +6226,38 @@ async function startAutoRefresh(battleId) {
                 teamGoldHistory.get(1).push({ time: currentTime, gold: camp1Total });
                 teamGoldHistory.get(2).push({ time: currentTime, gold: camp2Total });
             }
-            // ====================== 🔥 ITEM TIMING (BACKEND VERSION) ======================
+
             if (apiData.camp_list) {
                 const players = [];
-
                 apiData.camp_list.forEach(camp => {
                     camp.player_list.forEach(p => players.push(p));
                 });
 
                 const prevItemsObj = {};
-                prevItemsMap.forEach((value, key) => {
-                    prevItemsObj[key] = value;
-                });
+                prevItemsMap.forEach((value, key) => { prevItemsObj[key] = value; });
 
                 const resItems = await fetch('/api/items', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        players,
-                        prevItemsMap: prevItemsObj,
-                        currentTime
-                    })
+                    body: JSON.stringify({ players, prevItemsMap: prevItemsObj, currentTime })
                 });
+
+                if (fetchSession !== mySession) return; // check after second await too
 
                 const result = await resItems.json();
 
                 Object.keys(result).forEach(roleid => {
                     const data = result[roleid];
-
                     if (!allItemEvents.has(parseInt(roleid))) {
                         allItemEvents.set(parseInt(roleid), []);
                     }
-
                     const playerItems = allItemEvents.get(parseInt(roleid));
-
-                    data.events.forEach(e => {
-                        playerItems.push(e);
-                    });
-
+                    data.events.forEach(e => { playerItems.push(e); });
                     prevItemsMap.set(parseInt(roleid), data.current);
                 });
             }
-            // ====================== OTHER EVENTS ======================
-            processEvents();
 
-            // ====================== UI ======================
+            processEvents();
             updateUI();
 
         } catch (e) {
@@ -6332,6 +6322,8 @@ function clearAllUI() {
 async function fetchGame() {
     if (isFetching) return;
     isFetching = true;
+
+    fetchSession++;
 
     try {
         if (pollInterval) { clearInterval(pollInterval); pollInterval = null; }
