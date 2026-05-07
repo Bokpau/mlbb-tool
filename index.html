@@ -1322,6 +1322,7 @@
     } from './main-config.js';
 
     let apiData = null;
+    let isFetching = false; 
     let lastTime = 0;
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
     let pollInterval = null;
@@ -6276,6 +6277,10 @@ async function startAutoRefresh(battleId) {
 }
 
 async function fetchGame() {
+    // 🔒 Prevent double-click / rapid re-click
+    if (isFetching) return;
+    isFetching = true;
+
     try {
         // 🔥 STOP OLD POLLING
         if (pollInterval) {
@@ -6310,35 +6315,16 @@ async function fetchGame() {
         selectedPlayer2 = null;
 
         // 🔥 DESTROY OLD CHARTS
-        if (goldDiffChart) {
-            goldDiffChart.destroy();
-            goldDiffChart = null;
-        }
+        if (goldDiffChart) { goldDiffChart.destroy(); goldDiffChart = null; }
+        if (teamGoldDiffChart) { teamGoldDiffChart.destroy(); teamGoldDiffChart = null; }
+        if (playerRankingChart) { playerRankingChart.destroy(); playerRankingChart = null; }
 
-        if (teamGoldDiffChart) {
-            teamGoldDiffChart.destroy();
-            teamGoldDiffChart = null;
-        }
-
-        if (playerRankingChart) {
-            playerRankingChart.destroy();
-            playerRankingChart = null;
-        }
-
-        // 🔥 CLEAR PLAYER COMPARE CHARTS
         Object.keys(pvpCharts).forEach(id => {
-            if (pvpCharts[id]) {
-                pvpCharts[id].destroy();
-                delete pvpCharts[id];
-            }
+            if (pvpCharts[id]) { pvpCharts[id].destroy(); delete pvpCharts[id]; }
         });
 
         // 🔥 CLEAR UI CONTAINERS
-        const safeClear = (id) => {
-            const el = document.getElementById(id);
-            if (el) el.innerHTML = "";
-        };
-
+        const safeClear = (id) => { const el = document.getElementById(id); if (el) el.innerHTML = ""; };
         safeClear("players-container");
         safeClear("timelineContainer");
         safeClear("team1Block");
@@ -6357,64 +6343,52 @@ async function fetchGame() {
         // 🔥 RESET PLAYER SELECTORS
         const p1 = document.getElementById("player1Select");
         const p2 = document.getElementById("player2Select");
+        if (p1) { p1.innerHTML = ""; p1.selectedIndex = -1; delete p1.dataset.loaded; }
+        if (p2) { p2.innerHTML = ""; p2.selectedIndex = -1; delete p2.dataset.loaded; }
 
-        if (p1) {
-            p1.innerHTML = "";
-            p1.selectedIndex = -1;
-            delete p1.dataset.loaded;
-        }
-
-        if (p2) {
-            p2.innerHTML = "";
-            p2.selectedIndex = -1;
-            delete p2.dataset.loaded;
-        }
-
-        // 🔥 CLEAR MAIN MAP CANVAS
-        const eventCanvas = document.getElementById("eventCanvas");
-        if (eventCanvas) {
-            const ctx = eventCanvas.getContext("2d");
-            ctx.clearRect(0, 0, eventCanvas.width, eventCanvas.height);
-        }
-
-        // 🔥 CLEAR MODAL MAP CANVAS
-        const eventCanvasModal = document.getElementById("eventCanvasModal");
-        if (eventCanvasModal) {
-            const ctxModal = eventCanvasModal.getContext("2d");
-            ctxModal.clearRect(0, 0, eventCanvasModal.width, eventCanvasModal.height);
-        }
+        // 🔥 CLEAR CANVASES
+        const clearCanvas = (id) => {
+            const canvas = document.getElementById(id);
+            if (canvas) canvas.getContext("2d").clearRect(0, 0, canvas.width, canvas.height);
+        };
+        clearCanvas("eventCanvas");
+        clearCanvas("eventCanvasModal");
 
         // 🔥 RESET STATUS BAR
         const stateName = document.getElementById("stateName");
         const stateTimer = document.getElementById("stateTimer");
-
         if (stateName) stateName.textContent = "READY";
         if (stateTimer) stateTimer.textContent = "";
 
         // 🔥 RESET MAP HEADER
         const mapNameHeader = document.getElementById("mapNameHeader");
         const mapIconHeader = document.getElementById("mapIconHeader");
-
         if (mapNameHeader) mapNameHeader.textContent = "Default";
         if (mapIconHeader) mapIconHeader.src = "./mapicon/0.png";
 
-        // 🔥 FETCH NEWEST BATTLE
-        alert("Fetching latest match...");
+        // ✅ Show status WITHOUT alert (alert blocks the browser)
+        if (stateName) stateName.textContent = "Fetching...";
 
+        // 🔥 FETCH NEWEST BATTLE
         const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
         const data = await res.json();
 
         if (!data.battleId) throw new Error("No battle ID");
 
         currentBattleId = data.battleId;
-
         console.log("Fetched Latest Battle ID:", currentBattleId);
 
-        alert(`Latest match ready: ${currentBattleId}`);
+        // ✅ Show success WITHOUT alert
+        if (stateName) stateName.textContent = `Ready: ${currentBattleId}`;
 
     } catch (err) {
         console.error("Failed to fetch latest battle:", err);
-        alert("Failed to fetch latest match.");
+
+        const stateName = document.getElementById("stateName");
+        if (stateName) stateName.textContent = "Fetch Failed";
+
+    } finally {
+        isFetching = false; // 🔓 Always unlock, even if it errored
     }
 }
 async function loadGame() {
