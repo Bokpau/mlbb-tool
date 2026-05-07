@@ -4075,7 +4075,7 @@ function updateMapHeader() {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
-            layout: { padding: { top: 40, right: 30, left: 15 } },
+            layout: { padding: { top: 40, right: 30, left: 10 } },
 
             scales: {
                 // ======================
@@ -4120,7 +4120,16 @@ function updateMapHeader() {
                     },
 
                     ticks: {
-                        color: '#94a3b8',
+                        color: function(context) {
+                            const value = context.tick.value;
+                            if (value > 0) return '#3b82f6';   // blue (Team 1)
+                            if (value < 0) return '#ef4444';   // red  (Team 2)
+                            return '#94a3b8';                  // neutral for 0
+                        },
+
+                        font: {
+                            weight: 'bold'
+                        },
 
                         callback: function(value, index, ticks) {
                             const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
@@ -4132,14 +4141,14 @@ function updateMapHeader() {
 
                             if (value === max) {
                                 return max >= 1000
-                                    ? `+${(max / 1000).toFixed(1)}K`
-                                    : `+${max}`;
+                                    ? `${(max / 1000).toFixed(1)}K`
+                                    : `${max}`;
                             }
 
                             if (value === -min) {
                                 return min >= 1000
-                                    ? `-${(min / 1000).toFixed(1)}K`
-                                    : `-${min}`;
+                                    ? `${(min / 1000).toFixed(1)}K`
+                                    : `${min}`;
                             }
 
                             return '';
