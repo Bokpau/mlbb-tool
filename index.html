@@ -5648,26 +5648,15 @@ function renderTimeline() {
                     }
                 }
 
-                // 🔥 Use loadImg() to get the same cached image source as the live data canvas
-                const killerHeroId = heroMap[death.killerId];
-                const victimHeroId = heroMap[death.victimId];
-
-                const killerImgSrc = killerHeroId ? loadImg(getHeroIconUrl(killerHeroId)).src : '';
-                const victimImgSrc = victimHeroId ? loadImg(getHeroIconUrl(victimHeroId)).src : '';
-
                 let assistersHTML = '';
                 if (death.assisters && death.assisters.length > 0) {
                     assistersHTML = `
                         <div class="flex items-center gap-1 ml-auto">
-                            ${death.assisters.map(id => {
-                                const hId = heroMap[id];
-                                const src = hId ? loadImg(getHeroIconUrl(hId)).src : '';
-                                return `
-                                    <img src="${src}" 
-                                        class="w-5 h-5 rounded-lg border border-slate-600 flex-shrink-0" 
-                                        title="${nameMap[id] || 'Unknown'}">
-                                `;
-                            }).join('')}
+                            ${death.assisters.map(id => `
+                                <img src="${getHeroIconUrl(heroMap[id])}" 
+                                    class="w-5 h-5 rounded-lg border border-slate-600 flex-shrink-0" 
+                                    title="${nameMap[id] || 'Unknown'}">
+                            `).join('')}
                         </div>`;
                 }
 
@@ -5685,12 +5674,12 @@ function renderTimeline() {
                         <img src="${eventIconSrc}" class="w-6 h-6 object-contain">
                     </div>` : ''}
 
-                    <img src="${killerImgSrc}" 
+                    <img src="${getHeroIconUrl(heroMap[death.killerId])}" 
                         class="w-6 h-6 rounded-lg border-2 ${killerBorder} flex-shrink-0">
 
                     <span class="text-slate-400 whitespace-nowrap">killed</span>
 
-                    <img src="${victimImgSrc}" 
+                    <img src="${getHeroIconUrl(heroMap[death.victimId])}" 
                         class="w-6 h-6 rounded-lg border-2 ${victimBorder} flex-shrink-0">
 
                     ${assistersHTML}
