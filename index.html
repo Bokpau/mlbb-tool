@@ -849,8 +849,8 @@
         ══════════════════════════════════ */
         .donut-modal-box {
             width: 92vw;
-            height: 88vh;
-            max-width: 1400px;
+            height: 90vh;
+            max-width: 1600px;
             display: flex;
             flex-direction: column;
             background: radial-gradient(ellipse at top left, #0f1f3d 0%, #060d1a 100%);
@@ -879,14 +879,25 @@
 
         /* LEFT — chart takes 3/4 */
         .donut-canvas-area {
-            flex: 3;
+            flex: 2.2;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 16px;
-            min-width: 0;
-        }
 
+            padding: 32px;
+
+            min-width: 0;
+            min-height: 0;
+
+            overflow: hidden;
+
+            position: relative;
+        }
+        #statsDonutCanvas {
+            max-width: 100%;
+            max-height: 100%;
+            display: block;
+        }
         /* RIGHT — list takes 1/4 */
         .donut-list-area {
             flex: 1;
@@ -1042,6 +1053,49 @@
             height: 100%;
             border-radius: 2px;
             transition: width 0.4s ease;
+        }
+
+        .donut-canvas-area {
+            flex: 3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+            min-width: 0;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+       .donut-chart-wrapper {
+            position: relative;
+
+            width: min(100%, 820px);
+            height: min(100%, 820px);
+
+            max-width: 100%;
+            max-height: 100%;
+
+            aspect-ratio: 1 / 1;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            overflow: hidden;
+
+            border-radius: 20px;
+
+            background: radial-gradient(
+                circle,
+                rgba(15,23,42,0.35) 0%,
+                rgba(2,6,23,0.15) 55%,
+                transparent 100%
+            );
+        }
+
+        #statsDonutCanvas {
+            width: 100% !important;
+            height: 100% !important;
         }
     </style>
 </head>
@@ -1404,7 +1458,9 @@
 
                 <!-- LEFT: Canvas -->
                 <div class="donut-canvas-area">
-                    <canvas id="statsDonutCanvas"></canvas>
+                    <div class="donut-chart-wrapper">
+                        <canvas id="statsDonutCanvas"></canvas>
+                    </div>
                 </div>
 
                 <!-- RIGHT: Player list -->
@@ -6504,7 +6560,7 @@ function renderStatsDonut() {
     const availH = rect.height || container.clientHeight || 500;
 
     // Use the smaller dimension so the circle fits, leave room for hero icons + names
-    const size = Math.max(280, Math.min(availW, availH) - 24);
+    const size = Math.max(280, Math.min(availW, availH) - 80);
 
     if (size <= 50) { setTimeout(() => renderStatsDonut(), 150); return; }
 
@@ -6519,10 +6575,10 @@ function renderStatsDonut() {
 
     const cx     = size / 2;
     const cy     = size / 2;
-    const outerR = size * 0.33;  // was 0.38
-    const midR   = size * 0.21;  // was 0.24
-    const innerR = size * 0.10;  // was 0.11
-    const heroR  = size * 0.43;  // was 0.455 — must be < 0.5 minus margin
+    const outerR = size * 0.29;
+    const midR   = size * 0.18;
+    const innerR = size * 0.085;
+    const heroR  = size * 0.39;  // was 0.455 — must be < 0.5 minus margin
     const gap    = 2;
 
     const blue = ['#1e3a8a','#1d4ed8','#2563eb','#3b82f6','#60a5fa'];
@@ -6654,7 +6710,7 @@ function renderStatsDonut() {
     // ── Draw all labels ──
     const roleIconSz = size * 0.040;
     const heroIconSz = size * 0.058;
-    const nameFsz    = Math.round(size * 0.021);
+    const nameFsz = Math.round(size * 0.018);
     const valFsz     = Math.round(size * 0.025);
     const pctFsz     = Math.round(size * 0.019);
 
