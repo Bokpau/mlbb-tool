@@ -6277,11 +6277,30 @@ async function startAutoRefresh(battleId) {
 
 async function fetchGame() {
     try {
+        // 🔥 STOP OLD POLLING
+        if (pollInterval) {
+            clearInterval(pollInterval);
+            pollInterval = null;
+        }
+
+        // 🔥 FULL RESET
+        resetAllEventData();
+        goldDiffHistory = [];
+        teamGoldHistory.clear();
+        allKillEvents.length = 0;
+        allDeathEvents.length = 0;
+        allItemEvents.clear();
+        prevItemsMap.clear();
+        playerGoldHistory.clear();
+
+        apiData = null;
+        lastTime = 0;
+        currentBattleId = null;
+
         alert("Fetching latest match...");
 
-        // 🔥 Force fresh API request
+        // 🔥 Force fresh latest battle
         const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
-
         const data = await res.json();
 
         if (!data.battleId) throw new Error("No battle ID");
