@@ -4060,27 +4060,127 @@ function updateMapHeader() {
                 pointRadius: 0,
                 borderWidth: 3,
                 segment: {
-                    borderColor: ctx => ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
-                    backgroundColor: ctx => ctx.p1.parsed.y > 0 ? 'rgba(59,130,246,0.25)' : 'rgba(239,68,68,0.25)'
+                    borderColor: ctx =>
+                        ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
+
+                    backgroundColor: ctx =>
+                        ctx.p1.parsed.y > 0
+                            ? 'rgba(59,130,246,0.25)'
+                            : 'rgba(239,68,68,0.25)'
                 }
             }]
         },
+
         options: {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
             layout: { padding: { top: 40, right: 5 } },
+
             scales: {
-                x: { display: false },
+                // ======================
+                // X AXIS
+                // ======================
+                x: {
+                    ticks: {
+                        color: '#94a3b8',
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0,
+
+                        callback: function(value, index) {
+                            const label = this.getLabelForValue(value);
+
+                            // Only show milestone minute points
+                            return index % 60 === 0 ? label : '';
+                        }
+                    },
+
+                    grid: {
+                        drawOnChartArea: false,
+                        drawTicks: true,
+                        color: '#334155'
+                    }
+                },
+
+                // ======================
+                // Y AXIS
+                // ======================
                 y: {
                     position: 'right',
-                    title: { display: true, text: 'Gold Lead', color: '#e2e8f0', font: { size: 14, weight: '600' } },
-                    ticks: { color: '#94a3b8', callback: v => Math.abs(v) >= 1000 ? (v/1000).toFixed(1)+'K' : v },
-                    grid: { color: '#334155', display: true },
-                    beginAtZero: true
+
+                    title: {
+                        display: true,
+                        text: 'Gold Lead',
+                        color: '#e2e8f0',
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        }
+                    },
+
+                    beginAtZero: true,
+
+                    suggestedMin: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const min = Math.min(...data, 0);
+                        return -Math.ceil(Math.abs(min) / 1000) * 1000;
+                    },
+
+                    suggestedMax: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const max = Math.max(...data, 0);
+                        return Math.ceil(max / 1000) * 1000;
+                    },
+
+                    ticks: {
+                        color: '#94a3b8',
+
+                        callback: function(value, index, ticks) {
+                            const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+
+                            const max = Math.ceil(Math.max(...data, 0) / 1000) * 1000;
+                            const min = Math.ceil(Math.abs(Math.min(...data, 0)) / 1000) * 1000;
+
+                            if (value === 0) return '0';
+
+                            if (value === max) {
+                                return max >= 1000
+                                    ? `+${(max / 1000).toFixed(1)}K`
+                                    : `+${max}`;
+                            }
+
+                            if (value === -min) {
+                                return min >= 1000
+                                    ? `-${(min / 1000).toFixed(1)}K`
+                                    : `-${min}`;
+                            }
+
+                            return '';
+                        }
+                    },
+
+                    grid: {
+                        drawBorder: false,
+
+                        color: function(context) {
+                            return context.tick.value === 0
+                                ? 'rgba(255,255,255,0.25)'
+                                : 'rgba(0,0,0,0)';
+                        },
+
+                        lineWidth: function(context) {
+                            return context.tick.value === 0 ? 2 : 0;
+                        }
+                    }
                 }
             },
-            plugins: { legend: { display: false } }
+
+            plugins: {
+                legend: {
+                    display: false
+                }
+            }
         },
         plugins: [
             {
@@ -4140,6 +4240,7 @@ function updateMapHeader() {
             },
             {
                 id: 'minutePoints',
+
                 afterDatasetsDraw(chart) {
                     const { ctx, scales: { x, y }, data } = chart;
                     if (!data.labels.length) return;
@@ -4177,10 +4278,37 @@ function updateMapHeader() {
                         const yPos = y.getPixelForValue(value);
                         const isBlue = value >= 0;
 
-                        // ✅ MATCHED SIZE
+                        // ======================
+                        // ONLY MILESTONE POINTS
+                        // ======================
+
+                        // 🔹 Vertical milestone line
+                        ctx.save();
+                        ctx.beginPath();
+                        ctx.setLineDash([4, 6]);
+                        ctx.moveTo(xPos, y.top);
+                        ctx.lineTo(xPos, y.bottom);
+                        ctx.strokeStyle = 'rgba(148,163,184,0.28)';
+                        ctx.lineWidth = 1.2;
+                        ctx.stroke();
+                        ctx.restore();
+
+                        // 🔹 Minute label
+                        ctx.save();
+                        ctx.font = `600 ${getFontSize(chart, 11)}px Inter`;
+                        ctx.fillStyle = '#94a3b8';
+                        ctx.fillText(
+                            `${String(minute).padStart(2, '0')}:00`,
+                            xPos,
+                            y.top - 10
+                        );
+                        ctx.restore();
+
+                        // ======================
+                        // GOLD DIFF POINT
+                        // ======================
                         const size = getPointSize(chart);
 
-                        // 🔵 POINT
                         ctx.save();
                         ctx.beginPath();
                         ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
@@ -4191,7 +4319,9 @@ function updateMapHeader() {
                         ctx.stroke();
                         ctx.restore();
 
-                        // 🔢 LABEL
+                        // ======================
+                        // GOLD DIFF VALUE
+                        // ======================
                         const displayVal = Math.abs(value) >= 1000
                             ? (Math.abs(value) / 1000).toFixed(1) + 'K'
                             : Math.round(Math.abs(value)).toString();
@@ -4199,6 +4329,7 @@ function updateMapHeader() {
                         const offset = getOffset(chart, 0.6);
 
                         ctx.font = `bold ${getFontSize(chart, 11)}px Inter`;
+
                         ctx.strokeStyle = '#FFFFFF';
                         ctx.lineWidth = 4;
                         ctx.strokeText(displayVal, xPos, yPos - offset);
