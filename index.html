@@ -1366,7 +1366,6 @@
 
     // ====================== FULL RESET FUNCTION ======================
     function resetAllEventData() {
-        console.log("🔄 Starting full reset...");
 
         const p1 = document.getElementById("player1Select");
         const p2 = document.getElementById("player2Select");
@@ -1427,8 +1426,6 @@
             teamGoldDiffChart.data.datasets[0].data = [];
             teamGoldDiffChart.update('none');
         }
-
-        console.log("✅ Full reset completed - old battle data cleared");
     }
 
 function updateMapHeader() {
@@ -1439,8 +1436,6 @@ function updateMapHeader() {
 
     // 🔥 Correct API path
     const playModeId = Number(apiData.play_mode_id ?? 0);
-
-    console.log("🗺 Detected play_mode_id:", playModeId);
 
     const mapName = MAP_NAMES[playModeId] || "Default";
     const mapIconPath = `./mapicon/${playModeId}.png`;
@@ -1461,8 +1456,6 @@ function updateMapHeader() {
             mapIconEl.src = "./mapicon/0.png";
         };
     }
-
-    console.log(`✅ Map header updated: ${mapName}`);
 }
 
     // ================= TEAM NAME =================
@@ -6058,8 +6051,6 @@ function renderTimeline() {
         p2.selectedIndex = 0;
         selectedPlayer2 = p2.value;
     }
-
-    console.log("✅ Gold Diff selectors populated");
 }
 
 document.getElementById("player1Select")?.addEventListener("change", e => {
@@ -6349,19 +6340,18 @@ async function loadLatestBattle() {
 window.loadLatestBattle = loadLatestBattle;
 
 window.onload = () => {
-    document.getElementById('battleIdInput').value = "733833342261468941";
     initAllTowers();
+
     document.getElementById('player1Select').onchange = function() {
         selectedPlayer1 = parseInt(this.value);
-        updatePlayerGoldDiffChart(); // 🔥 instant update
+        updatePlayerGoldDiffChart();
     };
 
     document.getElementById('player2Select').onchange = function() {
         selectedPlayer2 = parseInt(this.value);
-        updatePlayerGoldDiffChart(); // 🔥 instant update
+        updatePlayerGoldDiffChart();
     };
 
-    // Stable Click Handler for Death Review (Recommended)
     const mapModalContainer = document.getElementById('mapBoxModal');
 
     if (mapModalContainer) {
@@ -6375,25 +6365,24 @@ window.onload = () => {
             const clickX = e.clientX - rect.left;
             const clickY = e.clientY - rect.top;
 
-            // Find clicked death
             for (let death of deathReviewData) {
                 if (!death.screenX || !death.screenY) continue;
 
                 const dx = clickX - death.screenX;
                 const dy = clickY - death.screenY;
-                const distance = Math.sqrt(dx*dx + dy*dy);
+                const distance = Math.sqrt(dx * dx + dy * dy);
 
-                if (distance < 45) {        // Click radius
+                if (distance < 45) {
                     showDeathInfoPanel(death);
                     return;
                 }
             }
         });
-    };
+    }
 
     setInterval(() => {
         rankingIndex = (rankingIndex + 1) % RANKING_CATEGORIES.length;
-    }, 3000); // change every 3 seconds
+    }, 3000);
 };
 
     document.addEventListener('keydown', (e) => {
@@ -6642,10 +6631,6 @@ window.onload = () => {
         renderMapModal();
     };
 
-    window.addEventListener("load", () => {
-        console.log("🔐 Awaiting login access mode...");
-    });
-
     window.toggleDeathReviewMode = function () {
         deathReviewMode = !deathReviewMode;
 
@@ -6715,8 +6700,6 @@ window.onload = () => {
 
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
-
-        console.log("🚀 LOGIN SUCCESS");
 
         loadLatestBattle();
 
