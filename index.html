@@ -4111,87 +4111,82 @@ function updateMapHeader() {
                 // Y AXIS
                 // ======================
                 y: {
-                position: 'right',
+                    position: 'right',
 
-                // 🔥 REMOVE TITLE
-                title: {
-                    display: false
-                },
-
-                ticks: {
-                    color: '#94a3b8',
-                    mirror: false,
-                    padding: 10,
-
-                    callback: function(value) {
-                        const chartData =
-                            this.chart?.data?.datasets?.[0]?.data || [];
-
-                        const maxPositive = Math.max(...chartData, 0);
-                        const maxNegative = Math.min(...chartData, 0);
-
-                        const roundedPositive =
-                            Math.ceil(maxPositive / 100) * 100;
-
-                        const roundedNegative =
-                            Math.ceil(Math.abs(maxNegative) / 100) * 100;
-
-                        // 🔥 TOP MAX TEAM 1
-                        if (value === roundedPositive) {
-                            return roundedPositive >= 1000
-                                ? `${(roundedPositive / 1000).toFixed(1)}K`
-                                : `${roundedPositive}`;
+                    title: {
+                        display: true,
+                        text: 'Gold Lead',
+                        color: '#e2e8f0',
+                        font: {
+                            size: 14,
+                            weight: '600'
                         }
-
-                        // 🔥 BOTTOM MAX TEAM 2 (ABSOLUTE ONLY)
-                        if (value === -roundedNegative) {
-                            return roundedNegative >= 1000
-                                ? `${(roundedNegative / 1000).toFixed(1)}K`
-                                : `${roundedNegative}`;
-                        }
-
-                        return '';
-                    }
-                },
-
-                suggestedMax: function() {
-                    const chartData =
-                        this.chart?.data?.datasets?.[0]?.data || [];
-
-                    const maxPositive = Math.max(...chartData, 0);
-
-                    return Math.ceil(maxPositive / 100) * 100;
-                },
-
-                suggestedMin: function() {
-                    const chartData =
-                        this.chart?.data?.datasets?.[0]?.data || [];
-
-                    const maxNegative = Math.min(...chartData, 0);
-
-                    return -Math.ceil(Math.abs(maxNegative) / 100) * 100;
-                },
-
-                grid: {
-                    drawBorder: false,
-                    drawTicks: false,
-
-                    // 🔥 ONLY ZERO LINE
-                    color: function(context) {
-                        return context.tick.value === 0
-                            ? 'rgba(255,255,255,0.28)'
-                            : 'rgba(0,0,0,0)';
                     },
 
-                    lineWidth: function(context) {
-                        return context.tick.value === 0 ? 2 : 0;
-                    }
-                },
+                    ticks: {
+                        color: '#94a3b8',
 
-                border: {
-                    display: false
+                        callback: function(value) {
+                            const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+
+                            const maxPositive = Math.max(...data, 0);
+                            const maxNegative = Math.min(...data, 0);
+
+                            const roundedPositive =
+                                Math.ceil(maxPositive / 100) * 100;
+
+                            const roundedNegative =
+                                Math.ceil(Math.abs(maxNegative) / 100) * 100;
+
+                            if (value === 0) return '0';
+
+                            if (value === roundedPositive) {
+                                return roundedPositive >= 1000
+                                    ? `+${(roundedPositive / 1000).toFixed(1)}K`
+                                    : `+${roundedPositive}`;
+                            }
+
+                            if (value === -roundedNegative) {
+                                return roundedNegative >= 1000
+                                    ? `-${(roundedNegative / 1000).toFixed(1)}K`
+                                    : `-${roundedNegative}`;
+                            }
+
+                            return '';
+                        }
+                    },
+
+                    suggestedMax: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxPositive = Math.max(...data, 0);
+                        return Math.ceil(maxPositive / 100) * 100;
+                    },
+
+                    suggestedMin: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const maxNegative = Math.min(...data, 0);
+                        return -Math.ceil(Math.abs(maxNegative) / 100) * 100;
+                    },
+
+                    grid: {
+                        drawBorder: false,
+                        drawTicks: false,
+
+                        color: function(context) {
+                            return context.tick.value === 0
+                                ? 'rgba(255,255,255,0.28)'
+                                : 'rgba(0,0,0,0)';
+                        },
+
+                        lineWidth: function(context) {
+                            return context.tick.value === 0 ? 2 : 0;
+                        }
+                    },
+
+                    border: {
+                        display: false
+                    }
                 }
-            }
             },
 
             plugins: {
