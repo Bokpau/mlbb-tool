@@ -4048,7 +4048,6 @@ function updateMapHeader() {
 
     teamGoldDiffChart = new Chart(ctx, {
         type: 'line',
-
         data: {
             labels: [],
             datasets: [{
@@ -4060,13 +4059,12 @@ function updateMapHeader() {
                 tension: 0.25,
                 pointRadius: 0,
                 borderWidth: 3,
-
                 segment: {
                     borderColor: ctx =>
-                        ctx.p1.parsed.y >= 0 ? '#3b82f6' : '#ef4444',
+                        ctx.p1.parsed.y > 0 ? '#3b82f6' : '#ef4444',
 
                     backgroundColor: ctx =>
-                        ctx.p1.parsed.y >= 0
+                        ctx.p1.parsed.y > 0
                             ? 'rgba(59,130,246,0.25)'
                             : 'rgba(239,68,68,0.25)'
                 }
@@ -4077,12 +4075,7 @@ function updateMapHeader() {
             animation: { duration: 0 },
             responsive: true,
             maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 45,
-                    right: 8
-                }
-            },
+            layout: { padding: { top: 40, right: 5 } },
 
             scales: {
                 // ======================
@@ -4090,21 +4083,23 @@ function updateMapHeader() {
                 // ======================
                 x: {
                     ticks: {
-                        display: false
+                        color: '#94a3b8',
+                        autoSkip: false,
+                        maxRotation: 0,
+                        minRotation: 0,
+
+                        callback: function(value, index) {
+                            const label = this.getLabelForValue(value);
+
+                            // Only show milestone minute points
+                            return index % 60 === 0 ? label : '';
+                        }
                     },
 
                     grid: {
-                        drawTicks: false,
-                        drawBorder: false,
-
-                        // Keep only vertical lines
-                        color: 'rgba(148,163,184,0.18)',
-
-                        lineWidth: 1
-                    },
-
-                    border: {
-                        display: false
+                        drawOnChartArea: false,
+                        drawTicks: true,
+                        color: '#334155'
                     }
                 },
 
@@ -4113,68 +4108,70 @@ function updateMapHeader() {
                 // ======================
                 y: {
                     position: 'right',
+
+                    title: {
+                        display: true,
+                        text: 'Gold Lead',
+                        color: '#e2e8f0',
+                        font: {
+                            size: 14,
+                            weight: '600'
+                        }
+                    },
+
+                    beginAtZero: true,
+
+                    suggestedMin: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const min = Math.min(...data, 0);
+                        return -Math.ceil(Math.abs(min) / 1000) * 1000;
+                    },
+
+                    suggestedMax: function() {
+                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
+                        const max = Math.max(...data, 0);
+                        return Math.ceil(max / 1000) * 1000;
+                    },
+
                     ticks: {
                         color: '#94a3b8',
 
-                        callback: function(value) {
+                        callback: function(value, index, ticks) {
                             const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
 
-                            const maxPositive = Math.max(...data, 0);
-                            const maxNegative = Math.min(...data, 0);
-
-                            const roundedPositive =
-                                Math.ceil(maxPositive / 100) * 100;
-
-                            const roundedNegative =
-                                Math.ceil(Math.abs(maxNegative) / 100) * 100;
+                            const max = Math.ceil(Math.max(...data, 0) / 1000) * 1000;
+                            const min = Math.ceil(Math.abs(Math.min(...data, 0)) / 1000) * 1000;
 
                             if (value === 0) return '0';
 
-                            if (value === roundedPositive) {
-                                return roundedPositive >= 1000
-                                    ? `+${(roundedPositive / 1000).toFixed(1)}K`
-                                    : `+${roundedPositive}`;
+                            if (value === max) {
+                                return max >= 1000
+                                    ? `+${(max / 1000).toFixed(1)}K`
+                                    : `+${max}`;
                             }
 
-                            if (value === -roundedNegative) {
-                                return roundedNegative >= 1000
-                                    ? `-${(roundedNegative / 1000).toFixed(1)}K`
-                                    : `-${roundedNegative}`;
+                            if (value === -min) {
+                                return min >= 1000
+                                    ? `-${(min / 1000).toFixed(1)}K`
+                                    : `-${min}`;
                             }
 
                             return '';
                         }
                     },
 
-                    suggestedMax: function() {
-                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
-                        const maxPositive = Math.max(...data, 0);
-                        return Math.ceil(maxPositive / 100) * 100;
-                    },
-
-                    suggestedMin: function() {
-                        const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
-                        const maxNegative = Math.min(...data, 0);
-                        return -Math.ceil(Math.abs(maxNegative) / 100) * 100;
-                    },
-
                     grid: {
                         drawBorder: false,
 
-                        // Only keep 0 line
                         color: function(context) {
                             return context.tick.value === 0
-                                ? 'rgba(255,255,255,0.28)'
+                                ? 'rgba(255,255,255,0.25)'
                                 : 'rgba(0,0,0,0)';
                         },
 
                         lineWidth: function(context) {
                             return context.tick.value === 0 ? 2 : 0;
                         }
-                    },
-
-                    border: {
-                        display: false
                     }
                 }
             },
@@ -4243,7 +4240,6 @@ function updateMapHeader() {
             },
             {
                 id: 'minutePoints',
-
                 afterDatasetsDraw(chart) {
                     const { ctx, scales: { x, y }, data } = chart;
                     if (!data.labels.length) return;
@@ -4281,40 +4277,21 @@ function updateMapHeader() {
                         const yPos = y.getPixelForValue(value);
                         const isBlue = value >= 0;
 
-                        // ======================
-                        // MILESTONE TIME LABEL ONLY
-                        // ======================
-                        ctx.save();
-                        ctx.font = `bold ${getFontSize(chart, 12)}px Inter`;
-                        ctx.fillStyle = '#cbd5e1';
-
-                        ctx.fillText(
-                            `${String(minute).padStart(2, '0')}:00`,
-                            xPos,
-                            y.top - 14
-                        );
-                        ctx.restore();
-
-                        // ======================
-                        // MILESTONE POINT ONLY
-                        // ======================
+                        // ✅ MATCHED SIZE
                         const size = getPointSize(chart);
 
+                        // 🔵 POINT
                         ctx.save();
                         ctx.beginPath();
                         ctx.arc(xPos, yPos, size, 0, Math.PI * 2);
-
                         ctx.fillStyle = '#FFFFFF';
                         ctx.strokeStyle = isBlue ? '#3b82f6' : '#ef4444';
                         ctx.lineWidth = 2.5;
-
                         ctx.fill();
                         ctx.stroke();
                         ctx.restore();
 
-                        // ======================
-                        // MILESTONE VALUE ONLY
-                        // ======================
+                        // 🔢 LABEL
                         const displayVal = Math.abs(value) >= 1000
                             ? (Math.abs(value) / 1000).toFixed(1) + 'K'
                             : Math.round(Math.abs(value)).toString();
@@ -4322,7 +4299,6 @@ function updateMapHeader() {
                         const offset = getOffset(chart, 0.6);
 
                         ctx.font = `bold ${getFontSize(chart, 11)}px Inter`;
-
                         ctx.strokeStyle = '#FFFFFF';
                         ctx.lineWidth = 4;
                         ctx.strokeText(displayVal, xPos, yPos - offset);
