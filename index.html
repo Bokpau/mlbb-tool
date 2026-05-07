@@ -2735,22 +2735,24 @@ function updateMapHeader() {
                         callback: function(value, index, ticks) {
                             const data = goldDiffChart?.data?.datasets?.[0]?.data || [];
 
-                            const max = Math.ceil(Math.max(...data, 0) / 1000) * 1000;
-                            const min = Math.ceil(Math.abs(Math.min(...data, 0)) / 1000) * 1000;
+                            // Exact peaks (not rounded)
+                            const exactMax = Math.max(...data, 0);
+                            const exactMin = Math.min(...data, 0);
+
+                            // Axis bounds (rounded for the scale itself)
+                            const axisMax = Math.ceil(exactMax / 1000) * 1000;
+                            const axisMin = -Math.ceil(Math.abs(exactMin) / 1000) * 1000;
+
+                            const fmt = (v) => {
+                                const abs = Math.abs(v);
+                                return abs >= 1000
+                                    ? `${(abs / 1000).toFixed(1)}K`
+                                    : `${Math.round(abs)}`;
+                            };
 
                             if (value === 0) return '0';
-
-                            if (value === max) {
-                                return max >= 1000
-                                    ? `${(max / 1000).toFixed(1)}K`
-                                    : `${max}`;
-                            }
-
-                            if (value === -min) {
-                                return min >= 1000
-                                    ? `${(min / 1000).toFixed(1)}K`
-                                    : `${min}`;
-                            }
+                            if (value === axisMax) return fmt(exactMax);
+                            if (value === axisMin) return fmt(exactMin);
 
                             return '';
                         }
@@ -4197,22 +4199,24 @@ function updateMapHeader() {
                         callback: function(value, index, ticks) {
                             const data = teamGoldDiffChart?.data?.datasets?.[0]?.data || [];
 
-                            const max = Math.ceil(Math.max(...data, 0) / 1000) * 1000;
-                            const min = Math.ceil(Math.abs(Math.min(...data, 0)) / 1000) * 1000;
+                            // Exact peaks (not rounded)
+                            const exactMax = Math.max(...data, 0);
+                            const exactMin = Math.min(...data, 0);
+
+                            // Axis bounds (rounded for the scale itself)
+                            const axisMax = Math.ceil(exactMax / 1000) * 1000;
+                            const axisMin = -Math.ceil(Math.abs(exactMin) / 1000) * 1000;
+
+                            const fmt = (v) => {
+                                const abs = Math.abs(v);
+                                return abs >= 1000
+                                    ? `${(abs / 1000).toFixed(1)}K`
+                                    : `${Math.round(abs)}`;
+                            };
 
                             if (value === 0) return '0';
-
-                            if (value === max) {
-                                return max >= 1000
-                                    ? `${(max / 1000).toFixed(1)}K`
-                                    : `${max}`;
-                            }
-
-                            if (value === -min) {
-                                return min >= 1000
-                                    ? `${(min / 1000).toFixed(1)}K`
-                                    : `${min}`;
-                            }
+                            if (value === axisMax) return fmt(exactMax);
+                            if (value === axisMin) return fmt(exactMin);
 
                             return '';
                         }
