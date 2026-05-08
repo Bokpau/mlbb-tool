@@ -6494,6 +6494,10 @@ function renderStatsDonut() {
     const team2Players = sortPlayersByRoleSafe([...camp2.player_list]);
     const allPlayers   = [...team1Players, ...team2Players];
 
+    allPlayers.forEach(p => {
+        loadImg(getRoleIcon(getPlayerRoleSafe(p.name)));
+    });
+
     const total1     = team1Players.reduce((s, p) => s + getStatValue(p, stat), 0);
     const total2     = team2Players.reduce((s, p) => s + getStatValue(p, stat), 0);
     const grandTotal = total1 + total2 || 1;
@@ -6796,20 +6800,15 @@ function renderStatsDonut() {
         });
     }
 
-    const allImgs = sliceJobs.flatMap(({ player }) => [
-        loadImg(getHeroIconUrl(player.heroid)),
-        loadImg(getRoleIcon(getPlayerRoleSafe(player.name))),
-    ]);
-    const unloaded = allImgs.filter(img => !img.complete || img.naturalWidth === 0);
+    drawLabels();
 
-    if (unloaded.length === 0) {
-        drawLabels();
-    } else {
-        let done = 0;
-        unloaded.forEach(img => {
-            img.onload = img.onerror = () => { done++; if (done >= unloaded.length) drawLabels(); };
-        });
-    }
+    const unloaded = sliceJobs
+        .map(({ player }) => loadImg(getRoleIcon(getPlayerRoleSafe(player.name))))
+        .filter(img => !img.complete || img.naturalWidth === 0);
+
+    unloaded.forEach(img => {
+        img.onload = img.onerror = () => renderStatsDonut();
+    });
 }
 function updateUI() {
     // ================= AUTO SELECT PLAYERS =================
