@@ -2941,10 +2941,11 @@ function updateMapHeader() {
                         if (idx === -1) continue;
 
                         const xPos = x.getPixelForValue(idx);
+                        const isMilestone = milestones.includes(t);
 
                         ctx.save();
-                        ctx.strokeStyle = 'rgba(140,140,140,0.75)';
-                        ctx.lineWidth = 1.5;
+                        ctx.strokeStyle = isMilestone ? 'rgba(140,140,140,0.75)' : 'rgba(140,140,140,0.2)';
+                        ctx.lineWidth = isMilestone ? 1.5 : 1;
                         ctx.setLineDash([4,4]);
                         ctx.beginPath();
                         ctx.moveTo(xPos, chartArea.top);
@@ -4400,9 +4401,11 @@ function updateMapHeader() {
                         });
                         if (idx === -1) continue;
                         const xPos = x.getPixelForValue(idx);
+                        const isMilestone = milestones.includes(t);
+
                         ctx.save();
-                        ctx.strokeStyle = 'rgba(140,140,140,0.75)';
-                        ctx.lineWidth = 1.5;
+                        ctx.strokeStyle = isMilestone ? 'rgba(140,140,140,0.75)' : 'rgba(140,140,140,0.2)';
+                        ctx.lineWidth = isMilestone ? 1.5 : 1;
                         ctx.setLineDash([4,4]);
                         ctx.beginPath();
                         ctx.moveTo(xPos, chartArea.top);
@@ -4473,12 +4476,19 @@ function updateMapHeader() {
 
                         if (closestIdx === -1) continue;
 
-                        const value = data.datasets[0].data[closestIdx];
+                       const value = data.datasets[0].data[closestIdx];
                         if (value === undefined) continue;
+
+                        // Only draw point on milestone minutes
+                        if (!milestones.includes(minute * 60)) continue;
 
                         const xPos = x.getPixelForValue(closestIdx);
                         const yPos = y.getPixelForValue(value);
+
                         const isBlue = value >= 0;
+
+                        // =========================
+                        // 🔵 POINT
 
                         // ✅ MATCHED SIZE
                         const size = getPointSize(chart);
