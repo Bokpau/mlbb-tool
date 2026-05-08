@@ -7,11 +7,7 @@ export default async function handler(req, res) {
 
   try {
     const AUTH = process.env.MLBB_AUTH;
-    const JUDGE_ID = process.env.MLBB_JUDGE_ID;
-
-    if (!JUDGE_ID) {
-      return res.status(500).json({ error: 'Server misconfigured' });
-    }
+    const JUDGE_ID = "1370583970";
 
     const url = `https://esportsdata-sg.mobilelegends.com/battlelist/judge?authkey=${AUTH}&judgeid=${JUDGE_ID}`;
 
