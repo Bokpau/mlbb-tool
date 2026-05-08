@@ -1,9 +1,19 @@
-import { parse } from 'cookie';
 import { createHmac } from 'crypto';
+
+function parseCookies(req) {
+  const list = {};
+  const header = req.headers.cookie;
+  if (!header) return list;
+  header.split(';').forEach(part => {
+    const [key, ...val] = part.split('=');
+    list[key.trim()] = decodeURIComponent(val.join('=').trim());
+  });
+  return list;
+}
 
 export function isAuthenticated(req) {
   try {
-    const cookies = parse(req.headers.cookie || '');
+    const cookies = parseCookies(req);
     const token = cookies.session;
     if (!token) return false;
 

@@ -1,11 +1,4 @@
-import { serialize } from 'cookie';
 import { createHmac } from 'crypto';
-
-function generateToken(secret) {
-  const payload = `authenticated:${Date.now()}`;
-  const sig = createHmac('sha256', secret).update(payload).digest('hex');
-  return Buffer.from(`${payload}:${sig}`).toString('base64');
-}
 
 export default function handler(req, res) {
   if (req.method !== 'POST') {
@@ -22,18 +15,12 @@ export default function handler(req, res) {
     return res.status(401).json({ success: false });
   }
 
-  // ✅ Password correct — generate a signed token
-  const token = generateToken(process.env.SESSION_SECRET);
+  // Generate a signed token using only built-in Node.js crypto
+  const payload = `authenticated:${Date.now()}`;
+  const sig = createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('hex');
+  const token = Buffer.from(`${payload}:${sig}`).toString('base64');
 
-  // ✅ Set it as an HTTP-only cookie (JavaScript cannot read or fake this)
-  const cookie = serialize('session', token, {
-    httpOnly: true,         // JS cannot access it
-    secure: true,           // HTTPS only
-    sameSite: 'strict',     // No cross-site requests
-    maxAge: 60 * 60 * 24,  // 24 hours
-    path: '/',
-  });
-
-  res.setHeader('Set-Cookie', cookie);
+  // Set as HTTP-only cookie — no external package needed
+  res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=86400; Path=/`);
   return res.status(200).json({ success: true });
 }
