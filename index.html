@@ -6724,92 +6724,74 @@ function renderStatsDonut() {
     const valFsz = Math.round(size * 0.018);
     const pctFsz = Math.round(size * 0.014);
 
-    function drawLabels() {
+        function drawLabels() {
         sliceJobs.forEach(({ player, val, midAngle, sliceCx, sliceCy,
-                             heroX, heroY, sweep, isSmall, isZero, teamTotal }) => {
+                            sweep, isSmall, isZero, teamTotal }) => {
 
             const teamPct = teamTotal > 0 ? ((val / teamTotal) * 100).toFixed(1) : '0.0';
-            const heroImg = loadImg(getHeroIconUrl(player.heroid));
             const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
 
-            // ── ALWAYS draw role icon inside slice ──
-            if (!isZero && sweep >= 0.08) {
-
-                const groupOffset = sweep >= 0.14
-                    ? roleIconSz * 0.62
-                    : roleIconSz * 0.42;
-
-                const roleY  = sliceCy - groupOffset;
-                const valueY = sliceCy;
-                const pctY   = sliceCy + groupOffset;
-
-                if (roleImg.complete && roleImg.naturalWidth > 0) {
-                    ctx.drawImage(
-                        roleImg,
-                        sliceCx - roleIconSz / 2,
-                        roleY - roleIconSz / 2,
-                        roleIconSz,
-                        roleIconSz
-                    );
-                }
-
-                if (!isSmall && sweep >= 0.10) {
-
-                    txt(
-                        formatVal(val),
-                        sliceCx,
-                        valueY,
-                        `bold ${valFsz}px Inter`,
-                        '#ffffff'
-                    );
-
-                    if (sweep >= 0.14) {
-                        txt(
-                            teamPct + '%',
-                            sliceCx,
-                            pctY,
-                            `${pctFsz}px Inter`,
-                            'rgba(255,255,255,0.55)'
-                        );
-                    }
-                }
-            }
-
-            // ── Hero icon outside ring ──
             if (isZero) return;
 
-            // Clamp hero icon inside canvas bounds
-            const margin = heroIconSz / 2 + nameFsz + 8;
-            const hx = Math.max(margin, Math.min(size - margin, heroX));
-            const hy = Math.max(margin + nameFsz, Math.min(size - margin - nameFsz, heroY));
+            // ── ROLE ICON OUTSIDE RING ──
+            const roleOuterR = outerR + roleIconSz * 1.4;
+            const roleX = cx + Math.cos(midAngle) * roleOuterR;
+            const roleY = cy + Math.sin(midAngle) * roleOuterR;
 
-            if (heroImg.complete && heroImg.naturalWidth > 0) {
+            // Optional subtle connector line
+            ctx.beginPath();
+            ctx.moveTo(
+                cx + Math.cos(midAngle) * outerR,
+                cy + Math.sin(midAngle) * outerR
+            );
+            ctx.lineTo(roleX, roleY);
+            ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+            ctx.lineWidth = 1.2;
+            ctx.stroke();
+
+            if (roleImg.complete && roleImg.naturalWidth > 0) {
                 ctx.save();
                 ctx.beginPath();
-                ctx.arc(hx, hy, heroIconSz / 2 + 2, 0, Math.PI * 2);
-                ctx.strokeStyle = isSmall ? 'rgba(255,255,255,0.2)' : 'rgba(255,255,255,0.4)';
-                ctx.lineWidth   = 2;
-                ctx.stroke();
-                ctx.beginPath();
-                ctx.arc(hx, hy, heroIconSz / 2, 0, Math.PI * 2);
-                ctx.clip();
-                ctx.globalAlpha = isSmall ? 0.55 : 1.0;
-                ctx.drawImage(heroImg,
-                    hx - heroIconSz / 2, hy - heroIconSz / 2,
-                    heroIconSz, heroIconSz);
+                ctx.arc(roleX, roleY, roleIconSz / 2 + 2, 0, Math.PI * 2);
+                ctx.fillStyle = '#0f172a';
+                ctx.fill();
+                ctx.drawImage(
+                    roleImg,
+                    roleX - roleIconSz / 2,
+                    roleY - roleIconSz / 2,
+                    roleIconSz,
+                    roleIconSz
+                );
                 ctx.restore();
             }
 
-            // Player name below hero icon
-            if (sweep >= 0.10) {
-                const nameY = hy + heroIconSz / 2 + size * 0.019;
-                ctx.save();
-                ctx.shadowColor = 'rgba(0,0,0,0.95)';
-                ctx.shadowBlur  = 8;
-                txt(player.name || '', hx, nameY,
-                    `${isSmall ? 'italic ' : 'bold '}${nameFsz}px Inter`,
-                    isSmall ? 'rgba(255,255,255,0.4)' : '#e2e8f0');
-                ctx.restore();
+            // ── DATA INSIDE SLICE ──
+            if (!isSmall && sweep >= 0.08) {
+
+                const groupOffset = sweep >= 0.14
+                    ? roleIconSz * 0.50
+                    : roleIconSz * 0.34;
+
+                const valueY = sliceCy - groupOffset * 0.15;
+                const pctY   = sliceCy + groupOffset;
+
+                txt(
+                    formatVal(val),
+                    sliceCx,
+                    valueY,
+                    `bold ${valFsz}px Inter`,
+                    '#ffffff'
+                );
+
+                if (sweep >= 0.14) {
+                    txt(
+                        teamPct + '%',
+                        sliceCx,
+                        pctY,
+                        `${pctFsz}px Inter`,
+                        'rgba(255,255,255,0.55)'
+                    );
+                }
             }
         });
     }
