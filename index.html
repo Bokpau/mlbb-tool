@@ -7550,42 +7550,55 @@ window.onload = () => {
 
   async function checkAccessMode() {
     const password = document.getElementById("passwordInput").value.trim();
+    const errorEl = document.getElementById("loginError");
 
     try {
-        const res = await fetch("/api/check-access", {
+        const res = await fetch("/api/login", {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ password })
         });
 
         const data = await res.json();
 
         if (!data.success) {
-            document.getElementById("loginError").classList.remove("hidden");
+            errorEl.textContent = "Wrong password";
+            errorEl.classList.remove("hidden");
             return;
         }
 
+        // ✅ Server set a real HTTP-only cookie — just show the app
         document.getElementById("loginScreen").style.display = "none";
         document.getElementById("appContent").style.display = "block";
+        errorEl.classList.add("hidden");
 
         //loadLatestBattle();
 
     } catch (err) {
         console.error("Access verification failed:", err);
-        document.getElementById("loginError").classList.remove("hidden");
+        errorEl.textContent = "Server error. Try again.";
+        errorEl.classList.remove("hidden");
     }
 }
 
     // 🔥 REQUIRED FOR MODULE SCRIPTS
     window.checkAccessMode = checkAccessMode;
 
-    // Auto-login if already authenticated
+    // ✅ On page load: ask the SERVER if the session cookie is still valid
+    // (removed localStorage — that was bypassable by anyone)
     window.addEventListener("load", async () => {
-        if (localStorage.getItem("loggedIn") === "true") {
-            document.getElementById("loginScreen").style.display = "none";
-            document.getElementById("appContent").style.display = "block";
+        try {
+            const res = await fetch("/api/verify");
+            const data = await res.json();
+
+            if (data.authenticated) {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("appContent").style.display = "block";
+            }
+            // If not authenticated: login screen stays visible (default)
+        } catch (err) {
+            // Network error — keep login screen showing
+            console.error("Session verify error:", err);
         }
     });
     window.renderDraftModal = renderDraftModal;
