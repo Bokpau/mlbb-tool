@@ -1,4 +1,5 @@
 .vercel
+node_modules
 
 # OS / editor cruft
 .DS_Store

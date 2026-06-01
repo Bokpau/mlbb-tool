@@ -10,7 +10,9 @@
 // served normally and is unaffected.
 
 export const config = {
-  matcher: ['/', '/index.html', '/main-config.js'],
+  // main-config.js is now inlined into index.html at build time, so only the
+  // app HTML needs gating.
+  matcher: ['/', '/index.html'],
 };
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // keep in sync with _auth.js

@@ -1,0 +1,8 @@
+# Build tooling and readable source — never deploy these.
+# Vercel serves the pre-built (obfuscated) ./index.html instead.
+src/
+build.js
+package.json
+package-lock.json
+node_modules/
+BUILD.md
