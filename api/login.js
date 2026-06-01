@@ -1,4 +1,16 @@
-import { createHmac } from 'crypto';
+import { createHmac, timingSafeEqual } from 'crypto';
+import { SESSION_TTL_MS } from './_auth.js';
+
+// Constant-time password check. We HMAC both sides with the same key so the
+// compared buffers are always 32 bytes (equal length) and the comparison
+// leaks neither the password length nor where the first mismatch occurs.
+function passwordMatches(entered, expected) {
+  if (typeof entered !== 'string' || typeof expected !== 'string') return false;
+  const key = process.env.SESSION_SECRET;
+  const a = createHmac('sha256', key).update(entered).digest();
+  const b = createHmac('sha256', key).update(expected).digest();
+  return timingSafeEqual(a, b);
+}
 
 // In-memory rate limiter — tracks failed attempts per IP
 // Resets naturally on Vercel cold starts, which is fine
@@ -38,13 +50,13 @@ export default function handler(req, res) {
     });
   }
 
-  const { password } = req.body;
+  const { password } = req.body || {};
 
   if (!process.env.APP_PASSWORD || !process.env.SESSION_SECRET) {
     return res.status(500).json({ success: false, error: 'Server misconfigured' });
   }
 
-  if (password !== process.env.APP_PASSWORD) {
+  if (!passwordMatches(password, process.env.APP_PASSWORD)) {
     return res.status(401).json({ success: false });
   }
 
@@ -56,7 +68,9 @@ export default function handler(req, res) {
   const sig = createHmac('sha256', process.env.SESSION_SECRET).update(payload).digest('hex');
   const token = Buffer.from(`${payload}:${sig}`).toString('base64');
 
-  // Set as HTTP-only cookie — no external package needed
-  res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=86400; Path=/`);
+  // Set as HTTP-only cookie — no external package needed.
+  // Max-Age is kept in sync with the server-side TTL enforced in _auth.js.
+  const maxAgeSec = Math.floor(SESSION_TTL_MS / 1000);
+  res.setHeader('Set-Cookie', `session=${token}; HttpOnly; Secure; SameSite=Strict; Max-Age=${maxAgeSec}; Path=/`);
   return res.status(200).json({ success: true });
 }

@@ -1,1 +1,11 @@
 .vercel
+
+# OS / editor cruft
+.DS_Store
+**/.DS_Store
+Thumbs.db
+
+# Local env / secrets — never commit these
+.env
+.env.*
+!.env.example

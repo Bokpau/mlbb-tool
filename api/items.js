@@ -6,14 +6,22 @@ export default async function handler(req, res) {
   }
 
   try {
-    const { players, prevItemsMap, currentTime } = req.body;
+    const { players, prevItemsMap = {}, currentTime } = req.body || {};
+
+    if (!Array.isArray(players)) {
+      return res.status(400).json({ error: 'Invalid players payload' });
+    }
 
     const allItemEvents = {};
 
     players.forEach(player => {
+      if (!player || typeof player !== 'object') return;
       const roleid = player.roleid;
-      const curr = player.equip_list || [];
-      const prev = prevItemsMap[roleid] || [];
+      const curr = Array.isArray(player.equip_list) ? player.equip_list : [];
+      // Own-property guard avoids prototype-pollution lookups (e.g. __proto__).
+      const prev = Object.prototype.hasOwnProperty.call(prevItemsMap, roleid)
+        ? prevItemsMap[roleid] || []
+        : [];
 
       const count = arr => {
         const map = {};
