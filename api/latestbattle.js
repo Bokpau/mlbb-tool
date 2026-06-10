@@ -7,7 +7,7 @@ export default async function handler(req, res) {
 
   try {
     const AUTH = process.env.MLBB_AUTH;
-    const JUDGE_ID = "1370583970";
+    const JUDGE_ID = "1866747937";
 
     const url = `https://esportsdata-sg.mobilelegends.com/battlelist/judge?authkey=${AUTH}&judgeid=${JUDGE_ID}`;
 

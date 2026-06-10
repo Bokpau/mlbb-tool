@@ -17,6 +17,91 @@ export const MAX = 37.5;
 export const BASE_MAP_SIZE = 440;
 
 // =========================
+// MPL ID PLAYER CONSTS
+// =========================
+export const PLAYER_CONSTS = {
+    "YAZUKEE":     { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "JUNGLE"   },
+    "HIJUMEE":     { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "MID LANE" },
+    "ALEKK":       { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "ROAM"     },
+    "ARFY":        { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "GOLD LANE"},
+    "REYY":        { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "JUNGLE"   },
+    "CYRUZ":       { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "MID LANE" },
+    "SHOGUN":      { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "EXP LANE" },
+    "NNAEL":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "JUNGLE"   },
+    "MORENOOO":    { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "MID LANE" },
+    "FINN":        { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "ROAM"     },
+    "EMANN":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "GOLD LANE"},
+    "CLIVEEE":     { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "GOLD LANE"},
+    "RYZAA":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "MID LANE" },
+    "LYNCH":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "EXP LANE" },
+    "KARSS":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "EXP LANE" },
+    "ANDORYUUU":   { teamCode: "NAVI", teamName: "Natus Vincere",          role: "JUNGLE"   },
+    "UK1R":        { teamCode: "NAVI", teamName: "Natus Vincere",          role: "MID LANE" },
+    "APRHO":       { teamCode: "NAVI", teamName: "Natus Vincere",          role: "ROAM"     },
+    "XYVE":        { teamCode: "NAVI", teamName: "Natus Vincere",          role: "GOLD LANE"},
+    "ZEONN":       { teamCode: "NAVI", teamName: "Natus Vincere",          role: "GOLD LANE"},
+    "XMAGIC":      { teamCode: "NAVI", teamName: "Natus Vincere",          role: "MID LANE" },
+    "HAN":         { teamCode: "NAVI", teamName: "Natus Vincere",          role: "JUNGLE"   },
+    "SUPER DANN":  { teamCode: "NAVI", teamName: "Natus Vincere",          role: "EXP LANE" },
+    "SUPER KENN":  { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "JUNGLE"   },
+    "RINZ":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "MID LANE" },
+    "IDOK":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "ROAM"     },
+    "SUPER TOYY":  { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "GOLD LANE"},
+    "YEHEZKIEL":   { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "MID LANE" },
+    "KUROKY":      { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "GOLD LANE"},
+    "ARAN":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "EXP LANE" },
+    "KEVINN":      { teamCode: "TLID", teamName: "Team Liquid ID",         role: "JUNGLE"   },
+    "DRICHEL":     { teamCode: "TLID", teamName: "Team Liquid ID",         role: "MID LANE" },
+    "LYONI":       { teamCode: "TLID", teamName: "Team Liquid ID",         role: "ROAM"     },
+    "KYOUU":       { teamCode: "TLID", teamName: "Team Liquid ID",         role: "GOLD LANE"},
+    "AREDLAVV":    { teamCode: "TLID", teamName: "Team Liquid ID",         role: "EXP LANE" },
+    "MARCEL":      { teamCode: "TLID", teamName: "Team Liquid ID",         role: "EXP LANE" },
+    "MAYKIDS":     { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "JUNGLE"   },
+    "A B O Y":     { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "MID LANE" },
+    "BALOYSKIE":   { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "ROAM"     },
+    "KENNZYYSKIE": { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "GOLD LANE"},
+    "YE3":         { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "EXP LANE" },
+    "ASUNE":       { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "ROAM"     },
+    "NAZARA":      { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "JUNGLE"   },
+    "LUKE":        { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "EXP LANE" },
+    "ALBERTTT":    { teamCode: "EVOS", teamName: "EVOS Esports",           role: "JUNGLE"   },
+    "PHEWW":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "MID LANE" },
+    "KYY":         { teamCode: "EVOS", teamName: "EVOS Esports",           role: "ROAM"     },
+    "ERLAN":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "GOLD LANE"},
+    "TREACKY":     { teamCode: "EVOS", teamName: "EVOS Esports",           role: "MID LANE" },
+    "VELL":        { teamCode: "EVOS", teamName: "EVOS Esports",           role: "EXP LANE" },
+    "EGATZY":      { teamCode: "EVOS", teamName: "EVOS Esports",           role: "ROAM"     },
+    "LUTPI":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "EXP LANE" },
+    "KAIRI":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "JUNGLE"   },
+    "S A N Z":     { teamCode: "ONIC", teamName: "ONIC Esports",           role: "MID LANE" },
+    "KIBOY":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "ROAM"     },
+    "KELRA":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "GOLD LANE"},
+    "SSAMUEL":     { teamCode: "ONIC", teamName: "ONIC Esports",           role: "ROAM"     },
+    "QINN":        { teamCode: "ONIC", teamName: "ONIC Esports",           role: "EXP LANE" },
+    "DOLYNN":      { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "JUNGLE"   },
+    "OCTA":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "MID LANE" },
+    "MUEZZA":      { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "ROAM"     },
+    "MAYBEEE":     { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "GOLD LANE"},
+    "KAYN":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "JUNGLE"   },
+    "KESU":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "ROAM"     },
+};
+
+// =========================
+// MPL ID TEAM CONSTS
+// =========================
+export const TEAM_CONSTS = {
+    "AE":   "Alter Ego Esports",
+    "BTR":  "Bigetron by Vitality",
+    "NAVI": "Natus Vincere",
+    "RRQ":  "RRQ Hoshi",
+    "TLID": "Team Liquid ID",
+    "GEEK": "Geek Fam ID",
+    "EVOS": "EVOS Esports",
+    "ONIC": "ONIC Esports",
+    "DEWA": "Dewa United Esports",
+};
+
+// =========================
 // PLAYER ROLE MAP
 // =========================
 export const PLAYER_ROLE_MAP = {
