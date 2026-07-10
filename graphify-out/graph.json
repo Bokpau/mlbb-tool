@@ -1,0 +1,1601 @@
+{
+  "directed": false,
+  "multigraph": false,
+  "graph": {},
+  "nodes": [
+    {
+      "label": "_auth.js",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_auth",
+      "community": 1,
+      "norm_label": "_auth.js"
+    },
+    {
+      "label": "parseCookies()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "api_auth_parsecookies",
+      "community": 1,
+      "norm_label": "parsecookies()"
+    },
+    {
+      "label": "isAuthenticated()",
+      "file_type": "code",
+      "source_file": "api/_auth.js",
+      "source_location": "L19",
+      "_origin": "ast",
+      "id": "api_auth_isauthenticated",
+      "community": 1,
+      "norm_label": "isauthenticated()"
+    },
+    {
+      "label": "items.js",
+      "file_type": "code",
+      "source_file": "api/items.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_items",
+      "community": 1,
+      "norm_label": "items.js"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/items.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "api_items_handler",
+      "community": 1,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "latestbattle.js",
+      "file_type": "code",
+      "source_file": "api/latestbattle.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_latestbattle",
+      "community": 1,
+      "norm_label": "latestbattle.js"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/latestbattle.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "api_latestbattle_handler",
+      "community": 1,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "login.js",
+      "file_type": "code",
+      "source_file": "api/login.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_login",
+      "community": 4,
+      "norm_label": "login.js"
+    },
+    {
+      "label": "passwordMatches()",
+      "file_type": "code",
+      "source_file": "api/login.js",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "api_login_passwordmatches",
+      "community": 4,
+      "norm_label": "passwordmatches()"
+    },
+    {
+      "label": "attempts",
+      "file_type": "code",
+      "source_file": "api/login.js",
+      "source_location": "L17",
+      "_origin": "ast",
+      "id": "api_login_attempts",
+      "community": 4,
+      "norm_label": "attempts"
+    },
+    {
+      "label": "isRateLimited()",
+      "file_type": "code",
+      "source_file": "api/login.js",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "api_login_isratelimited",
+      "community": 4,
+      "norm_label": "isratelimited()"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/login.js",
+      "source_location": "L38",
+      "_origin": "ast",
+      "id": "api_login_handler",
+      "community": 4,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "logout.js",
+      "file_type": "code",
+      "source_file": "api/logout.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_logout",
+      "community": 7,
+      "norm_label": "logout.js"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/logout.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_logout_handler",
+      "community": 7,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "mlbb.js",
+      "file_type": "code",
+      "source_file": "api/mlbb.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_mlbb",
+      "community": 1,
+      "norm_label": "mlbb.js"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/mlbb.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "api_mlbb_handler",
+      "community": 1,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "verify.js",
+      "file_type": "code",
+      "source_file": "api/verify.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "api_verify",
+      "community": 1,
+      "norm_label": "verify.js"
+    },
+    {
+      "label": "handler()",
+      "file_type": "code",
+      "source_file": "api/verify.js",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "api_verify_handler",
+      "community": 1,
+      "norm_label": "handler()"
+    },
+    {
+      "label": "build.js",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "build",
+      "community": 2,
+      "norm_label": "build.js"
+    },
+    {
+      "label": "__dirname",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "build_dirname",
+      "community": 2,
+      "norm_label": "__dirname"
+    },
+    {
+      "label": "r()",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L28",
+      "_origin": "ast",
+      "id": "build_r",
+      "community": 2,
+      "norm_label": "r()"
+    },
+    {
+      "label": "SRC_HTML",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L30",
+      "_origin": "ast",
+      "id": "build_src_html",
+      "community": 2,
+      "norm_label": "src_html"
+    },
+    {
+      "label": "SRC_CONFIG",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "build_src_config",
+      "community": 2,
+      "norm_label": "src_config"
+    },
+    {
+      "label": "OUT_HTML",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L32",
+      "_origin": "ast",
+      "id": "build_out_html",
+      "community": 2,
+      "norm_label": "out_html"
+    },
+    {
+      "label": "REQUIRED_NAMES",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L39",
+      "_origin": "ast",
+      "id": "build_required_names",
+      "community": 2,
+      "norm_label": "required_names"
+    },
+    {
+      "label": "main()",
+      "file_type": "code",
+      "source_file": "build.js",
+      "source_location": "L47",
+      "_origin": "ast",
+      "id": "build_main",
+      "community": 2,
+      "norm_label": "main()"
+    },
+    {
+      "label": "middleware.js",
+      "file_type": "code",
+      "source_file": "middleware.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "middleware",
+      "community": 5,
+      "norm_label": "middleware.js"
+    },
+    {
+      "label": "config",
+      "file_type": "code",
+      "source_file": "middleware.js",
+      "source_location": "L12",
+      "_origin": "ast",
+      "id": "middleware_config",
+      "community": 5,
+      "norm_label": "config"
+    },
+    {
+      "label": "readSessionCookie()",
+      "file_type": "code",
+      "source_file": "middleware.js",
+      "source_location": "L20",
+      "_origin": "ast",
+      "id": "middleware_readsessioncookie",
+      "community": 5,
+      "norm_label": "readsessioncookie()"
+    },
+    {
+      "label": "isValidSession()",
+      "file_type": "code",
+      "source_file": "middleware.js",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "middleware_isvalidsession",
+      "community": 5,
+      "norm_label": "isvalidsession()"
+    },
+    {
+      "label": "middleware()",
+      "file_type": "code",
+      "source_file": "middleware.js",
+      "source_location": "L74",
+      "_origin": "ast",
+      "id": "middleware_middleware",
+      "community": 5,
+      "norm_label": "middleware()"
+    },
+    {
+      "label": "package.json",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "package",
+      "community": 3,
+      "norm_label": "package.json"
+    },
+    {
+      "label": "name",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "package_name",
+      "community": 3,
+      "norm_label": "name"
+    },
+    {
+      "label": "version",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L3",
+      "_origin": "ast",
+      "id": "package_version",
+      "community": 3,
+      "norm_label": "version"
+    },
+    {
+      "label": "private",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L4",
+      "_origin": "ast",
+      "id": "package_private",
+      "community": 3,
+      "norm_label": "private"
+    },
+    {
+      "label": "type",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L5",
+      "_origin": "ast",
+      "id": "package_type",
+      "community": 3,
+      "norm_label": "type"
+    },
+    {
+      "label": "description",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "package_description",
+      "community": 3,
+      "norm_label": "description"
+    },
+    {
+      "label": "scripts",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L7",
+      "_origin": "ast",
+      "id": "package_scripts",
+      "community": 3,
+      "norm_label": "scripts"
+    },
+    {
+      "label": "build",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "package_scripts_build",
+      "community": 3,
+      "norm_label": "build"
+    },
+    {
+      "label": "devDependencies",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "package_devdependencies",
+      "community": 2,
+      "norm_label": "devdependencies"
+    },
+    {
+      "label": "javascript-obfuscator",
+      "file_type": "code",
+      "source_file": "package.json",
+      "source_location": "L11",
+      "_origin": "ast",
+      "id": "package_devdependencies_javascript_obfuscator",
+      "community": 2,
+      "norm_label": "javascript-obfuscator"
+    },
+    {
+      "label": "main-config.js",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_main_config",
+      "community": 0,
+      "norm_label": "main-config.js"
+    },
+    {
+      "label": "PLAYER_CONSTS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_main_config_player_consts",
+      "community": 0,
+      "norm_label": "player_consts"
+    },
+    {
+      "label": "TEAM_CONSTS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L92",
+      "_origin": "ast",
+      "id": "src_main_config_team_consts",
+      "community": 0,
+      "norm_label": "team_consts"
+    },
+    {
+      "label": "PLAYER_ROLE_MAP",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L107",
+      "_origin": "ast",
+      "id": "src_main_config_player_role_map",
+      "community": 0,
+      "norm_label": "player_role_map"
+    },
+    {
+      "label": "GOLD_SOURCE_LABELS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L158",
+      "_origin": "ast",
+      "id": "src_main_config_gold_source_labels",
+      "community": 0,
+      "norm_label": "gold_source_labels"
+    },
+    {
+      "label": "BOSS_SNAP_POINTS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L171",
+      "_origin": "ast",
+      "id": "src_main_config_boss_snap_points",
+      "community": 0,
+      "norm_label": "boss_snap_points"
+    },
+    {
+      "label": "TOWER_COORDS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L185",
+      "_origin": "ast",
+      "id": "src_main_config_tower_coords",
+      "community": 0,
+      "norm_label": "tower_coords"
+    },
+    {
+      "label": "loadIcon()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L224",
+      "_origin": "ast",
+      "id": "src_main_config_loadicon",
+      "community": 0,
+      "norm_label": "loadicon()"
+    },
+    {
+      "label": "CUSTOM_ICONS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L230",
+      "_origin": "ast",
+      "id": "src_main_config_custom_icons",
+      "community": 0,
+      "norm_label": "custom_icons"
+    },
+    {
+      "label": "HERO_DATA",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L250",
+      "_origin": "ast",
+      "id": "src_main_config_hero_data",
+      "community": 0,
+      "norm_label": "hero_data"
+    },
+    {
+      "label": "ITEM_DATA",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L255",
+      "_origin": "ast",
+      "id": "src_main_config_item_data",
+      "community": 0,
+      "norm_label": "item_data"
+    },
+    {
+      "label": "DEFAULT_ACTIVE_TOWERS",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L260",
+      "_origin": "ast",
+      "id": "src_main_config_default_active_towers",
+      "community": 0,
+      "norm_label": "default_active_towers"
+    },
+    {
+      "label": "getHeroIconUrl()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L262",
+      "_origin": "ast",
+      "id": "src_main_config_getheroiconurl",
+      "community": 0,
+      "norm_label": "getheroiconurl()"
+    },
+    {
+      "label": "getRuneIconUrl()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L266",
+      "_origin": "ast",
+      "id": "src_main_config_getruneiconurl",
+      "community": 0,
+      "norm_label": "getruneiconurl()"
+    },
+    {
+      "label": "getSkillIconUrl()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L270",
+      "_origin": "ast",
+      "id": "src_main_config_getskilliconurl",
+      "community": 0,
+      "norm_label": "getskilliconurl()"
+    },
+    {
+      "label": "getItemIconUrl()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L274",
+      "_origin": "ast",
+      "id": "src_main_config_getitemiconurl",
+      "community": 0,
+      "norm_label": "getitemiconurl()"
+    },
+    {
+      "label": "apiToMap()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L281",
+      "_origin": "ast",
+      "id": "src_main_config_apitomap",
+      "community": 0,
+      "norm_label": "apitomap()"
+    },
+    {
+      "label": "toPx()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L290",
+      "_origin": "ast",
+      "id": "src_main_config_topx",
+      "community": 0,
+      "norm_label": "topx()"
+    },
+    {
+      "label": "normalizeTeamName()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L298",
+      "_origin": "ast",
+      "id": "src_main_config_normalizeteamname",
+      "community": 0,
+      "norm_label": "normalizeteamname()"
+    },
+    {
+      "label": "normalizeTowerName()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L308",
+      "_origin": "ast",
+      "id": "src_main_config_normalizetowername",
+      "community": 0,
+      "norm_label": "normalizetowername()"
+    },
+    {
+      "label": "getTeamInitials()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L321",
+      "_origin": "ast",
+      "id": "src_main_config_getteaminitials",
+      "community": 0,
+      "norm_label": "getteaminitials()"
+    },
+    {
+      "label": "getPlayerRoleSafe()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L344",
+      "_origin": "ast",
+      "id": "src_main_config_getplayerrolesafe",
+      "community": 6,
+      "norm_label": "getplayerrolesafe()"
+    },
+    {
+      "label": "sortPlayersByRoleSafe()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L364",
+      "_origin": "ast",
+      "id": "src_main_config_sortplayersbyrolesafe",
+      "community": 6,
+      "norm_label": "sortplayersbyrolesafe()"
+    },
+    {
+      "label": "ICON_SIZE_BASE",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L381",
+      "_origin": "ast",
+      "id": "src_main_config_icon_size_base",
+      "community": 0,
+      "norm_label": "icon_size_base"
+    },
+    {
+      "label": "milestones",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L385",
+      "_origin": "ast",
+      "id": "src_main_config_milestones",
+      "community": 0,
+      "norm_label": "milestones"
+    },
+    {
+      "label": "ROLE_ORDER",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L387",
+      "_origin": "ast",
+      "id": "src_main_config_role_order",
+      "community": 6,
+      "norm_label": "role_order"
+    },
+    {
+      "label": "RANKING_CATEGORIES",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L391",
+      "_origin": "ast",
+      "id": "src_main_config_ranking_categories",
+      "community": 0,
+      "norm_label": "ranking_categories"
+    },
+    {
+      "label": "formatValue()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L401",
+      "_origin": "ast",
+      "id": "src_main_config_formatvalue",
+      "community": 0,
+      "norm_label": "formatvalue()"
+    },
+    {
+      "label": "formatStatName()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L409",
+      "_origin": "ast",
+      "id": "src_main_config_formatstatname",
+      "community": 0,
+      "norm_label": "formatstatname()"
+    },
+    {
+      "label": "getHeroRecIcon()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L417",
+      "_origin": "ast",
+      "id": "src_main_config_getherorecicon",
+      "community": 0,
+      "norm_label": "getherorecicon()"
+    },
+    {
+      "label": "getRoleIcon()",
+      "file_type": "code",
+      "source_file": "src/main-config.js",
+      "source_location": "L422",
+      "_origin": "ast",
+      "id": "src_main_config_getroleicon",
+      "community": 0,
+      "norm_label": "getroleicon()"
+    },
+    {
+      "label": "vercel.json",
+      "file_type": "code",
+      "source_file": "vercel.json",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "vercel",
+      "community": 8,
+      "norm_label": "vercel.json"
+    },
+    {
+      "label": "headers",
+      "file_type": "code",
+      "source_file": "vercel.json",
+      "source_location": "L2",
+      "_origin": "ast",
+      "id": "vercel_headers",
+      "community": 8,
+      "norm_label": "headers"
+    }
+  ],
+  "links": [
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L19",
+      "weight": 1.0,
+      "source": "api_auth",
+      "target": "api_auth_isauthenticated",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "api_auth",
+      "target": "api_auth_parsecookies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/items.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_items",
+      "target": "api_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/latestbattle.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_latestbattle",
+      "target": "api_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "api_login",
+      "target": "api_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/mlbb.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_mlbb",
+      "target": "api_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_verify",
+      "target": "api_auth",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/_auth.js",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "api_auth_isauthenticated",
+      "target": "api_auth_parsecookies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/items.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_items",
+      "target": "api_auth_isauthenticated",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/items.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_items_handler",
+      "target": "api_auth_isauthenticated"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/latestbattle.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_latestbattle",
+      "target": "api_auth_isauthenticated",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/latestbattle.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_latestbattle_handler",
+      "target": "api_auth_isauthenticated"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/mlbb.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_mlbb",
+      "target": "api_auth_isauthenticated",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/mlbb.js",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "api_mlbb_handler",
+      "target": "api_auth_isauthenticated"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "api/verify.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_verify",
+      "target": "api_auth_isauthenticated",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "api/verify.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "api_verify_handler",
+      "target": "api_auth_isauthenticated"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/items.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_items",
+      "target": "api_items_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/latestbattle.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_latestbattle",
+      "target": "api_latestbattle_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L17",
+      "weight": 1.0,
+      "source": "api_login",
+      "target": "api_login_attempts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L38",
+      "weight": 1.0,
+      "source": "api_login",
+      "target": "api_login_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "api_login",
+      "target": "api_login_isratelimited",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "api_login",
+      "target": "api_login_passwordmatches",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L59",
+      "weight": 1.0,
+      "source": "api_login_handler",
+      "target": "api_login_passwordmatches",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "api/login.js",
+      "source_location": "L46",
+      "weight": 1.0,
+      "source": "api_login_handler",
+      "target": "api_login_isratelimited",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/logout.js",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "api_logout",
+      "target": "api_logout_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/mlbb.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_mlbb",
+      "target": "api_mlbb_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "api/verify.js",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "api_verify",
+      "target": "api_verify_handler",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L27",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_dirname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L47",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_main",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L32",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_out_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L28",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_r",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L39",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_required_names",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L31",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_src_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "build.js",
+      "source_location": "L30",
+      "weight": 1.0,
+      "source": "build",
+      "target": "build_src_html",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "build.js",
+      "source_location": "L77",
+      "weight": 1.0,
+      "source": "build_main",
+      "target": "package_devdependencies_javascript_obfuscator"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L12",
+      "weight": 1.0,
+      "source": "middleware",
+      "target": "middleware_config",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "middleware",
+      "target": "middleware_isvalidsession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L74",
+      "weight": 1.0,
+      "source": "middleware",
+      "target": "middleware_middleware",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L20",
+      "weight": 1.0,
+      "source": "middleware",
+      "target": "middleware_readsessioncookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L75",
+      "weight": 1.0,
+      "source": "middleware_middleware",
+      "target": "middleware_readsessioncookie",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "middleware.js",
+      "source_location": "L76",
+      "weight": 1.0,
+      "source": "middleware_middleware",
+      "target": "middleware_isvalidsession",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_description",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L10",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_devdependencies",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_name",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L4",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_private",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L7",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_scripts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L5",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_type",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L3",
+      "weight": 1.0,
+      "source": "package",
+      "target": "package_version",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L8",
+      "weight": 1.0,
+      "source": "package_scripts",
+      "target": "package_scripts_build",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "package.json",
+      "source_location": "L11",
+      "weight": 1.0,
+      "source": "package_devdependencies",
+      "target": "package_devdependencies_javascript_obfuscator",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L281",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_apitomap",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L171",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_boss_snap_points",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L230",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_custom_icons",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L260",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_default_active_towers",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L409",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_formatstatname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L401",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_formatvalue",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L262",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getheroiconurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L417",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getherorecicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L274",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getitemiconurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L344",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getplayerrolesafe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L422",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getroleicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L266",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getruneiconurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L270",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getskilliconurl",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L321",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_getteaminitials",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L158",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_gold_source_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L250",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_hero_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L381",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_icon_size_base",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L255",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_item_data",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L224",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_loadicon",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L385",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_milestones",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L298",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_normalizeteamname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L308",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_normalizetowername",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L22",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_player_consts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L107",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_player_role_map",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L391",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_ranking_categories",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L387",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_role_order",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L364",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_sortplayersbyrolesafe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L92",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_team_consts",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L290",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_topx",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L185",
+      "weight": 1.0,
+      "source": "src_main_config",
+      "target": "src_main_config_tower_coords",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/main-config.js",
+      "source_location": "L374",
+      "weight": 1.0,
+      "source": "src_main_config_sortplayersbyrolesafe",
+      "target": "src_main_config_getplayerrolesafe",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "references",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/main-config.js",
+      "source_location": "L377",
+      "weight": 1.0,
+      "source": "src_main_config_sortplayersbyrolesafe",
+      "target": "src_main_config_role_order"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "vercel.json",
+      "source_location": "L2",
+      "weight": 1.0,
+      "source": "vercel",
+      "target": "vercel_headers",
+      "confidence_score": 1.0
+    }
+  ],
+  "hyperedges": []
+}
