@@ -189,7 +189,7 @@
       "source_file": "build.js",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "build",
+      "id": "build_js_build",
       "community": 2,
       "norm_label": "build.js"
     },
@@ -742,6 +742,86 @@
       "id": "vercel_headers",
       "community": 8,
       "norm_label": "headers"
+    },
+    {
+      "label": "BUILD.md",
+      "file_type": "document",
+      "source_file": "BUILD.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "build_md_build",
+      "community": 9,
+      "norm_label": "build.md"
+    },
+    {
+      "label": "Build & edit workflow",
+      "file_type": "document",
+      "source_file": "BUILD.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "build_build_edit_workflow",
+      "community": 9,
+      "norm_label": "build & edit workflow"
+    },
+    {
+      "label": "Files",
+      "file_type": "document",
+      "source_file": "BUILD.md",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "build_files",
+      "community": 9,
+      "norm_label": "files"
+    },
+    {
+      "label": "To make a change",
+      "file_type": "document",
+      "source_file": "BUILD.md",
+      "source_location": "L21",
+      "_origin": "ast",
+      "id": "build_to_make_a_change",
+      "community": 9,
+      "norm_label": "to make a change"
+    },
+    {
+      "label": "Before trusting a build in production",
+      "file_type": "document",
+      "source_file": "BUILD.md",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "build_before_trusting_a_build_in_production",
+      "community": 9,
+      "norm_label": "before trusting a build in production"
+    },
+    {
+      "label": "CLAUDE.md",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude",
+      "community": 10,
+      "norm_label": "claude.md"
+    },
+    {
+      "label": "CLAUDE.md \u2014 mlbb-tool (Shared Asset Repo + Tool App)",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "claude_claude_md_mlbb_tool_shared_asset_repo_tool_app",
+      "community": 10,
+      "norm_label": "claude.md \u2014 mlbb-tool (shared asset repo + tool app)"
+    },
+    {
+      "label": "Critical rules",
+      "file_type": "document",
+      "source_file": "CLAUDE.md",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "claude_critical_rules",
+      "community": 10,
+      "norm_label": "critical rules"
     }
   ],
   "links": [
@@ -1037,7 +1117,7 @@
       "source_file": "build.js",
       "source_location": "L27",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_dirname",
       "confidence_score": 1.0
     },
@@ -1047,7 +1127,7 @@
       "source_file": "build.js",
       "source_location": "L47",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_main",
       "confidence_score": 1.0
     },
@@ -1057,7 +1137,7 @@
       "source_file": "build.js",
       "source_location": "L32",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_out_html",
       "confidence_score": 1.0
     },
@@ -1067,7 +1147,7 @@
       "source_file": "build.js",
       "source_location": "L28",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_r",
       "confidence_score": 1.0
     },
@@ -1077,7 +1157,7 @@
       "source_file": "build.js",
       "source_location": "L39",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_required_names",
       "confidence_score": 1.0
     },
@@ -1087,7 +1167,7 @@
       "source_file": "build.js",
       "source_location": "L31",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_src_config",
       "confidence_score": 1.0
     },
@@ -1097,7 +1177,7 @@
       "source_file": "build.js",
       "source_location": "L30",
       "weight": 1.0,
-      "source": "build",
+      "source": "build_js_build",
       "target": "build_src_html",
       "confidence_score": 1.0
     },
@@ -1595,7 +1675,68 @@
       "source": "vercel",
       "target": "vercel_headers",
       "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "BUILD.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "build_md_build",
+      "target": "build_build_edit_workflow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "BUILD.md",
+      "source_location": "L33",
+      "weight": 1.0,
+      "source": "build_build_edit_workflow",
+      "target": "build_before_trusting_a_build_in_production",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "BUILD.md",
+      "source_location": "L6",
+      "weight": 1.0,
+      "source": "build_build_edit_workflow",
+      "target": "build_files",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "BUILD.md",
+      "source_location": "L21",
+      "weight": 1.0,
+      "source": "build_build_edit_workflow",
+      "target": "build_to_make_a_change",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L1",
+      "weight": 1.0,
+      "source": "claude",
+      "target": "claude_claude_md_mlbb_tool_shared_asset_repo_tool_app",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "CLAUDE.md",
+      "source_location": "L13",
+      "weight": 1.0,
+      "source": "claude_claude_md_mlbb_tool_shared_asset_repo_tool_app",
+      "target": "claude_critical_rules",
+      "confidence_score": 1.0
     }
   ],
-  "hyperedges": []
+  "hyperedges": [],
+  "built_at_commit": "a9c12ecf28c7a767c85eca7713e3d31f7f33c0d7"
 }
