@@ -39,3 +39,9 @@ jobs:
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git add mlbb_assets_master.csv mlbb_heroes_matrix.csv mlbb_items.csv mlbb_runes.csv mlbb_skills.csv mlbb_roles.csv
           git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update exported image URL CSVs" && git push)
+
+      - name: Purge jsDelivr CDN Cache
+        run: |
+          curl -s "https://purge.jsdelivr.net/gh/Bokpau/mlbb-tool@main/mlbb_assets_master.csv"
+          curl -s "https://purge.jsdelivr.net/gh/Bokpau/mlbb-tool@main/mlbb_heroes_matrix.csv"
+
