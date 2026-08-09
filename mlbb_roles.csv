@@ -1,0 +1,7 @@
+"ID / Code","Name","Filename","CDN URL","Google Sheets Image Formula"
+"EXP LANE","EXP LANE","EXP LANE.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/EXP%20LANE.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/EXP%20LANE.png"")"
+"FLEX","FLEX","FLEX.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/FLEX.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/FLEX.png"")"
+"GOLD LANE","GOLD LANE","GOLD LANE.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/GOLD%20LANE.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/GOLD%20LANE.png"")"
+"JUNGLE","JUNGLE","JUNGLE.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/JUNGLE.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/JUNGLE.png"")"
+"MID LANE","MID LANE","MID LANE.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/MID%20LANE.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/MID%20LANE.png"")"
+"ROAM","ROAM","ROAM.png","https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/ROAM.png","=IMAGE(""https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main/Role/ROAM.png"")"
