@@ -5,7 +5,8 @@
   "type": "module",
   "description": "Build tooling for the MLBB live tool. Inlines main-config.js into index.html and obfuscates the app script.",
   "scripts": {
-    "build": "node build.js"
+    "build": "node build.js",
+    "export-csv": "node export_urls.js"
   },
   "devDependencies": {
     "javascript-obfuscator": "^4.1.1"

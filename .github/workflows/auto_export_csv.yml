@@ -1,0 +1,41 @@
+name: Auto Export Image URLs CSV
+
+on:
+  push:
+    paths:
+      - 'hero/**'
+      - 'hero_ban/**'
+      - 'hero_selection/**'
+      - 'items/**'
+      - 'Rune/**'
+      - 'SKILL/**'
+      - 'Role/**'
+      - 'src/main-config.js'
+      - 'export_urls.js'
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  export-csv:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate CSV Files
+        run: node export_urls.js
+
+      - name: Commit and Push Updated CSVs
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add mlbb_assets_master.csv mlbb_heroes_matrix.csv mlbb_items.csv mlbb_runes.csv mlbb_skills.csv mlbb_roles.csv
+          git diff --quiet && git diff --staged --quiet || (git commit -m "auto: update exported image URL CSVs" && git push)

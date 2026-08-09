@@ -1,0 +1,80 @@
+name: Sync player/team photos
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'playerimage/**'
+      - 'teamlogo/**'
+      - 'int_player/**'
+      - 'intl_teamlogo/**'
+      - 'mwi_player/**'
+      - 'mwi_teamlogo/**'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Collect changed/added photo files
+        id: files
+        run: |
+          set -euo pipefail
+          FOLDERS='playerimage|teamlogo|int_player|intl_teamlogo|mwi_player|mwi_teamlogo'
+
+          if git rev-parse "${{ github.event.before }}" >/dev/null 2>&1; then
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          else
+            RANGE="${{ github.sha }}"
+            echo "No previous commit (first push or force-push) — diffing this commit only."
+          fi
+
+          if [ "$RANGE" = "${{ github.sha }}" ]; then
+            CHANGED=$(git diff-tree --no-commit-id --name-status -r "${{ github.sha }}")
+          else
+            CHANGED=$(git diff --name-status "$RANGE")
+          fi
+
+          # Only additions (A) and modifications (M), matching a tracked folder, ending in .png
+          PAYLOAD=$(echo "$CHANGED" | awk -v folders="$FOLDERS" '
+            $1 == "A" || $1 == "M" {
+              path = $2
+              if (path ~ "^(" folders ")/[^/]+\\.png$") print path
+            }' | jq -R -c '
+              split("/") | {folder: .[0], filename: .[1]}
+            ' | jq -s -c '{files: .}')
+
+          echo "payload=$PAYLOAD" >> "$GITHUB_OUTPUT"
+          echo "Changed photo files:"
+          echo "$PAYLOAD" | jq .
+
+      - name: Call backend sync endpoint
+        if: fromJson(steps.files.outputs.payload).files[0] != null
+        run: |
+          set -euo pipefail
+          RESPONSE=$(curl -sS -w '\n%{http_code}' \
+            -X POST "https://mpl-ph-s17-backend.onrender.com/admin/sync-photos" \
+            -H "Content-Type: application/json" \
+            -H "x-sync-key: ${{ secrets.PHOTO_SYNC_KEY }}" \
+            -d '${{ steps.files.outputs.payload }}')
+
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          echo "$BODY" | jq .
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "::error::sync-photos endpoint returned HTTP $HTTP_CODE"
+            exit 1
+          fi
+
+          UNRESOLVED=$(echo "$BODY" | jq '[.results[] | select(.status != "synced")] | length')
+          if [ "$UNRESOLVED" != "0" ]; then
+            echo "::warning::$UNRESOLVED file(s) did not sync — check the log above (unmapped ign/team_code, bad filename, or unknown season code)."
+          fi
+
+      - name: No matching photo files changed
+        if: fromJson(steps.files.outputs.payload).files[0] == null
+        run: echo "No .png changes under the tracked photo folders — nothing to sync."

@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-950">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLBB Hero Ban Cropper Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0b0f19;
+            color: #f3f4f6;
+        }
+        .crop-workspace {
+            position: relative;
+            user-select: none;
+            touch-action: none;
+            background: radial-gradient(circle, #1e293b 10%, #0f172a 90%);
+        }
+        .crop-overlay {
+            position: absolute;
+            border: 2px solid #6366f1;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.65), 0 0 15px rgba(99, 102, 241, 0.5);
+            cursor: move;
+        }
+        .crop-handle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: #818cf8;
+            border: 1px solid white;
+            border-radius: 2px;
+        }
+        .handle-se { right: -5px; bottom: -5px; cursor: se-resize; }
+        .handle-nw { left: -5px; top: -5px; cursor: nw-resize; }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+    </style>
+</head>
+<body class="h-full flex flex-col overflow-hidden text-slate-200">
+
+    <!-- Top Navigation Header -->
+    <header class="h-16 bg-slate-900/90 backdrop-blur border-b border-slate-800 flex items-center justify-between px-6 z-20">
+        <div class="flex items-center space-x-4">
+            <div class="w-10 h-10 rounded-xl bg-indigo-600/20 border border-indigo-500/40 flex items-center justify-center text-indigo-400">
+                <i class="fa-solid fa-crop-simple text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-lg font-bold text-white flex items-center gap-2">
+                    Hero Ban Cropper Studio
+                    <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/10 border border-indigo-500/30 text-indigo-300">150 × 70 px</span>
+                </h1>
+                <p class="text-xs text-slate-400">Crop hero selection images to ban portrait size & save to hero_ban folder</p>
+            </div>
+        </div>
+
+        <!-- Center Global Actions -->
+        <div class="flex items-center space-x-3">
+            <button id="batchCropBtn" onclick="triggerBatchAutoCrop()" class="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-sm font-semibold flex items-center gap-2 shadow-lg shadow-indigo-600/20 transition-all">
+                <i class="fa-solid fa-wand-magic-sparkles"></i>
+                Auto-Crop All 133 Heroes
+            </button>
+        </div>
+
+        <!-- Right Stats -->
+        <div class="flex items-center space-x-4">
+            <div class="text-right">
+                <div class="text-xs text-slate-400">Cropped Status</div>
+                <div id="statsCount" class="text-sm font-bold text-indigo-400">0 / 0 Cropped</div>
+            </div>
+            <div class="w-24 bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700">
+                <div id="progressBar" class="bg-indigo-500 h-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Studio Layout -->
+    <div class="flex-1 flex overflow-hidden">
+
+        <!-- Left Drawer / Hero Selector Grid -->
+        <aside class="w-80 bg-slate-900 border-r border-slate-800 flex flex-col flex-shrink-0">
+            <!-- Search & Filters -->
+            <div class="p-4 border-b border-slate-800 space-y-3">
+                <div class="relative">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-sm"></i>
+                    <input type="text" id="searchInput" oninput="filterHeroes()" placeholder="Search hero by name or ID..." class="w-full bg-slate-950 border border-slate-700/80 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500 transition">
+                </div>
+                <div class="flex gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-xs">
+                    <button onclick="setTab('all')" id="tab-all" class="flex-1 py-1.5 rounded-md font-medium text-white bg-slate-800">All</button>
+                    <button onclick="setTab('pending')" id="tab-pending" class="flex-1 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200">Pending</button>
+                    <button onclick="setTab('cropped')" id="tab-cropped" class="flex-1 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200">Cropped</button>
+                </div>
+            </div>
+
+            <!-- Hero List -->
+            <div id="heroList" class="flex-1 overflow-y-auto p-2 space-y-1">
+                <!-- Dynamically populated -->
+            </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="flex-1 flex flex-col bg-slate-950 overflow-hidden">
+            <!-- Hero Workspace Bar -->
+            <div class="h-14 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between px-6">
+                <div class="flex items-center space-x-3">
+                    <span id="currentHeroId" class="text-xs px-2 py-1 rounded bg-slate-800 text-slate-300 font-mono">ID: -</span>
+                    <h2 id="currentHeroName" class="text-base font-bold text-white">Select a Hero</h2>
+                    <span id="currentHeroFiles" class="text-xs text-slate-400 font-mono"></span>
+                </div>
+
+                <div class="flex items-center space-x-2">
+                    <button onclick="prevHero()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        <i class="fa-solid fa-chevron-left"></i> Prev
+                    </button>
+                    <button onclick="nextHero()" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1">
+                        Next <i class="fa-solid fa-chevron-right"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Interactive Workspace Content -->
+            <div class="flex-1 flex items-center justify-center p-6 gap-8 overflow-auto">
+
+                <!-- Left Canvas Crop Box -->
+                <div class="flex flex-col items-center gap-3">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-arrows-up-down-left-right text-indigo-400"></i> Interactive Canvas (Drag crop box)
+                    </div>
+                    
+                    <div id="canvasContainer" class="crop-workspace rounded-xl border border-slate-700/80 overflow-hidden shadow-2xl flex items-center justify-center relative">
+                        <img id="sourceImage" src="" alt="Hero Selection" class="max-h-[500px] object-contain pointer-events-none hidden">
+                        <div id="cropOverlay" class="crop-overlay hidden">
+                            <div class="crop-handle handle-nw"></div>
+                            <div class="crop-handle handle-se"></div>
+                        </div>
+                        <div id="placeholderText" class="text-slate-500 text-sm py-32 px-16 text-center">
+                            Loading Hero Image...
+                        </div>
+                    </div>
+
+                    <!-- Quick Preset Positions -->
+                    <div class="flex items-center gap-2 mt-1">
+                        <span class="text-xs text-slate-400">Presets:</span>
+                        <button onclick="applyPreset('top')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded border border-slate-700">
+                            Face (Top Focus)
+                        </button>
+                        <button onclick="applyPreset('center')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded border border-slate-700">
+                            Center
+                        </button>
+                        <button onclick="applyPreset('bottom')" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs rounded border border-slate-700">
+                            Bottom
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Right Live Preview Card -->
+                <div class="flex flex-col items-center gap-4 bg-slate-900/80 p-6 rounded-2xl border border-slate-800 shadow-xl min-w-[280px]">
+                    <div class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Live Preview Output (150 × 70)</div>
+                    
+                    <!-- Live Canvas Render -->
+                    <div class="relative group">
+                        <div class="w-[150px] h-[70px] bg-slate-950 rounded-lg overflow-hidden border-2 border-indigo-500 shadow-lg shadow-indigo-500/20 relative">
+                            <canvas id="previewCanvas" width="150" height="70" class="w-full h-full object-cover"></canvas>
+                        </div>
+                        <div class="text-[10px] text-center text-slate-400 mt-1">Exact Output Size</div>
+                    </div>
+
+                    <!-- Existing Saved File Preview (if present) -->
+                    <div class="w-full pt-4 border-t border-slate-800/80 flex flex-col items-center gap-2">
+                        <div class="text-xs text-slate-400">Saved File in hero_ban:</div>
+                        <div id="savedPreviewBox" class="w-[150px] h-[70px] bg-slate-950 rounded-lg overflow-hidden border border-slate-700 flex items-center justify-center">
+                            <img id="savedBanImage" src="" alt="Saved Ban" class="w-full h-full object-cover hidden">
+                            <span id="savedBanPlaceholder" class="text-[11px] text-slate-600">Not Saved Yet</span>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="w-full space-y-2 pt-4 border-t border-slate-800">
+                        <button id="saveBtn" onclick="saveCurrentCrop()" class="w-full py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-sm font-bold shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2 transition">
+                            <i class="fa-solid fa-floppy-disk"></i> Save Ban Image
+                        </button>
+                    </div>
+
+                    <!-- Keyboard Guide -->
+                    <div class="text-[11px] text-slate-500 text-center space-y-0.5 pt-2">
+                        <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-700">↑</kbd> <kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-700">↓</kbd> Nudge crop box</div>
+                        <div><kbd class="px-1 py-0.5 bg-slate-800 rounded border border-slate-700">Enter</kbd> Save & Next</div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification Toast -->
+    <div id="toast" class="fixed bottom-6 right-6 px-4 py-3 bg-slate-800 border border-slate-700 rounded-xl shadow-2xl flex items-center gap-3 text-sm transition-all duration-300 transform translate-y-12 opacity-0 pointer-events-none z-50">
+        <i id="toastIcon" class="fa-solid fa-circle-check text-emerald-400"></i>
+        <span id="toastMsg">Notification message</span>
+    </div>
+
+    <script>
+        let heroes = [];
+        let filteredHeroes = [];
+        let currentIndex = -1;
+        let activeTab = 'all';
+
+        // Crop box variables (in natural image pixel coordinates)
+        let cropState = {
+            x: 0,
+            y: 0,
+            width: 240,
+            height: 112 // 240 * 70 / 150
+        };
+
+        let isDragging = false;
+        let isResizing = false;
+        let dragStart = { x: 0, y: 0 };
+        let cropStart = { x: 0, y: 0, w: 0, h: 0 };
+
+        const targetAspect = 150 / 70;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadHeroes();
+            setupInteractions();
+            
+            document.addEventListener('keydown', (e) => {
+                if (e.target.tagName === 'INPUT') return;
+                if (e.key === 'ArrowUp') { moveCrop(0, -3); e.preventDefault(); }
+                if (e.key === 'ArrowDown') { moveCrop(0, 3); e.preventDefault(); }
+                if (e.key === 'ArrowLeft') { moveCrop(-3, 0); e.preventDefault(); }
+                if (e.key === 'ArrowRight') { moveCrop(3, 0); e.preventDefault(); }
+                if (e.key === 'Enter') { saveCurrentCrop(true); e.preventDefault(); }
+            });
+        });
+
+        async function loadHeroes() {
+            try {
+                const res = await fetch('/api/heroes');
+                heroes = await res.json();
+                filterHeroes();
+                if (heroes.length > 0 && currentIndex === -1) {
+                    selectHero(0);
+                }
+            } catch (err) {
+                showToast('Failed to load hero list', 'error');
+            }
+        }
+
+        function updateStats() {
+            const croppedCount = heroes.filter(h => h.isCropped).length;
+            const total = heroes.length;
+            document.getElementById('statsCount').innerText = `${croppedCount} / ${total} Cropped`;
+            const pct = total > 0 ? (croppedCount / total) * 100 : 0;
+            document.getElementById('progressBar').style.width = `${pct}%`;
+        }
+
+        function setTab(tab) {
+            activeTab = tab;
+            ['all', 'pending', 'cropped'].forEach(t => {
+                const btn = document.getElementById(`tab-${t}`);
+                if (t === tab) {
+                    btn.className = 'flex-1 py-1.5 rounded-md font-medium text-white bg-slate-800';
+                } else {
+                    btn.className = 'flex-1 py-1.5 rounded-md font-medium text-slate-400 hover:text-slate-200';
+                }
+            });
+            filterHeroes();
+        }
+
+        function filterHeroes() {
+            const q = document.getElementById('searchInput').value.toLowerCase().trim();
+            filteredHeroes = heroes.filter(h => {
+                const matchesSearch = h.name.toLowerCase().includes(q) || String(h.id).includes(q);
+                if (activeTab === 'cropped') return matchesSearch && h.isCropped;
+                if (activeTab === 'pending') return matchesSearch && !h.isCropped;
+                return matchesSearch;
+            });
+            renderHeroList();
+            updateStats();
+        }
+
+        function renderHeroList() {
+            const listEl = document.getElementById('heroList');
+            listEl.innerHTML = '';
+
+            filteredHeroes.forEach((h, idx) => {
+                const item = document.createElement('div');
+                const isSelected = heroes[currentIndex] && heroes[currentIndex].id === h.id;
+                
+                item.className = `p-2.5 rounded-xl border flex items-center justify-between cursor-pointer transition ${
+                    isSelected ? 'bg-indigo-600/20 border-indigo-500/60' : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/50'
+                }`;
+                item.onclick = () => {
+                    const realIndex = heroes.findIndex(x => x.id === h.id);
+                    selectHero(realIndex);
+                };
+
+                item.innerHTML = `
+                    <div class="flex items-center space-x-3">
+                        <img src="${h.selectionUrl}" class="w-9 h-9 object-cover rounded-lg border border-slate-700" alt="${h.name}">
+                        <div>
+                            <div class="text-xs font-bold text-white">${h.id}. ${h.name}</div>
+                            <div class="text-[10px] text-slate-400 font-mono">${h.banFilename}</div>
+                        </div>
+                    </div>
+                    <div>
+                        ${h.isCropped 
+                            ? '<span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center text-[10px]"><i class="fa-solid fa-check"></i></span>'
+                            : '<span class="w-5 h-5 rounded-full bg-slate-800 text-slate-500 border border-slate-700 flex items-center justify-center text-[10px]"><i class="fa-regular fa-circle"></i></span>'
+                        }
+                    </div>
+                `;
+                listEl.appendChild(item);
+            });
+        }
+
+        function selectHero(index) {
+            if (index < 0 || index >= heroes.length) return;
+            currentIndex = index;
+            const hero = heroes[currentIndex];
+
+            document.getElementById('currentHeroId').innerText = `ID: ${hero.id}`;
+            document.getElementById('currentHeroName').innerText = hero.name;
+            document.getElementById('currentHeroFiles').innerText = `${hero.selectionFilename} → ${hero.banFilename}`;
+
+            const img = document.getElementById('sourceImage');
+            document.getElementById('placeholderText').innerText = 'Loading image...';
+            document.getElementById('placeholderText').classList.remove('hidden');
+            img.classList.add('hidden');
+
+            img.onload = () => {
+                document.getElementById('placeholderText').classList.add('hidden');
+                img.classList.remove('hidden');
+                document.getElementById('cropOverlay').classList.remove('hidden');
+
+                // Default crop box: top-center face focus
+                applyPreset('top');
+            };
+            img.src = hero.selectionUrl;
+
+            // Load saved preview if available
+            const savedImg = document.getElementById('savedBanImage');
+            const savedPlaceholder = document.getElementById('savedBanPlaceholder');
+            if (hero.isCropped && hero.banUrl) {
+                savedImg.src = `${hero.banUrl}?t=${Date.now()}`;
+                savedImg.classList.remove('hidden');
+                savedPlaceholder.classList.add('hidden');
+            } else {
+                savedImg.classList.add('hidden');
+                savedPlaceholder.classList.remove('hidden');
+            }
+
+            renderHeroList();
+        }
+
+        function applyPreset(type) {
+            const img = document.getElementById('sourceImage');
+            if (!img.naturalWidth) return;
+
+            const nw = img.naturalWidth;
+            const nh = img.naturalHeight;
+
+            cropState.width = nw;
+            cropState.height = nw / targetAspect;
+
+            if (type === 'top') {
+                cropState.x = 0;
+                cropState.y = Math.floor(nh * 0.03); // Top face focus
+            } else if (type === 'center') {
+                cropState.x = 0;
+                cropState.y = Math.floor((nh - cropState.height) / 2);
+            } else if (type === 'bottom') {
+                cropState.x = 0;
+                cropState.y = Math.floor(nh - cropState.height);
+            }
+
+            updateOverlayUI();
+            updateLivePreview();
+        }
+
+        function moveCrop(dx, dy) {
+            const img = document.getElementById('sourceImage');
+            if (!img.naturalWidth) return;
+
+            cropState.x = Math.max(0, Math.min(img.naturalWidth - cropState.width, cropState.x + dx));
+            cropState.y = Math.max(0, Math.min(img.naturalHeight - cropState.height, cropState.y + dy));
+            
+            updateOverlayUI();
+            updateLivePreview();
+        }
+
+        function updateOverlayUI() {
+            const img = document.getElementById('sourceImage');
+            const overlay = document.getElementById('cropOverlay');
+            if (!img.naturalWidth || !overlay) return;
+
+            const scaleX = img.clientWidth / img.naturalWidth;
+            const scaleY = img.clientHeight / img.naturalHeight;
+
+            overlay.style.left = `${img.offsetLeft + cropState.x * scaleX}px`;
+            overlay.style.top = `${img.offsetTop + cropState.y * scaleY}px`;
+            overlay.style.width = `${cropState.width * scaleX}px`;
+            overlay.style.height = `${cropState.height * scaleY}px`;
+        }
+
+        function updateLivePreview() {
+            const img = document.getElementById('sourceImage');
+            const canvas = document.getElementById('previewCanvas');
+            const ctx = canvas.getContext('2d');
+
+            if (!img.naturalWidth) return;
+
+            ctx.clearRect(0, 0, 150, 70);
+            ctx.drawImage(
+                img,
+                cropState.x, cropState.y, cropState.width, cropState.height,
+                0, 0, 150, 70
+            );
+        }
+
+        function setupInteractions() {
+            const overlay = document.getElementById('cropOverlay');
+            const handleSE = overlay.querySelector('.handle-se');
+
+            overlay.addEventListener('mousedown', (e) => {
+                if (e.target === handleSE) {
+                    isResizing = true;
+                } else {
+                    isDragging = true;
+                }
+                dragStart = { x: e.clientX, y: e.clientY };
+                cropStart = { ...cropState };
+                e.preventDefault();
+            });
+
+            window.addEventListener('mousemove', (e) => {
+                const img = document.getElementById('sourceImage');
+                if (!img.naturalWidth) return;
+
+                const scaleX = img.naturalWidth / img.clientWidth;
+                const scaleY = img.naturalHeight / img.clientHeight;
+
+                if (isDragging) {
+                    const dx = (e.clientX - dragStart.x) * scaleX;
+                    const dy = (e.clientY - dragStart.y) * scaleY;
+
+                    cropState.x = Math.max(0, Math.min(img.naturalWidth - cropState.width, cropStart.x + dx));
+                    cropState.y = Math.max(0, Math.min(img.naturalHeight - cropState.height, cropStart.y + dy));
+                    updateOverlayUI();
+                    updateLivePreview();
+                } else if (isResizing) {
+                    const dx = (e.clientX - dragStart.x) * scaleX;
+                    let newW = Math.max(50, Math.min(img.naturalWidth - cropStart.x, cropStart.w + dx));
+                    let newH = newW / targetAspect;
+
+                    if (cropStart.y + newH <= img.naturalHeight) {
+                        cropState.width = newW;
+                        cropState.height = newH;
+                        updateOverlayUI();
+                        updateLivePreview();
+                    }
+                }
+            });
+
+            window.addEventListener('mouseup', () => {
+                isDragging = false;
+                isResizing = false;
+            });
+        }
+
+        async function saveCurrentCrop(autoNext = false) {
+            if (currentIndex < 0 || currentIndex >= heroes.length) return;
+            const hero = heroes[currentIndex];
+
+            try {
+                const res = await fetch('/api/save-crop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        selectionFilename: hero.selectionFilename,
+                        cropBox: {
+                            x: Math.round(cropState.x),
+                            y: Math.round(cropState.y),
+                            width: Math.round(cropState.width),
+                            height: Math.round(cropState.height)
+                        }
+                    })
+                });
+
+                const data = await res.json();
+                if (data.success) {
+                    hero.isCropped = true;
+                    hero.banUrl = data.banUrl;
+                    showToast(`Saved ban image for ${hero.name}!`);
+                    
+                    // Update preview box
+                    const savedImg = document.getElementById('savedBanImage');
+                    savedImg.src = `${data.banUrl}`;
+                    savedImg.classList.remove('hidden');
+                    document.getElementById('savedBanPlaceholder').classList.add('hidden');
+
+                    filterHeroes();
+
+                    if (autoNext) {
+                        nextHero();
+                    }
+                }
+            } catch (err) {
+                showToast('Failed to save crop', 'error');
+            }
+        }
+
+        async function triggerBatchAutoCrop() {
+            if (!confirm("Run face-focus auto crop on all 133 heroes? Existing ban images will be updated.")) return;
+
+            const btn = document.getElementById('batchCropBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<i class="fa-solid fa-spinner fa-spin"></i> Processing 133 images...`;
+
+            try {
+                const res = await fetch('/api/batch-auto-crop', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ yOffsetRatio: 0.03 })
+                });
+                const data = await res.json();
+
+                if (data.success) {
+                    showToast(`Batch crop complete! Created ${data.processedCount} ban images.`);
+                    await loadHeroes();
+                }
+            } catch (err) {
+                showToast('Error during batch auto crop', 'error');
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Crop All 133 Heroes`;
+            }
+        }
+
+        function prevHero() {
+            if (currentIndex > 0) selectHero(currentIndex - 1);
+        }
+
+        function nextHero() {
+            if (currentIndex < heroes.length - 1) selectHero(currentIndex + 1);
+        }
+
+        function showToast(msg, type = 'success') {
+            const toast = document.getElementById('toast');
+            const icon = document.getElementById('toastIcon');
+            document.getElementById('toastMsg').innerText = msg;
+            
+            if (type === 'error') {
+                icon.className = 'fa-solid fa-circle-exclamation text-rose-400';
+            } else {
+                icon.className = 'fa-solid fa-circle-check text-emerald-400';
+            }
+
+            toast.classList.remove('translate-y-12', 'opacity-0', 'pointer-events-none');
+            setTimeout(() => {
+                toast.classList.add('translate-y-12', 'opacity-0', 'pointer-events-none');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
