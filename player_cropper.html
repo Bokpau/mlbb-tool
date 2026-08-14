@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Player Photo Cropper — 1080×1080</title>
+<style>
+  :root{--accent:#3a86ff;--gold:#ffd76a;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#0a0f1c;color:#e7eefc;font-family:Oxanium,Segoe UI,system-ui,sans-serif;}
+  header{position:sticky;top:0;z-index:50;background:#0c1426;border-bottom:1px solid rgba(255,255,255,.12);
+    padding:13px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;}
+  header h1{font-size:17px;margin:0;font-weight:800;letter-spacing:.4px;}
+  .tag{font-size:11px;padding:2px 9px;border-radius:20px;background:rgba(58,134,255,.12);
+    border:1px solid rgba(58,134,255,.35);color:#9dc0ff;}
+  .spacer{flex:1;}
+  .hint{font-size:12px;color:#9fb2d4;width:100%;line-height:1.5;margin:-2px 0 0;}
+  button{background:#16284a;border:1px solid rgba(58,134,255,.5);color:#dce8ff;font-family:inherit;
+    font-weight:700;font-size:12.5px;padding:7px 13px;border-radius:8px;cursor:pointer;}
+  button:hover{background:#1d3358;}
+  button.alt{border-color:rgba(255,255,255,.22);background:#131c30;}
+  button:disabled{opacity:.45;cursor:not-allowed;}
+  input[type=search]{background:#0c1426;border:1px solid rgba(58,134,255,.4);color:#dce8ff;
+    border-radius:8px;padding:7px 10px;font-family:inherit;font-size:13px;min-width:150px;}
+  .filters{display:flex;gap:6px;}
+  .fpill{background:#0c1426;border:1px solid rgba(255,255,255,.16);color:#9fb2d4;font-family:inherit;
+    font-size:11.5px;font-weight:700;padding:5px 12px;border-radius:20px;cursor:pointer;}
+  .fpill.active{background:#16284a;color:#dce8ff;border-color:var(--accent);}
+
+  main{padding:18px;display:grid;gap:15px;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));}
+  .card{background:#101a30;border:1px solid rgba(58,134,255,.22);border-radius:10px;overflow:hidden;
+    display:flex;flex-direction:column;}
+  .card.tuned{border-color:rgba(255,215,106,.55);}
+  .card.dirty{border-color:var(--gold);box-shadow:0 0 0 1px rgba(255,215,106,.35);}
+  .stage{position:relative;background:
+      linear-gradient(45deg,#151d33 25%,transparent 25%,transparent 75%,#151d33 75%),
+      linear-gradient(45deg,#151d33 25%,#0d1424 25%,#0d1424 75%,#151d33 75%);
+    background-size:18px 18px;background-position:0 0,9px 9px;}
+  canvas{display:block;width:100%;aspect-ratio:1;}
+  .ref{position:absolute;inset:0;background-size:contain;background-repeat:no-repeat;
+    background-position:center;opacity:0;pointer-events:none;transition:opacity .12s;}
+  .card.showref .ref{opacity:.5;}
+  .name{padding:7px 10px 2px;font-size:13px;font-weight:800;}
+  .out{padding:0 10px 7px;font-size:10.5px;color:#7f93b8;word-break:break-all;}
+  .out b{color:#9dc0ff;font-weight:700;}
+  .ctl{padding:0 10px 8px;display:flex;flex-direction:column;gap:4px;}
+  .row{display:flex;align-items:center;gap:7px;font-size:11px;color:#9fb2d4;}
+  .row label{width:14px;font-weight:800;color:#cfe0ff;}
+  .row input[type=range]{flex:1;accent-color:var(--accent);}
+  .row .v{width:40px;text-align:right;color:var(--gold);font-weight:800;font-variant-numeric:tabular-nums;}
+  .acts{display:flex;gap:6px;padding:0 10px 10px;}
+  .acts button{flex:1;padding:6px 0;font-size:11.5px;}
+  .badge{font-size:10px;padding:1px 6px;border-radius:10px;margin-left:6px;vertical-align:1px;}
+  .badge.saved{background:rgba(60,200,120,.14);border:1px solid rgba(60,200,120,.4);color:#7fe0a6;}
+  .badge.pend{background:rgba(255,215,106,.13);border:1px solid rgba(255,215,106,.4);color:var(--gold);}
+  .loading{padding:40px;text-align:center;color:#9fb2d4;grid-column:1/-1;}
+  .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#16284a;
+    border:1px solid rgba(58,134,255,.5);padding:9px 18px;border-radius:9px;font-size:13px;
+    opacity:0;transition:opacity .2s;pointer-events:none;z-index:99;}
+  .toast.on{opacity:1;}
+</style>
+</head>
+<body>
+<header>
+  <h1>Player Photo Cropper</h1>
+  <span class="tag">1080 × 1080</span>
+  <input type="search" id="q" placeholder="search player…"/>
+  <div class="filters">
+    <button class="fpill active" data-f="all">All</button>
+    <button class="fpill" data-f="tuned">Tuned</button>
+    <button class="fpill" data-f="unsaved">Unsaved</button>
+  </div>
+  <div class="spacer"></div>
+  <button class="alt" id="refBtn">Ghost old photo</button>
+  <button id="saveAll">Save changed</button>
+  <p class="hint">
+    Auto-crop already ran. Adjust only the ones that look wrong — <b>Z</b> zoom, <b>X</b> horizontal,
+    <b>Y</b> vertical. Preview is live; <b>Save</b> re-crops from the full-resolution master and writes
+    to <code>playerimage_s18/</code>. Nothing in <code>playerimage/</code> or Drive is touched.
+  </p>
+</header>
+
+<main id="grid"><div class="loading">Loading…</div></main>
+<div class="toast" id="toast"></div>
+
+<script>
+const TOP = 0.009;                       // must match player_cropper_server.py
+const grid = document.getElementById('grid');
+let players = [], filter = 'all', showRef = false;
+
+const enc = s => encodeURIComponent(s);
+const toast = (m) => {
+  const t = document.getElementById('toast');
+  t.textContent = m; t.classList.add('on');
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('on'), 1800);
+};
+
+// Live preview: same geometry as the server, applied to the downscaled master.
+function draw(p) {
+  const cv = p._cv, ctx = cv.getContext('2d');
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  if (!p._img || !p.solved) return;
+  const s = p.solved, k = p.previewH / s.h;          // master px -> preview px
+  const side = s.side / p._z;
+  const left = s.cx - side / 2 + p._x * side;
+  const top  = s.y0 - TOP * side + p._y * side;
+  ctx.drawImage(p._img, left * k, top * k, side * k, side * k, 0, 0, cv.width, cv.height);
+}
+
+function dirty(p) {
+  return Math.abs(p._z - (p.override.zoom ?? 1)) > 1e-6 ||
+         Math.abs(p._x - (p.override.dx   ?? 0)) > 1e-6 ||
+         Math.abs(p._y - (p.override.dy   ?? 0)) > 1e-6;
+}
+
+function mark(p) {
+  p._card.classList.toggle('dirty', dirty(p));
+  p._card.classList.toggle('tuned', !!Object.keys(p.override).length);
+  p._badge.className = 'badge ' + (dirty(p) ? 'pend' : 'saved');
+  p._badge.textContent = dirty(p) ? 'unsaved' : (p.hasOutput ? 'saved' : '—');
+}
+
+function card(p) {
+  const el = document.createElement('div');
+  el.className = 'card';
+  el.innerHTML = `
+    <div class="stage">
+      <canvas width="300" height="300"></canvas>
+      <div class="ref" style="background-image:url('/playerimage/${enc(p.out)}')"></div>
+    </div>
+    <div class="name">${p.label}<span class="badge"></span></div>
+    <div class="out">→ <b>${p.out}</b></div>
+    <div class="ctl">
+      <div class="row"><label>Z</label><input type="range" data-k="z" min="0.55" max="1.8" step="0.005"><span class="v"></span></div>
+      <div class="row"><label>X</label><input type="range" data-k="x" min="-0.4" max="0.4" step="0.002"><span class="v"></span></div>
+      <div class="row"><label>Y</label><input type="range" data-k="y" min="-0.4" max="0.4" step="0.002"><span class="v"></span></div>
+    </div>
+    <div class="acts">
+      <button class="alt" data-a="reset">Reset</button>
+      <button data-a="save">Save</button>
+    </div>`;
+
+  p._card  = el;
+  p._cv    = el.querySelector('canvas');
+  p._badge = el.querySelector('.badge');
+  p._z = p.override.zoom ?? 1;
+  p._x = p.override.dx   ?? 0;
+  p._y = p.override.dy   ?? 0;
+
+  const sl = {};
+  el.querySelectorAll('input[type=range]').forEach(i => sl[i.dataset.k] = i);
+  const sync = () => {
+    sl.z.value = p._z; sl.x.value = p._x; sl.y.value = p._y;
+    const v = el.querySelectorAll('.v');
+    v[0].textContent = (+p._z).toFixed(2) + '×';
+    v[1].textContent = (p._x * 100).toFixed(1) + '%';
+    v[2].textContent = (p._y * 100).toFixed(1) + '%';
+    draw(p); mark(p);
+  };
+  el.addEventListener('input', e => {
+    if (e.target.type !== 'range') return;
+    p['_' + e.target.dataset.k] = parseFloat(e.target.value);
+    sync();
+  });
+  el.addEventListener('click', async e => {
+    const a = e.target.dataset.a;
+    if (a === 'reset') { p._z = 1; p._x = 0; p._y = 0; sync(); return; }
+    if (a !== 'save') return;
+    e.target.disabled = true; e.target.textContent = '…';
+    try {
+      const r = await fetch('/api/save-crop', {
+        method: 'POST', headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({master: p.master, zoom: p._z, dx: p._x, dy: p._y})
+      }).then(r => r.json());
+      if (r.error) throw new Error(r.error);
+      p.override = (p._z === 1 && p._x === 0 && p._y === 0) ? {} : {zoom: p._z, dx: p._x, dy: p._y};
+      p.hasOutput = true;
+      toast('Saved ' + r.out);
+    } catch (err) { toast('Failed: ' + err.message); }
+    e.target.disabled = false; e.target.textContent = 'Save';
+    mark(p);
+  });
+
+  // Preview loads lazily — 68 masters would otherwise be a lot of decode at once.
+  const img = new Image();
+  img.onload = () => { p._img = img; sync(); };
+  img.src = '/_raw/s18/.previews/' + enc(p.master);
+  sync();
+  return el;
+}
+
+function render() {
+  const q = document.getElementById('q').value.trim().toLowerCase();
+  grid.innerHTML = '';
+  const vis = players.filter(p => {
+    if (q && !p.label.toLowerCase().includes(q)) return false;
+    if (filter === 'tuned')   return !!Object.keys(p.override).length;
+    if (filter === 'unsaved') return !p.hasOutput || dirty(p);
+    return true;
+  });
+  if (!vis.length) { grid.innerHTML = '<div class="loading">Nothing matches.</div>'; return; }
+  vis.forEach(p => grid.appendChild(p._card || card(p)));
+  grid.classList.toggle('showref', showRef);
+  vis.forEach(p => { p._card.classList.toggle('showref', showRef); draw(p); });
+}
+
+document.getElementById('q').addEventListener('input', render);
+document.querySelectorAll('.fpill').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.fpill').forEach(x => x.classList.remove('active'));
+  b.classList.add('active'); filter = b.dataset.f; render();
+}));
+document.getElementById('refBtn').addEventListener('click', () => {
+  showRef = !showRef;
+  players.forEach(p => p._card && p._card.classList.toggle('showref', showRef));
+});
+document.getElementById('saveAll').addEventListener('click', async () => {
+  const todo = players.filter(dirty);
+  if (!todo.length) return toast('No unsaved changes.');
+  toast(`Saving ${todo.length}…`);
+  for (const p of todo) p._card.querySelector('[data-a=save]').click();
+});
+
+fetch('/api/players').then(r => r.json()).then(d => {
+  players = d.players;
+  const notReady = players.filter(p => !p.ready).length;
+  if (notReady) toast(`${notReady} not prepared — run: python3 player_cropper_server.py --batch`);
+  render();
+});
+</script>
+</body>
+</html>
