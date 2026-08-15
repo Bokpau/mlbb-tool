@@ -28,7 +28,7 @@ set -uo pipefail
 
 # The head of the replacement-laptop work window. See LAPTOP-HANDOVER.md.
 DEVICE_BASE="623bc08"
-DEVICE_HEAD="449de4b"
+DEVICE_HEAD="dcd673a"
 
 REPO="${1:-$(pwd)}"
 cd "$REPO" 2>/dev/null || { echo "FATAL: cannot cd to $REPO"; exit 1; }
@@ -101,7 +101,8 @@ if [ "$DIRTY" = "0" ] && [ "$STASHES" = "0" ] && [ "${ANCESTRY:0:3}" = "YES" ]; 
   echo "      Nothing tracked was lost. Do NOT copy this clone over the new one —"
   echo "      it still holds the pre-S18 photo bytes at live asset paths and would"
   echo "      silently revert 41 broadcast assets. Harvest section 4 below, then"
-  echo "      this clone can be deleted."
+  echo "      FAST-FORWARD this clone:  git merge --ff-only origin/main"
+  echo "      (This machine resumes as primary — do NOT delete this clone.)"
 elif [ "${ANCESTRY:0:2}" = "NO" ] || [ "$DIRTY" != "0" ] || [ "$STASHES" != "0" ]; then
   echo "  >>> CASE B or C. Something exists only here. Details in sections 3 and 5."
   echo "      Move it with a remote/bundle, never by copying files over the new clone."
@@ -210,10 +211,18 @@ fi
 say "6. What to do next"
 
 cat <<'NEXT'
-Read LAPTOP-HANDOVER.md section 3 for the full procedure. Short version:
+Read HANDOVER-INDEX.md (in mpl-ph-s17-backend) for the cross-repo ordering, then
+LAPTOP-HANDOVER.md section 3 for this repo. Short version:
+
+  THIS MACHINE RESUMES AS PRIMARY. Harvest first, then fast-forward. Do not
+  delete this clone, and do not pull before harvesting — a merge destroys the
+  dirty files, stashes and un-pushed branches that are the only evidence of
+  what was here, and no git operation recovers a gitignored file at all.
 
   Case A (clean + behind):
-      Copy the section 4 items off this disk, then delete this clone.
+      Copy the section 4 items off this disk FIRST (hero_transparent/ before
+      anything else — it has never been committed and exists nowhere else).
+      Then:  git fetch origin && git merge --ff-only origin/main
       Do NOT copy this clone over the replacement laptop's.
 
   Case B (dirty, or commits not on GitHub) — from the REPLACEMENT laptop:

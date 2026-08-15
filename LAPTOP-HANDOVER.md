@@ -5,13 +5,23 @@ and repos on it. It exists so that when that disk is recovered, it is possible t
 tell in one pass what is new here, what is stale there, and what only ever existed
 on that machine.
 
-Companion to the file of the same name in `mpl-ph-s17-backend`. §7 says who updates
-what.
+Companion to the files of the same name in `mpl-ph-s17-backend` and `mpl-ph-s17`.
+§7 says who updates what.
+
+> **Read `mpl-ph-s17-backend/HANDOVER-INDEX.md` first.** This file covers this repo.
+> The index covers all three and carries the recovery *ordering*, which matters more
+> here than anywhere else — two of the four irreversible risks in the whole handover
+> live in this repo.
 
 - **Device window base:** `623bc08` (2026-08-10) — the last commit before this
   laptop. This clone was made **2026-08-13 18:34** directly from
   `github.com/Bokpau/mlbb-tool` at that commit, so *everything after `623bc08` was
   done here*, with no ambiguity.
+- **Direction of travel (updated 2026-08-16):** the old laptop is being repaired
+  with its disk intact and **resumes as primary**. Earlier revisions of this file
+  assumed the replacement machine stayed home and said the old clone could be
+  deleted once checked — **that advice is withdrawn**; see §3. The job is now
+  harvest → fast-forward → re-arm.
 - **Untracked recovery list:** §4. For this repo that list is the whole reason the
   old disk matters — and unlike the backend, one entry on it (`hero_transparent/`)
   **has no copy anywhere else**.
@@ -20,12 +30,12 @@ what.
 
 | | |
 |---|---|
-| Head of window | `623bc08` → `449de4b` |
-| Commits on this device | 6 (5 asset/tooling + this handover system) |
-| Diff | 146 files, +1,834 lines of text, ~120 binary assets |
-| Push state | **All pushed.** local `main` == `origin/main` == `449de4b`, 0 ahead / 0 behind |
+| Head of window | `623bc08` → `dcd673a` |
+| Commits on this device | 7 (5 asset/tooling + 2 handover system) |
+| Diff | 146 files, +1,839 lines of text, ~120 binary assets |
+| Push state | **All pushed.** local `main` == `origin/main` == `dcd673a`, 0 ahead / 0 behind |
 | Working tree | clean, no untracked files |
-| Last reviewed | 2026-08-15 |
+| Last reviewed | 2026-08-16 |
 
 **Nothing tracked by git is stranded on this laptop.** GitHub (`Bokpau/mlbb-tool`)
 has all five commits. The exposure in this repo is entirely in §4.
@@ -104,13 +114,20 @@ cd /Volumes/OLD/path/to/mlbb-tool && git log --oneline -1 && git status --porcel
 
 That one command answers most of it. Three cases:
 
-**Case A — its HEAD is an ancestor of `3ca979b` and the tree is clean.** This is the
-expected result. Nothing tracked was lost. **Do not copy the old clone over this
-one** (see §1). Harvest §4 from the disk, then the clone itself can go.
+**Case A — its HEAD is an ancestor of `origin/main` and the tree is clean.** This is
+the expected result. Nothing tracked was lost. **Do not copy the old clone over this
+one** (see §1). Harvest §4 from the disk **first**, then fast-forward it — the old
+machine resumes as primary, so **the clone stays**.
 
 ```bash
-cd /Volumes/OLD/path/to/mlbb-tool && git merge-base --is-ancestor HEAD 3ca979b && echo "OLD IS BEHIND — nothing unique on it"
+cd /path/to/old/mlbb-tool && git fetch origin && git merge-base --is-ancestor HEAD origin/main && echo "OLD IS BEHIND — nothing unique on it" && git merge --ff-only origin/main
 ```
+
+> ⚠️ **Withdrawn advice.** This section used to end "then the clone itself can go."
+> That was written when the replacement laptop was expected to stay primary. It is
+> now wrong twice over: the clone is about to become the primary working copy again,
+> and deleting it would take `hero_transparent/` and the pre-S18 `_raw/` masters with
+> it — neither of which exists anywhere else. Harvest §4 before any of this.
 
 **Case B — the tree is dirty, or there are commits not on GitHub.** Pull them across
 as a remote rather than copying files by hand:
@@ -165,8 +182,15 @@ breakage somewhere else. Present on this laptop: `local_postgame`, `mpl-int`,
 - `ph_playerimage/` has **no consumer yet**. Wiring it up is the open work; see
   `PH_PLAYERIMAGE_PLAN.md`.
 - `mpl-ph-s17` and `mpl-ph-s17-backend` also had commits in this window (through
-  2026-08-15) — the backend keeps its own `LAPTOP-HANDOVER.md`. Run the §3 procedure
-  in every clone when the disk is recovered.
+  2026-08-15). **All three repos now keep a `LAPTOP-HANDOVER.md`** — `mpl-ph-s17`
+  gained one on 2026-08-16, and needed a `.gitignore` exception to do it, since that
+  repo ignores `*.md` wholesale. Run the §3 procedure in every clone, in the order
+  set by `mpl-ph-s17-backend/HANDOVER-INDEX.md`.
+- `mpl-ph-s17` `cc67f0d` added a **second filename candidate** for player photos,
+  because the CDN is case-sensitive and these filenames follow no single convention.
+  Four players still resolve to letter avatars — **JamesPangks, shizou, FindingHito,
+  KURTT** — and the fix is renaming files *in this repo*, not code in the frontend.
+  Any rename must follow the §5 consumer rule above.
 
 ## 6. Commit ledger
 
@@ -178,6 +202,7 @@ breakage somewhere else. Present on this laptop: `local_postgame`, `mpl-int`,
 | `6d2ac4a` | 2026-08-14 22:22 | feat(ph_playerimage): archive S17 PH player photos, era-suffixed |
 | `bdcfdb7` | 2026-08-14 22:22 | feat(playerimage): replace with 67 S18 MPL PH player photos |
 | `449de4b` | 2026-08-15 21:58 | docs(handover): record the window and how to reconcile it |
+| `dcd673a` | 2026-08-15 21:59 | docs(handover): advance window head to 449de4b |
 
 The ledger runs one commit behind whenever the maintenance commit is the newest one
 — updating §0/§6 necessarily creates a commit that is not yet in §6. That lag is
@@ -212,7 +237,11 @@ port `update-handover-ledger.js` from the backend repo and run it with
 
 ### Retiring this
 
-Once the disk is recovered and reconciled, delete together: this file,
+Once the disk is recovered, **harvested** and reconciled, delete together: this file,
 `reconcile-old-laptop.sh`, the `⚠️ READ FIRST` banner at the top of `CLAUDE.md`, and
-the `Replacement-laptop handover log` section of `CLAUDE.md`. Leaving a stale
-recovery banner in place is worse than having none — the next reader will trust it.
+the `Replacement-laptop handover log` section of `CLAUDE.md` — plus, across the other
+two repos, their `LAPTOP-HANDOVER.md` files, `mpl-ph-s17-backend/HANDOVER-INDEX.md`,
+the `!LAPTOP-HANDOVER.md` line in `mpl-ph-s17/.gitignore`, and the `.handover-device`
+marker and `post-commit` hook on whichever machine still carries them. The full list
+is in `HANDOVER-INDEX.md`. Leaving a stale recovery banner in place is worse than
+having none — the next reader will trust it.

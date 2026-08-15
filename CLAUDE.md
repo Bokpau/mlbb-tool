@@ -23,7 +23,14 @@
 > whether anything tracked is stranded, uncommitted work, stashes, un-pushed
 > branches, and an inventory of the gitignored files that exist **only** on that
 > disk. Then read `LAPTOP-HANDOVER.md` (`git show origin/main:LAPTOP-HANDOVER.md`)
-> — §3 is the decision tree, §4 is the recovery list.
+> — §3 is the decision tree, §4 is the recovery list. The cross-repo ordering lives
+> in `mpl-ph-s17-backend/HANDOVER-INDEX.md`.
+>
+> **This machine resumes as primary (decided 2026-08-16).** So: harvest the §4 items
+> off this disk, *then* `git merge --ff-only origin/main`, then re-arm (see the index).
+> **Do not delete this clone** — earlier wording said it could go once checked, which
+> was written when the replacement laptop was expected to stay home. That advice is
+> withdrawn.
 >
 > **Two things to get right, both irreversible:**
 > - `hero_transparent/` has **never been committed** in this repo's history. It is
