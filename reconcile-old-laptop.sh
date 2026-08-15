@@ -28,7 +28,7 @@ set -uo pipefail
 
 # The head of the replacement-laptop work window. See LAPTOP-HANDOVER.md.
 DEVICE_BASE="623bc08"
-DEVICE_HEAD="3ca979b"
+DEVICE_HEAD="449de4b"
 
 REPO="${1:-$(pwd)}"
 cd "$REPO" 2>/dev/null || { echo "FATAL: cannot cd to $REPO"; exit 1; }

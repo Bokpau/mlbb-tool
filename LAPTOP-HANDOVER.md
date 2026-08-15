@@ -20,10 +20,10 @@ what.
 
 | | |
 |---|---|
-| Head of window | `623bc08` → `3ca979b` |
-| Commits on this device | 5 |
-| Diff | 143 files, +1,324 lines of text, ~120 binary assets |
-| Push state | **All pushed.** local `main` == `origin/main` == `3ca979b`, 0 ahead / 0 behind |
+| Head of window | `623bc08` → `449de4b` |
+| Commits on this device | 6 (5 asset/tooling + this handover system) |
+| Diff | 146 files, +1,834 lines of text, ~120 binary assets |
+| Push state | **All pushed.** local `main` == `origin/main` == `449de4b`, 0 ahead / 0 behind |
 | Working tree | clean, no untracked files |
 | Last reviewed | 2026-08-15 |
 
@@ -177,6 +177,11 @@ breakage somewhere else. Present on this laptop: `local_postgame`, `mpl-int`,
 | `62522ff` | 2026-08-14 22:22 | feat(tools): add player photo cropper + era-correct rollout plan |
 | `6d2ac4a` | 2026-08-14 22:22 | feat(ph_playerimage): archive S17 PH player photos, era-suffixed |
 | `bdcfdb7` | 2026-08-14 22:22 | feat(playerimage): replace with 67 S18 MPL PH player photos |
+| `449de4b` | 2026-08-15 21:58 | docs(handover): record the window and how to reconcile it |
+
+The ledger runs one commit behind whenever the maintenance commit is the newest one
+— updating §0/§6 necessarily creates a commit that is not yet in §6. That lag is
+expected; the `git log` range below is always authoritative.
 
 Regenerate at any time:
 
