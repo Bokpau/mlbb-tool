@@ -20,3 +20,10 @@ int_player_history/player_img_map2.json
 # _raw/ = uncompressed masters + working files; hero_transparent has files >20MB (jsDelivr won't serve those anyway)
 _raw/
 hero_transparent/
+
+# Generated knowledge graph — fully ignored, including the wiki and GRAPH_REPORT.
+# The wiki and report used to be versioned as "human-readable docs", but the
+# PostToolUse hook regenerates them after every edit, so ~250 tracked files
+# churned on every commit and buried real changes in the diff. All of it is
+# derived deterministically from source: delete it and graphify rebuilds it.
+graphify-out/
