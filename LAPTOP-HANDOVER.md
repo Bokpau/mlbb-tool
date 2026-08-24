@@ -1,6 +1,11 @@
 # Laptop handover — everything done on the replacement laptop
 
-**Living document.** Started 2026-08-15, after the main laptop broke with all files
+> ❄️ **FROZEN 2026-08-24. Do not update this file.** Ongoing changes are recorded
+> in `CHANGELOG.md` instead — see CLAUDE.md. This stays as the record of the
+> replacement-laptop window; the recovery procedure and the list of gitignored files
+> that exist on one machine only are still live if the old disk comes back.
+
+**Historical document.** Started 2026-08-15, after the main laptop broke with all files
 and repos on it. It exists so that when that disk is recovered, it is possible to
 tell in one pass what is new here, what is stale there, and what only ever existed
 on that machine.

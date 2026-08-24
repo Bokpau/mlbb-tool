@@ -58,27 +58,25 @@ Folder conventions:
 - Secrets (`APP_PASSWORD`, `SESSION_SECRET`, `MLBB_AUTH`) stay in `.env` / Vercel env settings — never committed. `.env.example` holds placeholders only.
 - See `BUILD.md` for the build script (`build.js`) before touching the app part.
 
-## Replacement-laptop handover log
+## Changelog — every behaviour change gets an entry
 
-`LAPTOP-HANDOVER.md` records everything done on the replacement machine since
-`623bc08`, so the recovered disk can be reconciled in one pass. It is a living
-document and **Claude keeps it current** — nobody will remember to ask.
+`CHANGELOG.md` is this repo's revision record: `git log` says what changed, the
+changelog says **why**. Write the entry **in the same commit as the change**, not
+at the end of a session. The format and the log/skip rule are at the top of
+`CHANGELOG.md` — read it before the first entry.
 
-Update it in the same commit as the change, not later:
+This repo is mostly assets that live sites read by exact path, so the rule that
+matters here: **a rename, replacement or removal always gets an entry**, naming
+which sites consume that path. A purely additive upload nothing references yet
+does not. Same convention in `mpl-ph-s17`, `mpl-ph-s17-backend` and `mpl-intl`.
 
-| Trigger | What to update |
-|---|---|
-| A commit worth explaining — an asset rename, a folder convention, a filename↔IGN decision, anything a subject line can't carry | §1 narrative, §2 file table, §6 ledger |
-| Something gitignored is added, or `.gitignore` changes | §4 — the recovery list. **This is the section that matters most**; it is the only record of what exists on one disk only |
-| An asset path changes that another repo reads | §5 consumers |
-| The window's head moves | §0 current state |
+## Replacement-laptop handover log — FROZEN
 
-Regenerate the §6 ledger with:
+`LAPTOP-HANDOVER.md` is frozen as of 2026-08-24. **Do not update it.** Ongoing
+changes go in `CHANGELOG.md`. It stays as the record of the replacement-laptop
+window, and because §4 — the list of gitignored files that exist on one disk only
+— is still live if the recovered disk is reconciled. `reconcile-old-laptop.sh`
+and its `DEVICE_BASE`/`DEVICE_HEAD` values are frozen at the same point.
 
-```bash
-git log --reverse --date=format:'%Y-%m-%d %H:%M' --pretty=format:'| `%h` | %ad | %s |' 623bc08..HEAD
-```
-
-Leave `DEVICE_BASE`/`DEVICE_HEAD` in `reconcile-old-laptop.sh` in step with §0.
 Retire this section, `LAPTOP-HANDOVER.md`, the banner at the top of this file, and
 the script together once the disk is recovered and reconciled — not before.
