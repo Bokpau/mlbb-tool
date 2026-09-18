@@ -37,6 +37,45 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ---
 
+## 2026-09-19
+
+### feat(sync-storage): this repo's images are copied to Supabase Storage, which now serves them
+`mpl-ph-s17` no longer requests anything from jsDelivr. The cause was structural:
+this repo's tracked tree is **57.4 MB against jsDelivr's 50 MB package cap**, so
+`data.jsdelivr.com/v1/packages/gh/Bokpau/mlbb-tool@main` answers
+`403 Package size exceeded`. Individual files still passthrough-serve — which is
+why nothing looked broken — but jsDelivr cannot build a package index, and cold
+fetches measured **1.1-3.6s against 0.19-0.23s warm**. MPL PH never felt it
+because PH traffic keeps PH's files hot; MSL Thailand is a new audience on Thai
+POPs that had never cached this repo, so its art was cold nearly every request.
+
+**Nothing here was renamed, replaced or removed. `sync-storage.js` COPIES.** Git
+stays the source of truth, every path still resolves on jsDelivr, and the
+`=IMAGE()` URLs in `mlbb_assets_master.csv` that feed BOK's Google Sheets are
+deliberately untouched. Re-runnable: content-hash diff, 8 concurrent, ~80s for a
+full sync. `--root ../mlbb-assets-leagues` syncs the league repo into the same
+bucket (their paths have zero overlap, so one bucket serves every league).
+
+**Trimming under the cap was tried first and rejected.** `hero_selection` and
+`hero_ban` are published to the Sheets via `mlbb_assets_master.csv`;
+`ph_playerimage` is the irreplaceable pre-S18 era archive
+(`PH_PLAYERIMAGE_PLAN.md`); `hero_default`, `hero_skill_icon` and `hero_portrait`
+feed `local_postgame` and both sites. Nothing was safely deletable, and the best
+case bought ~4 MB — one season.
+
+**New naming convention worth knowing:** every `playerimage/` file is also
+uploaded under an uppercased stem and a space-stripped uppercased stem, because
+display names and filenames disagree in both directions (`SUPER MARCO` is stored
+spaceless; MSL's `AMY H4CK` keeps its space). The site uppercases and strips
+spaces, so one request always hits. Never strip `.` as well — it would collide
+`AGI.`/`AGI`, `IZY.`/`IZY` and `ROBINX.`/`ROBINX`, which are distinct files.
+
+Consumers still on jsDelivr and unaffected: `mpl-intl`, `local_postgame`, and
+the Sheets.
+→ sync-storage.js
+
+---
+
 ## Before 2026-08-24
 
 Not backfilled. For earlier history: `git log --oneline`, and the frozen
