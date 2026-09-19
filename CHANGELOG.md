@@ -39,6 +39,24 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ## 2026-09-19
 
+### feat(playerimage): SpiderMilez and Kayn photos for MPL PH S18
+Two S18 players had no photo, so `mpl-ph-s17` fell through to a letter avatar for
+both on every surface that renders `<PlayerImg>`. Additive in the filesystem but
+**not** additive in effect — `img.player()` resolves by IGN, so these paths were
+already being requested and already 404ing. That is why this is logged.
+→ playerimage/SpiderMilez_FRONT.png (AP Bren), playerimage/Kayn_FRONT.png (TWIS PH)
+
+Cropped to the folder's existing spec — **512x512, 256-colour palette PNG,
+transparent background** — matching what `ccce02b` re-encoded every other photo
+to. Sources were 1000x1000 masters. Kayn lands at 70 KB against the folder's
+62 KB previous maximum; the TWIS camo jersey simply holds more colour, and the
+jsDelivr 50 MB cap that forced the original squeeze no longer binds now that
+Supabase Storage serves these.
+
+Filenames use the feed's spelling. `sync-storage.js` also uploads uppercased and
+space-stripped stems, so the site hits on one request whatever the feed sends.
+
+
 ### feat(sync-storage): this repo's images are copied to Supabase Storage, which now serves them
 `mpl-ph-s17` no longer requests anything from jsDelivr. The cause was structural:
 this repo's tracked tree is **57.4 MB against jsDelivr's 50 MB package cap**, so
