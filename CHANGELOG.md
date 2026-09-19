@@ -57,6 +57,32 @@ Filenames use the feed's spelling. `sync-storage.js` also uploads uppercased and
 space-stripped stems, so the site hits on one request whatever the feed sends.
 
 
+### fix(playerimage): the S18 manifest and the photo counts catch up with the two new photos
+
+Follow-up to the entry above, from an identity review of it. Two places still
+described the state before SpiderMilez and Kayn existed.
+
+`mpl_ph_s18_playerimage.csv` had no row for either, so two S18 photos existed
+that the S18 manifest did not list. That file is not decorative — it carries the
+`=IMAGE()` URLs feeding BOK's Google Sheets, which `mpl-ph-s17/lib/images.js`
+deliberately left pointing at jsDelivr when everything else moved to Supabase
+Storage. Each player was inserted into their own team's block rather than
+appended, because this file is grouped by roster, not sorted.
+→ mpl_ph_s18_playerimage.csv (69 players)
+
+**The two new rows 404 until this repo is pushed.** jsDelivr serves from GitHub
+`main`, so a local commit is invisible to it. The website is unaffected and was
+correct immediately — it reads Supabase Storage, and `sync-storage.js` uploads
+from the working tree, not from GitHub. Worth knowing that these two surfaces
+now go live at different moments.
+
+`sync-storage.js:45` and `:121` still said "135 photos". The count is 137 (70
+here + 67 in mlbb-assets-leagues), and both transforms still produce 137
+distinct keys, so the collision-free claim those comments make still holds —
+only the number was stale. `mpl-ph-s17` commit 062e95d fixed the same number in
+`lib/images.js` but missed the script its comment cites as the source.
+→ sync-storage.js
+
 ### feat(sync-storage): this repo's images are copied to Supabase Storage, which now serves them
 `mpl-ph-s17` no longer requests anything from jsDelivr. The cause was structural:
 this repo's tracked tree is **57.4 MB against jsDelivr's 50 MB package cap**, so

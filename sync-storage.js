@@ -42,7 +42,7 @@
  *
  * Every photo therefore also uploads under an UPPERCASED stem, and `img.player()`
  * uppercases the name it looks up. One request, always, whatever the feed spells.
- * Verified collision-free: 135 photos -> 135 distinct uppercase keys. The
+ * Verified collision-free: 137 photos -> 137 distinct uppercase keys. The
  * verbatim originals stay too, because cdnify() still rewrites database URLs to
  * the original spellings.
  *
@@ -118,7 +118,7 @@ const NORMALISE_DIRS = new Set(['playerimage']);
  *
  * SPACES ONLY — never all punctuation. Stripping '.' would collide three real
  * pairs that are deliberately distinct: AGI./AGI, IZY./IZY, ROBINX./ROBINX.
- * Verified: 135 photos produce 135 distinct keys under each transform.
+ * Verified: 137 photos produce 137 distinct keys under each transform.
  */
 function aliasKeys(rel) {
   const dir = path.posix.dirname(rel);
