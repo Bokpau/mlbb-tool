@@ -37,6 +37,18 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ---
 
+## 2026-09-29
+
+### feat(maps): second map pool — icons, minimaps, MAP_NAMES
+Adds 12 Revealing Wisps, 15 Healing Turtle, 16 Golden Turret (ids from the live
+game API): `mapicon/12|15|16.png` (BOK's 128px art) and `Maps/Map_12|15|16.png`
+(copies of Map_0 — no real minimap yet, BOK's call). Old ids kept for old games.
+**`mapicon/3.png` (Flying Cloud) replaced in place** with the new-style icon.
+Overwrite, not a new filename, by BOK's choice: the bucket serves with a 1-year
+immutable cache, so browsers that already hold the old icon keep it until expiry.
+Consumers: mpl-ph-s17 (Supabase bucket), mpl-intl (jsDelivr), local_postgame.
+→ mapicon/, Maps/, src/index.html
+
 ## 2026-09-19
 
 ### feat(playerimage): SpiderMilez and Kayn photos for MPL PH S18
