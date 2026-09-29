@@ -37,6 +37,18 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ---
 
+## 2026-09-30
+
+### feat(export): Supabase Storage columns in the Sheets CSVs, jsDelivr kept as backup
+`export_urls.js` now writes `Storage URL` and `Storage Image Formula` columns
+(bucket URL, same path) into `mlbb_assets_master.csv` and the items/runes/skills/
+roles CSVs. They are added LAST, so existing Sheets references to columns A–H don't
+shift, and the jsDelivr columns stay unchanged as a fallback (BOK's call over
+replacing them). The trap: an asset only reaches the bucket after
+`sync-storage.js` runs. Before this change the new column would have been blank for
+any file that was committed but not synced; all 617 URLs were checked and returned 200.
+→ export_urls.js, mlbb_assets_master.csv, mlbb_items.csv, mlbb_runes.csv, mlbb_skills.csv, mlbb_roles.csv
+
 ## 2026-09-29
 
 ### feat(maps): second map pool — icons, minimaps, MAP_NAMES

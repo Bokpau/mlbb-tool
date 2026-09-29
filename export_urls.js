@@ -18,6 +18,12 @@ const ROOT_DIR = __dirname;
 // Base URLs
 const CDN_BASE = 'https://cdn.jsdelivr.net/gh/Bokpau/mlbb-tool@main';
 const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/Bokpau/mlbb-tool/main';
+// Supabase Storage mirror (sync-storage.js copies this repo path-for-path).
+// Faster than jsDelivr, which serves this repo cold since it passed the 50 MB
+// package cap. A file only exists here after sync-storage.js runs, so the
+// jsDelivr columns stay as the backup. New columns go LAST so existing
+// Sheets column references (A-H) do not shift.
+const STORAGE_BASE = 'https://pxcjutulnutibtnjgwek.supabase.co/storage/v1/object/public/assets';
 
 // Dynamic import after setting globalThis.Image
 const { HERO_DATA, ITEM_DATA } = await import('./src/main-config.js');
@@ -166,6 +172,8 @@ function scanFolder(folderName, categoryName) {
         const cdnUrl = `${CDN_BASE}/${folderName}/${encodeURIComponent(file)}`;
         const rawUrl = `${GITHUB_RAW_BASE}/${folderName}/${encodeURIComponent(file)}`;
         const imageFormula = `=IMAGE("${cdnUrl}")`;
+        const storageUrl = `${STORAGE_BASE}/${folderName}/${encodeURIComponent(file)}`;
+        const storageFormula = `=IMAGE("${storageUrl}")`;
 
         let assetId = '';
         let assetName = '';
@@ -234,7 +242,9 @@ function scanFolder(folderName, categoryName) {
             filename: file,
             cdnUrl,
             rawUrl,
-            imageFormula
+            imageFormula,
+            storageUrl,
+            storageFormula
         };
     });
 }
@@ -257,7 +267,7 @@ function generateMasterCsv() {
     });
 
     // 1. Export Master CSV (all assets consolidated)
-    const masterHeaders = ['Category', 'Folder', 'Asset ID / Code', 'Asset Name', 'Filename', 'CDN URL', 'GitHub Raw URL', 'Google Sheets Image Formula'];
+    const masterHeaders = ['Category', 'Folder', 'Asset ID / Code', 'Asset Name', 'Filename', 'CDN URL', 'GitHub Raw URL', 'Google Sheets Image Formula', 'Storage URL', 'Storage Image Formula'];
     const masterRows = [masterHeaders.map(escapeCsv).join(',')];
 
     allAssets.forEach(item => {
@@ -269,7 +279,9 @@ function generateMasterCsv() {
             item.filename,
             item.cdnUrl,
             item.rawUrl,
-            item.imageFormula
+            item.imageFormula,
+            item.storageUrl,
+            item.storageFormula
         ];
         masterRows.push(row.map(escapeCsv).join(','));
     });
@@ -337,10 +349,10 @@ function generateMasterCsv() {
     // 3. Export Category specific CSVs (Items, Runes, Skills, Roles)
     const exportCategory = (folder, name, filename) => {
         const items = scanFolder(folder, name);
-        const headers = ['ID / Code', 'Name', 'Filename', 'CDN URL', 'Google Sheets Image Formula'];
+        const headers = ['ID / Code', 'Name', 'Filename', 'CDN URL', 'Google Sheets Image Formula', 'Storage URL', 'Storage Image Formula'];
         const rows = [headers.map(escapeCsv).join(',')];
         items.forEach(i => {
-            rows.push([i.assetId, i.assetName, i.filename, i.cdnUrl, i.imageFormula].map(escapeCsv).join(','));
+            rows.push([i.assetId, i.assetName, i.filename, i.cdnUrl, i.imageFormula, i.storageUrl, i.storageFormula].map(escapeCsv).join(','));
         });
         const targetPath = path.join(ROOT_DIR, filename);
         fs.writeFileSync(targetPath, rows.join('\n'), 'utf8');
