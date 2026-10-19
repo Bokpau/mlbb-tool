@@ -39,6 +39,15 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ## 2026-10-19
 
+### feat(app): opened mid-game, the graphs still start at 00:00
+On every battle load the app fetches `api/history.js` (backend
+`/admin/tool/history`) and fills the gold lead graphs, PvP compare, map/heatmap
+positions and item timings for the seconds before it was opened. Items owned at
+load are marked as seen, so they are no longer all logged as "bought now".
+If Render never tracked the game, the graphs start at load time and the header
+chip says "history from mm:ss".
+→ api/history.js, src/index.html, index.html
+
 ### feat(app): names, roles, teams, logos, heroes, items and maps come from the database
 New `api/bundle.js` loads the backend's `/admin/tool/bundle` for the league
 picked in the Render admin card **// mlbb-tool league**; the app reloads it

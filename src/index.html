@@ -1808,12 +1808,73 @@
         updateLeagueChip(data);
     }
 
+    // ====================== HISTORY BACKFILL ======================
+    // Opened mid-game: fill the graphs' histories (gold, positions, items) for
+    // the seconds before now from what Render recorded (/api/history). Kills
+    // and objectives need nothing — Moonton's event list already starts at 0.
+    // Returns false when Render has no record; the chip then says from when.
+    let historyNote = null;
+
+    async function backfillHistory(battleId, nowTime) {
+        historyNote = null;
+        let h = null;
+        try {
+            const res = await fetch(`/api/history?battleId=${battleId}&t=${Date.now()}`);
+            if (res.ok) h = await res.json();
+        } catch (err) {
+            console.warn("History fetch failed:", err.message);
+        }
+        if (String(currentBattleId) !== String(battleId)) return false; // switched meanwhile
+        if (!h?.source) {
+            historyNote = nowTime > 5 ? `history from ${fmtTime(nowTime)}` : null;
+            updateLeagueChip();
+            return false;
+        }
+
+        const teamGold = { 1: new Map(), 2: new Map() };
+        Object.entries(h.players || {}).forEach(([rid, p]) => {
+            const roleid = Number(rid);
+            const gold = [];
+            for (let i = 0; i < p.t.length; i++) {
+                const t = p.t[i];
+                if (t >= nowTime) break;
+                gold.push({ time: t, gold: p.gold[i] || 0 });
+                if (teamGold[p.campid]) teamGold[p.campid].set(t, (teamGold[p.campid].get(t) || 0) + (p.gold[i] || 0));
+                if (p.x[i] != null && p.y[i] != null) {
+                    if (!posByTime[t]) posByTime[t] = {};
+                    posByTime[t][roleid] = apiToMap(p.x[i], p.y[i]);
+                }
+            }
+            playerGoldHistory.set(roleid, gold);
+        });
+        [1, 2].forEach(c => teamGoldHistory.set(c,
+            [...teamGold[c].entries()].sort((a, b) => a[0] - b[0]).map(([time, gold]) => ({ time, gold }))));
+
+        (h.items || []).forEach(it => {
+            if (it.time > nowTime) return;
+            const roleid = Number(it.roleid);
+            if (!allItemEvents.has(roleid)) allItemEvents.set(roleid, []);
+            allItemEvents.get(roleid).push({ time: it.time, itemId: it.itemId });
+        });
+        // Items held now are already in the backfill: mark them as seen so the
+        // first update does not log them all again as "bought now".
+        apiData?.camp_list?.forEach(camp => camp.player_list?.forEach(pl => {
+            prevItemsMap.set(pl.roleid, [...(pl.equip_list || pl.item_list || pl.items || [])]);
+        }));
+
+        if (h.from > 5) historyNote = `history from ${fmtTime(h.from)}`;
+        console.log(`History backfilled (${h.source}): ${h.from}s–${Math.min(h.to, nowTime)}s`);
+        updateLeagueChip();
+        return true;
+    }
+
     function updateLeagueChip(data = apiData) {
         const el = document.getElementById("leagueChip");
         if (!el) return;
-        if (!bundleLoaded) { el.textContent = "DB: offline"; el.title = "Render bundle not loaded — built-in tables in use"; return; }
+        if (!bundleLoaded) { el.textContent = "DB: offline" + (historyNote ? ` · ${historyNote}` : ""); el.title = "Render bundle not loaded — built-in tables in use"; return; }
         const missing = (data?.camp_list || []).flatMap(c => c.player_list || []).filter(p => p.in_db === false).length;
-        el.textContent = (bundleLeague?.label || "DB") + (missing ? ` · ${missing} ⚠` : "");
+        el.textContent = (bundleLeague?.label || "DB") + (missing ? ` · ${missing} ⚠` : "")
+            + (historyNote ? ` · ${historyNote}` : "");
         el.title = missing
             ? `${missing} player(s) in this game are not on the ${bundleLeague?.label || ""} roster (⚠ after the name)`
             : "League chosen in the Render admin panel (// mlbb-tool league)";
@@ -7257,6 +7318,8 @@ async function loadBattle({ silent = false } = {}) {
 
         applyIdentity(json.data);
         apiData = json.data;
+        const hadHistory = await backfillHistory(battleId, apiData.game_time || 0);
+        if (String(currentBattleId) !== String(battleId)) return; // switched while fetching
         populateGoldDiffSelectors();
         updateMapHeader();
         updateUI();
@@ -7270,7 +7333,8 @@ async function loadBattle({ silent = false } = {}) {
         preloadTeamLogos();
         lastTime = apiData.game_time || 0;
         extractPositions(apiData, lastTime);
-        prevItemsMap.clear();
+        // With a backfill, prevItemsMap already holds the items owned now.
+        if (!hadHistory) prevItemsMap.clear();
         processEvents();
         updateStatusBar();
         initAllTowers();
