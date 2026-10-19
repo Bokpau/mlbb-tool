@@ -39,6 +39,17 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ## 2026-10-19
 
+### fix(app): header fits on laptops and phones
+The header was one fixed row about 1650 px wide, so on a 1366–1536 px laptop the
+Gold/Map/Items/Stats buttons sat off screen behind a sideways scroll (impeccable
+audit, P1). It now wraps: one row at 1920, controls on a second right-aligned
+row on laptops, stacked on a phone, with the scoreboard keeping its 420 px until
+the screen is narrower. Header buttons are 44 px tall on touch screens. Also:
+the PvP icon (`fa-sword` is Pro-only, rendered blank) is now `fa-people-arrows`,
+and "by the BOK" is legible (slate-500 → slate-400). The body grid below the
+header is still desktop-only on a phone.
+→ src/index.html, index.html
+
 ### feat(app): opened mid-game, the graphs still start at 00:00
 On every battle load the app fetches `api/history.js` (backend
 `/admin/tool/history`) and fills the gold lead graphs, PvP compare, map/heatmap
