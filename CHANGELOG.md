@@ -37,6 +37,31 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ---
 
+## 2026-10-19
+
+### feat(app): names, roles, teams, logos, heroes, items and maps come from the database
+New `api/bundle.js` loads the backend's `/admin/tool/bundle` for the league
+picked in the Render admin card **// mlbb-tool league**; the app reloads it
+when that choice changes. Players and teams are matched by roleid and Moonton
+`team_id`, never by name. Removed: the MPL ID `PLAYER_CONSTS`/`TEAM_CONSTS`,
+the 8-player `PLAYER_ROLE_MAP` and its four name-matching lookups (everyone
+else used to show as ROAM), `DISABLE_TEAM_LOGOS`, and `./teamlogo/<name>.png`.
+A player missing from the roster keeps the in-game name with **⚠** (header chip
+counts them); a roster player with no lane shows **?** and sorts last — no lane
+is guessed. `HERO_DATA`/`ITEM_DATA`/`MAP_NAMES` stay only as the fallback when
+Render is unreachable (chip shows "DB: offline"). Judge id for the manual Fetch
+fallback moved to env `MLBB_JUDGE_ID`.
+→ api/bundle.js, api/_render.js, api/latestbattle.js, src/index.html, src/main-config.js, index.html, .env.example
+
+### feat(app): battle ID comes from the Render backend, auto-loads the live game
+`/api/latestbattle` now asks the backend's `GET /admin/live/current` (the game
+watcher already knows the live battle) instead of the hardcoded Moonton judge.
+The app polls it every 10s and switches to a new battle by itself (**Auto ●**
+button, on by default). Fetch/Load still work and pause Auto; only a manual
+Fetch falls back to the judge lookup, so open tabs never poll Moonton. Needs
+`RENDER_URL` and `TOOL_TOKEN` in Vercel env — without them Auto stays idle.
+→ api/latestbattle.js, src/index.html, index.html, build.js, .env.example
+
 ## 2026-09-30
 
 ### feat(export): Supabase Storage columns in the Sheets CSVs, jsDelivr kept as backup

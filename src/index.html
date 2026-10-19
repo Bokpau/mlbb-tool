@@ -1163,6 +1163,7 @@
                 <span id="stateName">READY</span>
                 <span id="stateTimer" class="font-mono"></span>
             </div>
+            <span id="leagueChip" class="text-[10px] font-semibold text-slate-400 flex-shrink-0" title="League chosen in the Render admin panel">DB: …</span>
 
             <!-- ADD THIS BLOCK RIGHT HERE ↓ -->
             <!-- DIVIDER -->
@@ -1184,11 +1185,15 @@
             <div class="flex items-center gap-1.5 flex-shrink-0">
 
                 <!-- Primary actions -->
-                <button onclick="fetchGame()"
+                <button id="autoBtn" onclick="toggleAuto()" title="Auto: follows the live battle from the Render backend"
+                    class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 rounded-lg text-xs font-semibold">
+                    Auto ●
+                </button>
+                <button onclick="setAuto(false); fetchGame()"
                     class="px-3 py-1.5 bg-cyan-600 hover:bg-cyan-500 rounded-lg text-xs font-semibold">
                     Fetch
                 </button>
-                <button onclick="loadGame()"
+                <button onclick="setAuto(false); loadGame()"
                     class="px-3 py-1.5 bg-green-600 hover:bg-green-500 rounded-lg text-xs font-semibold">
                     Load
                 </button>
@@ -1628,7 +1633,6 @@
         MIN,
         MAX,
         BASE_MAP_SIZE,
-        PLAYER_ROLE_MAP,
         GOLD_SOURCE_LABELS,
         BOSS_SNAP_POINTS,
         TOWER_COORDS,
@@ -1642,14 +1646,17 @@
         getItemIconUrl,
         apiToMap,
         toPx,
-        normalizeTeamName,
         normalizeTowerName,
         getTeamInitials,
-        getPlayerRoleSafe,
-        sortPlayersByRoleSafe,
+        ROSTER,
+        TEAMS,
+        TEAM_BY_ID,
+        LANE_ORDER,
+        UNKNOWN_ROLE,
+        roleOf,
+        sortPlayersByRole,
         ICON_SIZE_BASE,
         milestones,
-        ROLE_ORDER,
         RANKING_CATEGORIES,
         formatValue,
         formatStatName,
@@ -1663,6 +1670,14 @@
     let lastTime = 0;
     let posByTime = {}, nameMap = {}, campMap = {}, heroMap = {};
     let pollInterval = null;
+    // Auto mode: every AUTO_POLL_MS ask /api/latestbattle (the Render backend)
+    // which battle is live, and switch to it on its own when it changes.
+    // A manual Fetch/Load pauses it so the operator's choice is not overridden.
+    const AUTO_POLL_MS = 10000;
+    let autoEnabled = true;
+    let autoTimer = null;
+    let loadedBattleId = null;
+    let autoBusy = false;
     let player1 = null;
     let player2 = null;
     let totalGameTime = 0;
@@ -1692,7 +1707,6 @@
     playerId: ""
     };
     let pvpCharts = {};
-    const DISABLE_TEAM_LOGOS = false;
     const TEAM_LOGOS = {};
     let draftInterval = null;
     let activeTowers = {};
@@ -1713,6 +1727,97 @@
         15: 'Healing Turtle',
         16: 'Golden Turret'
     };
+
+    // ====================== DATABASE BUNDLE ======================
+    // Roster, teams, heroes, items and maps for the league chosen in the Render
+    // admin panel (/api/bundle). HERO_DATA / ITEM_DATA / MAP_NAMES keep their
+    // built-in values only as the fallback when the backend can't be reached.
+    let bundleLoaded = false;
+    let bundleLeague = null;
+    let bundleLoading = null;
+    const INTL_TOURNAMENTS = [2, 3]; // MSC / MWC: a logo always carries its country
+
+    function loadBundle() {
+        if (bundleLoading) return bundleLoading;
+        bundleLoading = (async () => {
+            try {
+                const res = await fetch(`/api/bundle?t=${Date.now()}`);
+                if (!res.ok) throw new Error(`bundle answered ${res.status}`);
+                const b = await res.json();
+                for (const o of [ROSTER, TEAMS, TEAM_BY_ID]) Object.keys(o).forEach(k => delete o[k]);
+                Object.assign(ROSTER, b.players || {});
+                // Bundle teams are keyed by Moonton team_id (a code can repeat in
+                // one league); TEAMS by roster code is only for the camp fallback.
+                Object.values(b.teams || {}).forEach(t => {
+                    TEAM_BY_ID[t.teamId] = t;
+                    if (!TEAMS[t.rosterCode]) TEAMS[t.rosterCode] = t;
+                });
+                if (b.heroes && Object.keys(b.heroes).length) Object.assign(HERO_DATA, b.heroes);
+                if (b.items && Object.keys(b.items).length) Object.assign(ITEM_DATA, b.items);
+                if (b.maps && Object.keys(b.maps).length) Object.assign(MAP_NAMES, b.maps);
+                bundleLeague = b.league || null;
+                bundleLoaded = true;
+                // A league switch can change every logo: resolve them again.
+                Object.keys(TEAM_LOGOS).forEach(k => delete TEAM_LOGOS[k]);
+                console.log("Bundle loaded:", bundleLeague?.label, Object.keys(ROSTER).length, "players");
+            } catch (err) {
+                console.warn("Bundle load failed — using built-in tables:", err.message);
+            } finally {
+                bundleLoading = null;
+                updateLeagueChip();
+            }
+        })();
+        return bundleLoading;
+    }
+
+    // Puts DB names on a fresh battledata payload, keyed by roleid / team_id.
+    // Moonton's own values stay on game_name / game_team_name. A player not on
+    // the chosen season's roster keeps the in-game name, marked with ⚠.
+    function applyIdentity(data) {
+        if (!bundleLoaded || !data?.camp_list) return;
+        data.camp_list.forEach(camp => {
+            const players = camp.player_list || [];
+            players.forEach(p => {
+                const r = ROSTER[String(p.roleid)];
+                p.game_name = p.name;
+                p.in_db = !!r;
+                if (r) p.name = r.name;
+                else if (p.name) p.name = `${p.name} ⚠`;
+            });
+
+            // team_id first; an unregistered team_id falls back to the team
+            // most of the camp's rostered players belong to (still by roleid).
+            let team = TEAM_BY_ID[String(camp.team_id)] || null;
+            if (!team) {
+                const counts = {};
+                players.forEach(p => {
+                    const c = ROSTER[String(p.roleid)]?.teamCode;
+                    if (c) counts[c] = (counts[c] || 0) + 1;
+                });
+                const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+                team = best ? TEAMS[best[0]] || null : null;
+            }
+            camp._team = team;
+            if (team) {
+                camp.game_team_name = camp.team_simple_name;
+                const intl = INTL_TOURNAMENTS.includes(bundleLeague?.tournamentId);
+                camp.team_simple_name = intl && team.country ? `${team.code} · ${team.country}` : team.code;
+                camp.team_name = team.name;
+            }
+        });
+        updateLeagueChip(data);
+    }
+
+    function updateLeagueChip(data = apiData) {
+        const el = document.getElementById("leagueChip");
+        if (!el) return;
+        if (!bundleLoaded) { el.textContent = "DB: offline"; el.title = "Render bundle not loaded — built-in tables in use"; return; }
+        const missing = (data?.camp_list || []).flatMap(c => c.player_list || []).filter(p => p.in_db === false).length;
+        el.textContent = (bundleLeague?.label || "DB") + (missing ? ` · ${missing} ⚠` : "");
+        el.title = missing
+            ? `${missing} player(s) in this game are not on the ${bundleLeague?.label || ""} roster (⚠ after the name)`
+            : "League chosen in the Render admin panel (// mlbb-tool league)";
+    }
 
 
     // ====================== FULL RESET FUNCTION ======================
@@ -1822,10 +1927,10 @@ function updateMapHeader() {
 
 
 
-    // Preload team logos with PH.png fallback
+    // Team logos come from the DB (camp._team, set by applyIdentity from the
+    // camp's Moonton team_id). No DB logo = initials, as before.
     function preloadTeamLogos() {
         if (!apiData?.camp_list) return;
-        if (DISABLE_TEAM_LOGOS) return;
 
         apiData.camp_list.forEach(camp => {
             const campId = camp.campid;
@@ -1834,10 +1939,8 @@ function updateMapHeader() {
             if (TEAM_LOGOS[campId]?.success) return;
 
             const rawName = (camp.team_simple_name || '').trim();
-            if (!rawName) return;
-
-            const normalized = normalizeTeamName(rawName);
-            const path = `./teamlogo/${normalized}.png`;
+            const path = camp._team?.logoUrl;
+            if (!path) return;
 
             const img = new Image();
 
@@ -2131,8 +2234,13 @@ function updateMapHeader() {
     }
 
     function getDefinedRole(player) {
-        if (!player) return "ROAM";
-        return getPlayerRoleSafe(player.name);
+        return roleOf(player);
+    }
+
+    // Centre icon of a lane-pair card: the slot's lane when both players are
+    // rostered in it, "?" when either is not (missing or duplicate lane).
+    function pairRole(p1, p2, slotRole) {
+        return [p1, p2].some(p => p && roleOf(p) !== slotRole) ? UNKNOWN_ROLE : slotRole;
     }
 
     
@@ -2150,8 +2258,8 @@ function updateMapHeader() {
         // =========================
         // SORT PLAYERS BY ROLE
         // =========================
-        const team1Players = sortPlayersByRoleSafe([...camp1.player_list]);
-        const team2Players = sortPlayersByRoleSafe([...camp2.player_list]);
+        const team1Players = sortPlayersByRole([...camp1.player_list]);
+        const team2Players = sortPlayersByRole([...camp2.player_list]);
 
         // =========================
         // RENDER PER ROLE (PAIRING)
@@ -2199,10 +2307,10 @@ function updateMapHeader() {
         const camp2 = apiData.camp_list.find(c => c.campid === 2);
         if (!camp1 || !camp2) return;
 
-        const team1 = sortPlayersByRoleSafe([...camp1.player_list]);
-        const team2 = sortPlayersByRoleSafe([...camp2.player_list]);
+        const team1 = sortPlayersByRole([...camp1.player_list]);
+        const team2 = sortPlayersByRole([...camp2.player_list]);
 
-        const ROLE_ORDER = ["EXP LANE", "JUNGLE", "MID LANE", "GOLD LANE", "ROAM"];
+        const ROLE_ORDER = LANE_ORDER;
 
         const grid = document.createElement('div');
         grid.className = "grid grid-cols-5 gap-6";
@@ -2245,7 +2353,7 @@ function updateMapHeader() {
 
                     <!-- CENTER -->
                     <div class="flex flex-col items-center justify-center">
-                        <img src="${getRoleIcon(role)}" class="w-10 h-10 opacity-90 mb-1">
+                        <img src="${getRoleIcon(pairRole(p1, p2, role))}" class="w-10 h-10 opacity-90 mb-1">
                         <div class="text-cyan-400 font-bold text-sm">VS</div>
                         ${getGoldLead(p1, p2)}
                     </div>
@@ -2385,10 +2493,10 @@ function updateMapHeader() {
         const camp2 = apiData.camp_list.find(c => c.campid === 2);
         if (!camp1 || !camp2) return;
 
-        const team1 = sortPlayersByRoleSafe([...camp1.player_list]);
-        const team2 = sortPlayersByRoleSafe([...camp2.player_list]);
+        const team1 = sortPlayersByRole([...camp1.player_list]);
+        const team2 = sortPlayersByRole([...camp2.player_list]);
 
-        const ROLE_ORDER = ["EXP LANE", "JUNGLE", "MID LANE", "GOLD LANE", "ROAM"];
+        const ROLE_ORDER = LANE_ORDER;
 
         ROLE_ORDER.forEach((role, i) => {
             const p1 = team1[i];
@@ -2539,20 +2647,6 @@ function updateMapHeader() {
         const team1Name = camp1?.team_simple_name || "TEAM BLUE";
         const team2Name = camp2?.team_simple_name || "TEAM RED";
 
-        function getPlayerRole(name) {
-            if (!name) return "ROAM";
-
-            const cleanName = name.trim().replace(/\./g, '').toLowerCase();
-
-            for (const [key, role] of Object.entries(PLAYER_ROLE_MAP)) {
-                const cleanKey = key.trim().replace(/\./g, '').toLowerCase();
-                if (cleanName === cleanKey || cleanName.includes(cleanKey) || cleanKey.includes(cleanName)) {
-                    return role;
-                }
-            }
-            return "ROAM";
-        }
-
         const isPostAdjustment = apiData?.game_time > 30 || (apiData?.state || "").toLowerCase() === "play";
 
         // Team 1 Data
@@ -2566,7 +2660,7 @@ function updateMapHeader() {
                 }
 
                 if (p.heroid && p.heroid > 0) {
-                    team1Picks.push({ heroid: p.heroid, order: p.pick_order || 999, role: getPlayerRole(p.name) });
+                    team1Picks.push({ heroid: p.heroid, order: p.pick_order || 999, role: roleOf(p) });
                 } else if (p.picking) {
                     team1Picks.push({ isPicking: true, order: p.pick_order || 999, name: p.name });
                 }
@@ -2586,7 +2680,7 @@ function updateMapHeader() {
                 }
 
                 if (p.heroid && p.heroid > 0) {
-                    team2Picks.push({ heroid: p.heroid, order: p.pick_order || 999, role: getPlayerRole(p.name) });
+                    team2Picks.push({ heroid: p.heroid, order: p.pick_order || 999, role: roleOf(p) });
                 } else if (p.picking) {
                     team2Picks.push({ isPicking: true, order: p.pick_order || 999, name: p.name });
                 }
@@ -3656,32 +3750,10 @@ function updateMapHeader() {
 
         const standardRoles = ["EXP LANE", "JUNGLE", "MID LANE", "ROAM", "GOLD LANE"];
 
-        function getDefinedRole(player) {
-            if (!player?.name) return null;
-            const role = PLAYER_ROLE_MAP[player.name];
-            return standardRoles.includes(role) ? role : null;
-        }
-
-        function assignRolesToTeam(playerList) {
-            const roleMap = new Map();
-            const usedRoles = new Set();
-            playerList.forEach(player => {
-                const role = getDefinedRole(player);
-                if (role) {
-                    roleMap.set(player.roleid, role);
-                    usedRoles.add(role);
-                }
-            });
-
-            const noRolePlayers = playerList.filter(p => !roleMap.has(p.roleid));
-            standardRoles.forEach(role => {
-                if (!usedRoles.has(role) && noRolePlayers.length > 0) {
-                    const player = noRolePlayers.shift();
-                    roleMap.set(player.roleid, role);
-                    usedRoles.add(role);
-                }
-            });
-            return roleMap;
+        // Lane from the DB roster by roleid; "?" when the roster has none.
+        function laneOf(player) {
+            const role = roleOf(player);
+            return standardRoles.includes(role) ? role : UNKNOWN_ROLE;
         }
 
         function formatGoldLead(diff) {
@@ -3704,12 +3776,17 @@ function updateMapHeader() {
             return num.toLocaleString('en-US') + 'g';
         }
 
-        const team1RoleMap = assignRolesToTeam(camp1.player_list);
-        const team2RoleMap = assignRolesToTeam(camp2.player_list);
+        // One row per lane; extra rows when a lane holds two players, and "?"
+        // rows last for players with no roster lane — nobody is dropped and no
+        // lane is guessed.
+        const laneRows = [];
+        [...standardRoles, UNKNOWN_ROLE].forEach(role => {
+            const l1 = camp1.player_list.filter(p => laneOf(p) === role);
+            const l2 = camp2.player_list.filter(p => laneOf(p) === role);
+            for (let k = 0; k < Math.max(l1.length, l2.length); k++) laneRows.push([role, l1[k], l2[k]]);
+        });
 
-        standardRoles.forEach(role => {
-            const p1 = camp1.player_list.find(p => team1RoleMap.get(p.roleid) === role);
-            const p2 = camp2.player_list.find(p => team2RoleMap.get(p.roleid) === role);
+        laneRows.forEach(([role, p1, p2]) => {
 
             if (!p1 && !p2) return;
 
@@ -6192,10 +6269,10 @@ function renderTimeline() {
         const camp2 = apiData.camp_list.find(c => c.campid === 2);
         if (!camp1 || !camp2) return;
 
-        const team1 = sortPlayersByRoleSafe([...camp1.player_list]);
-        const team2 = sortPlayersByRoleSafe([...camp2.player_list]);
+        const team1 = sortPlayersByRole([...camp1.player_list]);
+        const team2 = sortPlayersByRole([...camp2.player_list]);
 
-        const ROLE_ORDER = ["EXP LANE", "JUNGLE", "MID LANE", "GOLD LANE", "ROAM"];
+        const ROLE_ORDER = LANE_ORDER;
 
         const grid = document.createElement('div');
         grid.className = "grid grid-cols-5 gap-6";
@@ -6237,7 +6314,7 @@ function renderTimeline() {
 
                     <!-- CENTER -->
                     <div class="flex flex-col items-center justify-center">
-                        <img src="${getRoleIcon(role)}" class="w-10 h-10 opacity-90 mb-1">
+                        <img src="${getRoleIcon(pairRole(p1, p2, role))}" class="w-10 h-10 opacity-90 mb-1">
                         <div class="text-cyan-400 font-bold text-sm">VS</div>
                         ${getGoldLead(p1, p2)}
                     </div>
@@ -6503,12 +6580,12 @@ function renderStatsDonut() {
         return v >= 1000 ? (v / 1000).toFixed(1) + 'K' : Math.round(v).toString();
     }
 
-    const team1Players = sortPlayersByRoleSafe([...camp1.player_list]);
-    const team2Players = sortPlayersByRoleSafe([...camp2.player_list]);
+    const team1Players = sortPlayersByRole([...camp1.player_list]);
+    const team2Players = sortPlayersByRole([...camp2.player_list]);
     const allPlayers   = [...team1Players, ...team2Players];
 
     allPlayers.forEach(p => {
-        loadImg(getRoleIcon(getPlayerRoleSafe(p.name)));
+        loadImg(getRoleIcon(roleOf(p)));
     });
 
     const total1     = team1Players.reduce((s, p) => s + getStatValue(p, stat), 0);
@@ -6553,7 +6630,7 @@ function renderStatsDonut() {
             row.className = `donut-player-row${isZero ? ' zero' : ''}`;
             row.innerHTML = `
                 <img class="dpr-hero" src="${getHeroIconUrl(p.heroid)}" alt="">
-                <img class="dpr-role" src="${getRoleIcon(getPlayerRoleSafe(p.name))}" alt="">
+                <img class="dpr-role" src="${getRoleIcon(roleOf(p))}" alt="">
                 <div class="dpr-info">
                     <div class="dpr-name">${p.name || '—'}</div>
                     <div class="dpr-val">${isZero ? 'No data' : formatVal(val)}</div>
@@ -6746,7 +6823,7 @@ function renderStatsDonut() {
                             sweep, isSmall, isZero, teamTotal }) => {
 
             const teamPct = teamTotal > 0 ? ((val / teamTotal) * 100).toFixed(1) : '0.0';
-            const roleImg = loadImg(getRoleIcon(getPlayerRoleSafe(player.name)));
+            const roleImg = loadImg(getRoleIcon(roleOf(player)));
 
             if (isZero) return;
 
@@ -6816,7 +6893,7 @@ function renderStatsDonut() {
     drawLabels();
 
     const unloaded = sliceJobs
-        .map(({ player }) => loadImg(getRoleIcon(getPlayerRoleSafe(player.name))))
+        .map(({ player }) => loadImg(getRoleIcon(roleOf(player))))
         .filter(img => !img.complete || img.naturalWidth === 0);
 
     unloaded.forEach(img => {
@@ -6958,6 +7035,7 @@ async function startAutoRefresh(battleId) {
             if (!json.data) return;
             if (fetchSession !== mySession) return; // check again after await — could have changed while fetching
 
+            applyIdentity(json.data);
             apiData = json.data;
             const currentTime = apiData.game_time || 0;
             updateTeamKillsDisplay();
@@ -7086,7 +7164,7 @@ function clearAllUI() {
     }
 }
 
-async function fetchGame() {
+async function fetchGame(knownBattleId = null) {
     if (isFetching) return;
     isFetching = true;
 
@@ -7121,13 +7199,18 @@ async function fetchGame() {
         // ✅ Clear the screen immediately
         clearAllUI();
 
-        // Fetch new battle ID
-        const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
-        const data = await res.json();
+        // Auto mode already knows the id; the Fetch button asks for it
+        // (Render first, Moonton judge as the fallback — see api/latestbattle.js).
+        let data = { battleId: knownBattleId };
+        if (!knownBattleId) {
+            const res = await fetch(`/api/latestbattle?manual=1&t=${Date.now()}`);
+            data = await res.json();
+        }
         if (!data.battleId) throw new Error("No battle ID");
 
         currentBattleId = data.battleId;
-        console.log("Fetched Latest Battle ID:", currentBattleId);
+        loadedBattleId = null;
+        console.log("Fetched Latest Battle ID:", currentBattleId, data.source || "");
 
         const stateName = document.getElementById("stateName");
         if (stateName) stateName.textContent = `Ready: ${currentBattleId}`;
@@ -7148,7 +7231,7 @@ async function loadGame() {
 
     await loadBattle();
 }
-async function loadBattle() {
+async function loadBattle({ silent = false } = {}) {
 
     // 🔥 STOP OLD POLLING FIRST
     if (pollInterval) {
@@ -7167,10 +7250,12 @@ async function loadBattle() {
     allItemEvents.clear();
 
     try {
+        if (!bundleLoaded) await loadBundle();
         const res = await fetch(`/api/mlbb?battleId=${battleId}`)
         const json = await res.json();
         if (!json.data) throw new Error("No data");
 
+        applyIdentity(json.data);
         apiData = json.data;
         populateGoldDiffSelectors();
         updateMapHeader();
@@ -7196,12 +7281,63 @@ async function loadBattle() {
         updateUI();
         processEvents();
         updateTeamKillsDisplay(); 
+        loadedBattleId = battleId;
         startAutoRefresh(battleId);
     } catch (e) { 
-        alert("Failed to load: " + e.message); 
+        // Auto mode retries on its next tick; an alert there would stack up.
+        if (silent) console.warn("Auto load failed:", e.message);
+        else alert("Failed to load: " + e.message); 
     }
 }
 
+function setAuto(on) {
+    autoEnabled = on;
+    const btn = document.getElementById("autoBtn");
+    if (btn) {
+        btn.textContent = on ? "Auto ●" : "Auto ○";
+        btn.classList.toggle("bg-emerald-600", on);
+        btn.classList.toggle("hover:bg-emerald-500", on);
+        btn.classList.toggle("bg-slate-600", !on);
+        btn.classList.toggle("hover:bg-slate-500", !on);
+    }
+    if (on) autoCheck();
+}
+
+function toggleAuto() { setAuto(!autoEnabled); }
+
+// One auto tick. Nothing live (battleId null) keeps the last game on screen.
+async function autoCheck() {
+    if (!autoEnabled || isFetching || autoBusy) return;
+    autoBusy = true;
+    try {
+        const res = await fetch(`/api/latestbattle?t=${Date.now()}`);
+        if (!res.ok) return; // not logged in yet, or Render down — try next tick
+        const data = await res.json();
+        // League switched in the admin panel: reload names/roles/logos.
+        if (data.seasonId != null && bundleLeague && data.seasonId !== bundleLeague.seasonId) await loadBundle();
+        if (!autoEnabled || !data.battleId) return;
+        const id = String(data.battleId);
+        if (id === String(loadedBattleId)) return;
+        console.log("Auto: new live battle", id, data.source || "");
+        // Already fetched but the load failed last tick (game data not ready
+        // yet): just retry the load, no second reset.
+        if (id !== String(currentBattleId)) await fetchGame(id);
+        if (autoEnabled && String(currentBattleId) === id) await loadBattle({ silent: true });
+    } catch (err) {
+        console.warn("Auto check failed:", err.message);
+    } finally {
+        autoBusy = false;
+    }
+}
+
+function startAutoWatch() {
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = setInterval(autoCheck, AUTO_POLL_MS);
+    autoCheck();
+}
+
+window.toggleAuto = toggleAuto;
+window.setAuto = setAuto;
 window.fetchGame = fetchGame;
 window.loadGame = loadGame;
 window.loadBattle = loadBattle;
@@ -7250,6 +7386,9 @@ window.onload = () => {
     setInterval(() => {
         rankingIndex = (rankingIndex + 1) % RANKING_CATEGORIES.length;
     }, 3000);
+
+    loadBundle();
+    startAutoWatch();
 };
 
     document.addEventListener('keydown', (e) => {
@@ -7576,6 +7715,8 @@ window.onload = () => {
         errorEl.classList.add("hidden");
 
         //loadLatestBattle();
+        if (!bundleLoaded) loadBundle();
+        autoCheck();
 
     } catch (err) {
         console.error("Access verification failed:", err);

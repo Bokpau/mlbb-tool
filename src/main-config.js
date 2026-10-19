@@ -17,140 +17,24 @@ export const MAX = 37.5;
 export const BASE_MAP_SIZE = 440;
 
 // =========================
-// MPL ID PLAYER CONSTS
+// DATABASE LOOKUPS (filled at runtime)
 // =========================
-export const PLAYER_CONSTS = {
-    "YAZUKEE":     { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "JUNGLE"   },
-    "HIJUMEE":     { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "MID LANE" },
-    "ALEKK":       { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "ROAM"     },
-    "ARFY":        { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "GOLD LANE"},
-    "REYY":        { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "JUNGLE"   },
-    "CYRUZ":       { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "MID LANE" },
-    "SHOGUN":      { teamCode: "AE",   teamName: "Alter Ego Esports",      role: "EXP LANE" },
-    "NNAEL":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "JUNGLE"   },
-    "MORENOOO":    { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "MID LANE" },
-    "FINN":        { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "ROAM"     },
-    "EMANN":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "GOLD LANE"},
-    "CLIVEEE":     { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "GOLD LANE"},
-    "RYZAA":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "MID LANE" },
-    "LYNCH":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "EXP LANE" },
-    "KARSS":       { teamCode: "BTR",  teamName: "Bigetron by Vitality",   role: "EXP LANE" },
-    "ANDORYUUU":   { teamCode: "NAVI", teamName: "Natus Vincere",          role: "JUNGLE"   },
-    "UK1R":        { teamCode: "NAVI", teamName: "Natus Vincere",          role: "MID LANE" },
-    "APRHO":       { teamCode: "NAVI", teamName: "Natus Vincere",          role: "ROAM"     },
-    "XYVE":        { teamCode: "NAVI", teamName: "Natus Vincere",          role: "GOLD LANE"},
-    "ZEONN":       { teamCode: "NAVI", teamName: "Natus Vincere",          role: "GOLD LANE"},
-    "XMAGIC":      { teamCode: "NAVI", teamName: "Natus Vincere",          role: "MID LANE" },
-    "HAN":         { teamCode: "NAVI", teamName: "Natus Vincere",          role: "JUNGLE"   },
-    "SUPER DANN":  { teamCode: "NAVI", teamName: "Natus Vincere",          role: "EXP LANE" },
-    "SUPER KENN":  { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "JUNGLE"   },
-    "RINZ":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "MID LANE" },
-    "IDOK":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "ROAM"     },
-    "SUPER TOYY":  { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "GOLD LANE"},
-    "YEHEZKIEL":   { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "MID LANE" },
-    "KUROKY":      { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "GOLD LANE"},
-    "ARAN":        { teamCode: "RRQ",  teamName: "RRQ Hoshi",              role: "EXP LANE" },
-    "KEVINN":      { teamCode: "TLID", teamName: "Team Liquid ID",         role: "JUNGLE"   },
-    "DRICHEL":     { teamCode: "TLID", teamName: "Team Liquid ID",         role: "MID LANE" },
-    "LYONI":       { teamCode: "TLID", teamName: "Team Liquid ID",         role: "ROAM"     },
-    "KYOUU":       { teamCode: "TLID", teamName: "Team Liquid ID",         role: "GOLD LANE"},
-    "AREDLAVV":    { teamCode: "TLID", teamName: "Team Liquid ID",         role: "EXP LANE" },
-    "MARCEL":      { teamCode: "TLID", teamName: "Team Liquid ID",         role: "EXP LANE" },
-    "MAYKIDS":     { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "JUNGLE"   },
-    "A B O Y":     { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "MID LANE" },
-    "BALOYSKIE":   { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "ROAM"     },
-    "KENNZYYSKIE": { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "GOLD LANE"},
-    "YE3":         { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "EXP LANE" },
-    "ASUNE":       { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "ROAM"     },
-    "NAZARA":      { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "JUNGLE"   },
-    "LUKE":        { teamCode: "GEEK", teamName: "Geek Fam ID",            role: "EXP LANE" },
-    "ALBERTTT":    { teamCode: "EVOS", teamName: "EVOS Esports",           role: "JUNGLE"   },
-    "PHEWW":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "MID LANE" },
-    "KYY":         { teamCode: "EVOS", teamName: "EVOS Esports",           role: "ROAM"     },
-    "ERLAN":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "GOLD LANE"},
-    "TREACKY":     { teamCode: "EVOS", teamName: "EVOS Esports",           role: "MID LANE" },
-    "VELL":        { teamCode: "EVOS", teamName: "EVOS Esports",           role: "EXP LANE" },
-    "EGATZY":      { teamCode: "EVOS", teamName: "EVOS Esports",           role: "ROAM"     },
-    "LUTPI":       { teamCode: "EVOS", teamName: "EVOS Esports",           role: "EXP LANE" },
-    "KAIRI":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "JUNGLE"   },
-    "S A N Z":     { teamCode: "ONIC", teamName: "ONIC Esports",           role: "MID LANE" },
-    "KIBOY":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "ROAM"     },
-    "KELRA":       { teamCode: "ONIC", teamName: "ONIC Esports",           role: "GOLD LANE"},
-    "SSAMUEL":     { teamCode: "ONIC", teamName: "ONIC Esports",           role: "ROAM"     },
-    "QINN":        { teamCode: "ONIC", teamName: "ONIC Esports",           role: "EXP LANE" },
-    "DOLYNN":      { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "JUNGLE"   },
-    "OCTA":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "MID LANE" },
-    "MUEZZA":      { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "ROAM"     },
-    "MAYBEEE":     { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "GOLD LANE"},
-    "KAYN":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "JUNGLE"   },
-    "KESU":        { teamCode: "DEWA", teamName: "Dewa United Esports",    role: "ROAM"     },
-};
+// Filled from the Render backend by loadBundle() in index.html (/api/bundle),
+// for the league chosen in the admin panel's "// mlbb-tool league" card.
+// Keyed by the ids Moonton's battledata carries — never by a name.
+export const ROSTER = {};      // roleid  -> { name, role, teamCode, photoUrl }
+export const TEAMS = {};       // roster team code -> { teamId, rosterCode, code, name, logoUrl, country }
+export const TEAM_BY_ID = {};  // Moonton team_id -> TEAMS entry
 
-// =========================
-// MPL ID TEAM CONSTS
-// =========================
-export const TEAM_CONSTS = {
-    "AE":   "Alter Ego Esports",
-    "BTR":  "Bigetron by Vitality",
-    "NAVI": "Natus Vincere",
-    "RRQ":  "RRQ Hoshi",
-    "TLID": "Team Liquid ID",
-    "GEEK": "Geek Fam ID",
-    "EVOS": "EVOS Esports",
-    "ONIC": "ONIC Esports",
-    "DEWA": "Dewa United Esports",
-};
+// Lane order for every role-sorted view. A player whose roster row has no
+// lane sorts last as "?" — fix it in the admin // Players roster.
+export const LANE_ORDER = ["EXP LANE", "JUNGLE", "MID LANE", "GOLD LANE", "ROAM"];
+export const UNKNOWN_ROLE = "?";
 
-// =========================
-// PLAYER ROLE MAP
-// =========================
-export const PLAYER_ROLE_MAP = {
-    "KarlTzy": "JUNGLE",
-    "Sanji": "MID LANE",
-    "Jaypee": "ROAM",
-    "Sanford": "EXP LANE",
-    "Daiki_": "GOLD LANE",
-    "Light": "ROAM",
-    "Yue": "MID LANE",
-    "Domengkite": "GOLD LANE",
-    "Edward": "EXP LANE",
-    "Demonkite": "JUNGLE",
-    "Sionnn": "MID LANE",
-    "Caloy": "ROAM",
-    "Owl.": "GOLD LANE",
-    "MPtheKing.": "JUNGLE",
-    "Lansu": "EXP LANE",
-    "K1NGKONG": "JUNGLE",
-    "Ryota": "EXP LANE",
-    "Savero": "GOLD LANE",
-    "Brusko": "ROAM",
-    "SuperFrince": "MID LANE",
-    "Nova_": "ROAM",
-    "Kielvj": "EXP LANE",
-    "shizou": "GOLD LANE",
-    "JamesPangks": "JUNGLE",
-    "Aqua": "MID LANE",
-    "Jeymz": "EXP LANE",
-    "Raizen.": "JUNGLE",
-    "Minguin": "MID LANE",
-    "Netskie": "GOLD LANE",
-    "Perkziva": "ROAM",
-    "LanceCy": "MID LANE",
-    "Zaida": "JUNGLE",
-    "3Mar": "EXP LANE",
-    "Ch4knu": "ROAM",
-    "Bennyqt": "GOLD LANE",
-    "Nosia": "GOLD LANE",
-    "Kirk": "EXP LANE",
-    "SuperMarco": "GOLD LANE",
-    "Kyle": "JUNGLE",
-    "Hadji": "MID LANE",
-    "Owgwen": "ROAM",
-    "Flap": "EXP LANE",
-    "Stowm.": "MID LANE",
-    "Teddy": "GOLD LANE",
-    "Tracy": "ROAM"
-};
+export function roleOf(player) {
+    const role = player ? ROSTER[String(player.roleid)]?.role : null;
+    return LANE_ORDER.includes(role) ? role : UNKNOWN_ROLE;
+}
 
 // =========================
 // GOLD SOURCES
@@ -245,12 +129,12 @@ export const CUSTOM_ICONS = {
 };
 
 // =========================
-// HERO DATA
+// HERO DATA — fallback only; replaced from the DB heroes table at load
 // =========================
 export const HERO_DATA = {1:"Miya",2:"Balmond",3:"Saber",4:"Alice",5:"Nana",6:"Tigreal",7:"Alucard",8:"Karina",9:"Akai",10:"Franco",11:"Bane",12:"Bruno",13:"Clint",14:"Rafaela",15:"Eudora",16:"Zilong",17:"Fanny",18:"Layla",19:"Minotaur",20:"Lolita",21:"Hayabusa",22:"Freya",23:"Gord",24:"Natalia",25:"Kagura",26:"Chou",27:"Sun",28:"Alpha",29:"Ruby",30:"Yi Sun-shin",31:"Moskov",32:"Johnson",33:"Cyclops",34:"Estes",35:"Hilda",36:"Aurora",37:"Lapu-Lapu",38:"Vexana",39:"Roger",40:"Karrie",41:"Gatotkaca",42:"Harley",43:"Irithel",44:"Grock",45:"Argus",46:"Odette",47:"Lancelot",48:"Diggie",49:"Hylos",50:"Zhask",51:"Helcurt",52:"Pharsa",53:"Lesley",54:"Jawhead",55:"Angela",56:"Gusion",57:"Valir",58:"Martis",59:"Uranus",60:"Hanabi",61:"Chang'e",62:"Kaja",63:"Selena",64:"Aldous",65:"Claude",66:"Vale",67:"Leomord",68:"Lunox",69:"Hanzo",70:"Belerick",71:"Kimmy",72:"Thamuz",73:"Harith",74:"Minsitthar",75:"Kadita",76:"Faramis",77:"Badang",78:"Khufra",79:"Granger",80:"Guinevere",81:"Esmeralda",82:"Terizla",83:"X.Borg",84:"Ling",85:"Dyrroth",86:"Lylia",87:"Baxia",88:"Masha",89:"Wanwan",90:"Silvanna",91:"Cecilion",92:"Carmilla",93:"Atlas",94:"Popol and Kupa",95:"Yu Zhong",96:"Luo Yi",97:"Benedetta",98:"Khaleed",99:"Barats",100:"Brody",101:"Yve",102:"Mathilda",103:"Paquito",104:"Gloo",105:"Beatrix",106:"Phoveus",107:"Natan",108:"Aulus",109:"Aamon",110:"Valentina",111:"Edith",112:"Floryn",113:"Yin",114:"Melissa",115:"Xavier",116:"Julian",117:"Fredrinn",118:"Joy",119:"Novaria",120:"Arlott",121:"Ixia",122:"Nolan",123:"Cici",124:"Chip",125:"Zhuxin",126:"Suyou",127:"Lukas",128:"Kalea",129:"Zetian",130:"Obsidia",131:"Sora",132:"Marcel"};
 
 // =========================
-// ITEM DATA
+// ITEM DATA — fallback only; replaced from the DB items table at load
 // =========================
 export const ITEM_DATA = {3212:{name:"Chastise Pauldron",full:1},3210:{name:"Radiant Armor",full:1},3209:{name:"Twilight Armor",full:1},3208:{name:"Brute Force Breastplate",full:1},3207:{name:"Immortality",full:1},3206:{name:"Dominance Ice",full:1},3205:{name:"Athena's Shield",full:1},3204:{name:"Oracle",full:1},3203:{name:"Antique Cuirass",full:1},3202:{name:"Guardian Helmet",full:1},3201:{name:"Cursed Helmet",full:1},3113:{name:"Clock of Destiny",full:1},3112:{name:"Flask of the Oasis",full:1},3111:{name:"Genius Wand",full:1},3110:{name:"Lightning Truncheon",full:1},3109:{name:"Fleeting Time",full:1},3108:{name:"Blood Wings",full:1},3106:{name:"Starlium Scythe",full:1},3105:{name:"Glowing Wand",full:1},3104:{name:"Ice Queen Wand",full:1},3103:{name:"Concentrated Energy",full:1},3102:{name:"Holy Crystal",full:1},3101:{name:"Divine Glaive",full:1},3015:{name:"Malefic Gun",full:1},3014:{name:"Great Dragon Spear",full:1},3013:{name:"Sea Halberd",full:1},3012:{name:"Rose Gold Meteor",full:1},3009:{name:"Hunter Strike",full:1},3008:{name:"Blade of Despair",full:1},3007:{name:"Blade of the Heptaseas",full:1},3006:{name:"Scarlet Phantom",full:1},3005:{name:"Windtalker",full:1},3004:{name:"Endless Battle",full:1},3003:{name:"Berserker's Fury",full:1},3002:{name:"Haas's Claws",full:1},3001:{name:"Malefic Roar",full:1},2212:{name:"Thunder Belt",full:1},2208:{name:"Queen's Wings",full:1},2207:{name:"Blade Armor",full:1},2112:{name:"Wishing Lantern",full:1},2110:{name:"Necklace of Durance",full:1},2108:{name:"Feather of Heaven",full:1},2107:{name:"Winter Crown",full:1},2106:{name:"Enchanted Talisman",full:1},2014:{name:"Sky Piercer",full:1},2013:{name:"War Axe",full:1},2011:{name:"Wind of Nature",full:1},2009:{name:"Golden Staff",full:1},2008:{name:"Corrosion Scythe",full:1},2006:{name:"Demon Hunter Sword",full:1}};
 
@@ -341,41 +225,12 @@ export function getTeamInitials(name) {
 // =========================
 // PLAYER ROLE HELPERS
 // =========================
-export function getPlayerRoleSafe(name) {
-    if (!name) return "ROAM";
-
-    const cleanName = name.trim().replace(/\./g, '').toLowerCase();
-
-    for (const [key, role] of Object.entries(PLAYER_ROLE_MAP)) {
-        const cleanKey = key.trim().replace(/\./g, '').toLowerCase();
-
-        if (
-            cleanName === cleanKey ||
-            cleanName.includes(cleanKey) ||
-            cleanKey.includes(cleanName)
-        ) {
-            return role;
-        }
-    }
-
-    return "ROAM";
-}
-
-export function sortPlayersByRoleSafe(players) {
-    const ROLE_ORDER = [
-        "EXP LANE",
-        "JUNGLE",
-        "MID LANE",
-        "GOLD LANE",
-        "ROAM"
-    ];
-
-    return players.sort((a, b) => {
-        const roleA = getPlayerRoleSafe(a.name);
-        const roleB = getPlayerRoleSafe(b.name);
-
-        return ROLE_ORDER.indexOf(roleA) - ROLE_ORDER.indexOf(roleB);
-    });
+export function sortPlayersByRole(players) {
+    const rank = p => {
+        const i = LANE_ORDER.indexOf(roleOf(p));
+        return i === -1 ? LANE_ORDER.length : i;
+    };
+    return players.sort((a, b) => rank(a) - rank(b));
 }
 
 export const ICON_SIZE_BASE = {
@@ -383,10 +238,6 @@ export const ICON_SIZE_BASE = {
 };
 
 export const milestones = [120, 300, 480, 720, 900, 1080, 1260, 1440, 1620, 1800, 1980];
-
-export const ROLE_ORDER = {
-    "EXP LANE": 1, "JUNGLE": 2, "MID LANE": 3, "ROAM": 4, "GOLD LANE": 5
-};
 
 export const RANKING_CATEGORIES = [
     { key: 'gold', label: 'GOLD' },
@@ -419,7 +270,12 @@ export function getHeroRecIcon(heroid) {
     return `./herorec/HERO_${heroid}_BAN.png`;
 }
 
+// "?" = no lane on the roster: a plain question-mark badge, no asset needed.
+const UNKNOWN_ROLE_ICON = 'data:image/svg+xml,' + encodeURIComponent(
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><circle cx="20" cy="20" r="18" fill="#334155" stroke="#94a3b8" stroke-width="2"/><text x="20" y="27" font-size="22" font-family="sans-serif" font-weight="700" text-anchor="middle" fill="#e2e8f0">?</text></svg>');
+
 export function getRoleIcon(role) {
     if (!role) return '';
+    if (role === UNKNOWN_ROLE) return UNKNOWN_ROLE_ICON;
     return `./Role/${role}.png`;
 }

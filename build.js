@@ -42,6 +42,7 @@ const REQUIRED_NAMES = [
   'toggleGoldDistributionModal', 'toggleItemTimingModal', 'toggleLiveData',
   'toggleMapModal', 'togglePlayerCompareModal', 'toggleStatsDonutModal',
   'applyFilters', 'renderDraftModal', 'renderItemTimings', 'renderStatsDonut',
+  'toggleAuto', 'setAuto',
 ];
 
 function main() {
