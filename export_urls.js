@@ -2,15 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
-// Mock browser Image object for Node environment
-if (typeof globalThis.Image === 'undefined') {
-    globalThis.Image = class Image {
-        constructor() {
-            this.src = '';
-        }
-    };
-}
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = __dirname;
@@ -25,10 +16,50 @@ const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/Bokpau/mlbb-tool/main
 // Sheets column references (A-H) do not shift.
 const STORAGE_BASE = 'https://pxcjutulnutibtnjgwek.supabase.co/storage/v1/object/public/assets';
 
-// Dynamic import after setting globalThis.Image
-const { HERO_DATA, ITEM_DATA } = await import('./src/main-config.js');
+// Names come from the backend DB, the one source (GAME-DATA-PLAN.md Step 2):
+// GET /api/ref/all, public, no key. If it cannot be read the script stops and
+// writes nothing, so a backend outage never turns the Sheet into placeholders.
+const REF_URL = process.env.REF_API_URL || 'https://mpl-ph-s17-backend.onrender.com/api/ref/all';
 
-// Additional dictionaries for items, runes, and skills
+async function fetchRef() {
+    let lastErr;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+        try {
+            const res = await fetch(REF_URL, { signal: AbortSignal.timeout(60000) });
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            const ref = await res.json();
+            if (!Array.isArray(ref.heroes) || !ref.heroes.length) throw new Error('no heroes in response');
+            return ref;
+        } catch (err) {
+            lastErr = err;
+            console.warn(`ref fetch attempt ${attempt} failed: ${err.message}`);
+            if (attempt < 3) await new Promise(r => setTimeout(r, 5000 * attempt));
+        }
+    }
+    console.error(`❌ Could not read ${REF_URL}: ${lastErr.message} — no CSV written.`);
+    process.exit(1);
+}
+
+const REF = await fetchRef();
+const byId = (rows) => Object.fromEntries(rows.map(r => [String(r.id), r.name]));
+const DB_HERO = byId(REF.heroes);
+const DB_ITEM = byId(REF.items);
+// Rune/ holds both emblem icons (20001…) and talent icons (rune_map 111…).
+const DB_RUNE = { ...byId(REF.talents), ...byId(REF.emblems) };
+const DB_SPELL = byId(REF.spells);
+
+// Ids the DB does not have (yet) fall back to the old hand-kept names below,
+// then to a placeholder. Each one is listed at the end of the run so it can be
+// added to the DB; tools/check-refdata.js (backend) flags them too.
+const notInDb = [];
+function refName(db, fallback, id, placeholder, kind) {
+    if (db[id]) return db[id];
+    notInDb.push(`${kind} ${id}`);
+    return fallback[id] || placeholder;
+}
+
+// Fallback names, used ONLY for ids the DB lacks (see refName). Never edit a
+// name here to fix the Sheet — fix it in the DB (admin panel) instead.
 const EXTRA_ITEM_NAMES = {
     '1001': 'Dagger',
     '1002': 'Knife',
@@ -183,7 +214,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)_CIRCLE/);
             if (m) {
                 assetId = m[1];
-                assetName = HERO_DATA[assetId] || `Hero ${assetId}`;
+                assetName = refName(DB_HERO, {}, assetId, `Hero ${assetId}`, 'hero');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -191,7 +222,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)_(.+)_ban/);
             if (m) {
                 assetId = m[1];
-                assetName = m[2].replace(/_/g, ' ');
+                assetName = DB_HERO[assetId] || m[2].replace(/_/g, ' ');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -199,7 +230,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)_(.+)_selection/);
             if (m) {
                 assetId = m[1];
-                assetName = m[2].replace(/_/g, ' ');
+                assetName = DB_HERO[assetId] || m[2].replace(/_/g, ' ');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -207,7 +238,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)/);
             if (m) {
                 assetId = m[1];
-                assetName = (ITEM_DATA[assetId] && ITEM_DATA[assetId].name) || EXTRA_ITEM_NAMES[assetId] || `Item ${assetId}`;
+                assetName = refName(DB_ITEM, EXTRA_ITEM_NAMES, assetId, `Item ${assetId}`, 'item');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -215,7 +246,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)/);
             if (m) {
                 assetId = m[1];
-                assetName = RUNE_NAMES[assetId] || `Rune ${assetId}`;
+                assetName = refName(DB_RUNE, RUNE_NAMES, assetId, `Rune ${assetId}`, 'rune');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -223,7 +254,7 @@ function scanFolder(folderName, categoryName) {
             const m = file.match(/^(\d+)/);
             if (m) {
                 assetId = m[1];
-                assetName = SKILL_NAMES[assetId] || `Skill ${assetId}`;
+                assetName = refName(DB_SPELL, SKILL_NAMES, assetId, `Skill ${assetId}`, 'spell');
             } else {
                 assetName = file.replace(/\.[^.]+$/, '');
             }
@@ -319,7 +350,7 @@ function generateMasterCsv() {
         const ban = heroBanMap.get(id);
         const sel = heroSelectionMap.get(id);
 
-        const heroName = (circle && circle.assetName) || (ban && ban.assetName) || (sel && sel.assetName) || HERO_DATA[id] || `Hero ${id}`;
+        const heroName = (circle && circle.assetName) || (ban && ban.assetName) || (sel && sel.assetName) || DB_HERO[id] || `Hero ${id}`;
 
         const circleUrl = circle ? circle.cdnUrl : '';
         const circleFormula = circle ? circle.imageFormula : '';
@@ -366,3 +397,6 @@ function generateMasterCsv() {
 }
 
 generateMasterCsv();
+
+const missing = [...new Set(notInDb)];
+if (missing.length) console.log(`ℹ️  Not in the DB, old fallback or placeholder name used: ${missing.join(', ')}`);

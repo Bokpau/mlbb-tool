@@ -10,10 +10,15 @@ on:
       - 'Rune/**'
       - 'SKILL/**'
       - 'Role/**'
-      - 'src/main-config.js'
       - 'export_urls.js'
+      - '.github/workflows/auto_export_csv.yml'
     branches:
       - main
+  # Names come from the backend DB (GET /api/ref/all), so a name changed there
+  # reaches the Sheet without a push here: nightly, 03:00 Manila (19:00 UTC).
+  schedule:
+    - cron: '0 19 * * *'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -42,6 +47,7 @@ jobs:
 
       - name: Purge jsDelivr CDN Cache
         run: |
-          curl -s "https://purge.jsdelivr.net/gh/Bokpau/mlbb-tool@main/mlbb_assets_master.csv"
-          curl -s "https://purge.jsdelivr.net/gh/Bokpau/mlbb-tool@main/mlbb_heroes_matrix.csv"
+          for f in mlbb_assets_master.csv mlbb_heroes_matrix.csv mlbb_items.csv mlbb_runes.csv mlbb_skills.csv mlbb_roles.csv; do
+            curl -s "https://purge.jsdelivr.net/gh/Bokpau/mlbb-tool@main/$f" > /dev/null
+          done
 

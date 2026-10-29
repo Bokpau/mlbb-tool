@@ -39,6 +39,20 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ## 2026-10-29
 
+### feat(csv): Sheet CSV names come from the backend DB, not hand-kept lists
+`export_urls.js` now reads every name from the backend's public
+`GET /api/ref/all` (GAME-DATA-PLAN.md Step 2) instead of `HERO_DATA` /
+`ITEM_DATA` / the dictionaries in the script. The Sheet had drifted: "Hero 133"
+for Hirara, 54 boots/blessing items as "Item N", item 1008 as "Power Potion"
+(it is Expert Gloves), ban/selection rows spelled from filenames ("Yi Sun
+shin"). All now match the DB. Visible change: emblem rows read "Physical",
+"Tank"… (the DB name) instead of "Physical Emblem". If the backend cannot be
+read the script exits 1 and writes nothing. The old lists stay only as a
+fallback for ids the DB lacks (today: 0, 1114, 9999), printed at the end of
+each run. The Action also runs nightly (03:00 Manila) and by hand, so a name
+fixed in the DB reaches the Sheet without a push, and it purges all six CSVs
+on jsDelivr, not two.
+
 ### feat(ci): every pushed image is copied to Supabase Storage automatically
 All sites read images from the Storage bucket `assets`, but the bucket only
 caught up when someone ran `sync-storage.js` by hand — a pushed-but-unsynced
