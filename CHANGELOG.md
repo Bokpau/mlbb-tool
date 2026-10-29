@@ -39,6 +39,18 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ## 2026-10-29
 
+### fix(storage): one-day cache, and no re-upload of big files sync already has
+`sync-storage.js` uploaded every file with `Cache-Control: 31536000, immutable`
+— a year, and malformed (no `max-age=`). Art does change under the same name
+(revamps, re-cut photos, and the backend admin's image upload replaces files
+in place), so a replaced image could stay old in browsers and OBS. Now
+`max-age=86400`, the same as the admin upload. Second bug, found when the
+first admin upload (Paquito, 2026-10-29) was re-uploaded by the Action a
+minute later: Storage gives a big file sent in parts an eTag of
+`<hash>-<parts>`, never equal to an md5, so sync re-sent those every run and
+overwrote the uploader's header. Such files now compare by byte size.
+Files already in the bucket keep their old header until next re-uploaded.
+
 ### feat(csv): Sheet CSV names come from the backend DB, not hand-kept lists
 `export_urls.js` now reads every name from the backend's public
 `GET /api/ref/all` (GAME-DATA-PLAN.md Step 2) instead of `HERO_DATA` /

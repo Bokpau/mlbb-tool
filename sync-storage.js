@@ -65,10 +65,14 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const BUCKET = 'assets';
 const IMAGE_RE = /\.(png|jpe?g|webp|svg|gif)$/i;
 
-// A year, immutable. Filenames here are stable and their contents do not
-// change; when art genuinely changes it should land under a NEW filename rather
-// than overwriting, so nothing ever has to be purged from the edge.
-const CACHE_CONTROL = '31536000, immutable';
+// One day. This used to be '31536000, immutable', on the idea that art never
+// changes under the same filename — but it does (hero revamps, re-cut photos,
+// and since 2026-10-29 the backend admin's image upload replaces files in
+// place), and that value was also malformed (no `max-age=`), so browsers and
+// OBS kept old art for an unknown time. A day is the same value the admin
+// upload (backend ref-images.js) uses for plain paths; its immutable copies
+// live under v/<md5-8>/ instead.
+const CACHE_CONTROL = 'max-age=86400';
 
 const MIME = {
   '.png': 'image/png',
@@ -162,7 +166,7 @@ function trackedImages() {
 }
 
 /**
- * Every object already in the bucket, as path -> md5.
+ * Every object already in the bucket, as path -> { tag (eTag: md5, or <hash>-<parts>), size }.
  *
  * Storage's list endpoint is per-prefix and pages at 100 by default, so this
  * walks one folder at a time with an explicit limit. eTag comes back quoted.
@@ -185,13 +189,23 @@ async function remoteIndex(prefixes) {
       for (const r of rows) {
         if (!r.metadata) continue; // a sub-folder, not an object
         const tag = (r.metadata.eTag || '').replace(/"/g, '');
-        index.set(`${prefix}/${r.name}`, tag);
+        index.set(`${prefix}/${r.name}`, { tag, size: Number(r.metadata.size) });
       }
       if (rows.length < 1000) break;
       offset += rows.length;
     }
   }
   return index;
+}
+
+// Already in the bucket with these bytes? Storage's eTag is the md5 for a
+// one-part upload but `<hash>-<parts>` for a big file it took in parts (the
+// backend admin upload sends those), which never equals an md5 — so for those
+// the byte size decides, or every run would re-upload them and overwrite the
+// uploader's Cache-Control.
+function same(remote, hash, body) {
+  if (!remote) return false;
+  return /-\d+$/.test(remote.tag) ? remote.size === body.length : remote.tag === hash;
 }
 
 async function upload(relPath, body) {
@@ -247,13 +261,13 @@ async function upload(relPath, body) {
     }
     // Content hash, not size: a re-crop at the same byte length still differs.
     const hash = md5(body);
-    if (remote.get(rel) === hash) skipped++;
+    if (same(remote.get(rel), hash, body)) skipped++;
     else queue.push([rel, body]);
 
     // Same bytes, extra keys: the spelling-proof ones the site looks up.
     if (NORMALISE_DIRS.has(rel.split('/')[0])) {
       for (const alias of aliasKeys(rel)) {
-        if (remote.get(alias) === hash) skipped++;
+        if (same(remote.get(alias), hash, body)) skipped++;
         else queue.push([alias, body]);
       }
     }
