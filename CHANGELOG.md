@@ -37,6 +37,21 @@ Types follow the commit convention already in use: `feat`, `fix`, `perf`,
 
 ---
 
+## 2026-10-29
+
+### feat(ci): every pushed image is copied to Supabase Storage automatically
+All sites read images from the Storage bucket `assets`, but the bucket only
+caught up when someone ran `sync-storage.js` by hand — a pushed-but-unsynced
+image looked exactly like the old jsDelivr "does not load" problem. New Action
+`sync-storage.yml` runs the same script on every push that touches an image (and
+on demand). The script uploads only files whose md5 differs and never deletes,
+so it is safe to re-run. Needs repository secrets `SUPABASE_URL` and
+`SUPABASE_SERVICE_ROLE_KEY`; without them the run fails loudly instead of
+skipping. `sync-photos.yml` stays: it maps photos to player/team rows, this one
+only copies bytes. Same day: the one file the bucket lacked (`ingame_bg.jpg`)
+was synced by hand. mlbb-assets-leagues still has no such Action.
+→ .github/workflows/sync-storage.yml
+
 ## 2026-10-19
 
 ### fix(app): header fits on laptops and phones

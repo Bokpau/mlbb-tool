@@ -1,0 +1,61 @@
+name: Sync images to Supabase Storage
+
+# Every site reads images from the Supabase Storage bucket `assets`, not from
+# jsDelivr (this repo is over jsDelivr's 50 MB package cap). Until this workflow
+# existed, the bucket only caught up when someone ran sync-storage.js by hand, so
+# a pushed-but-unsynced image looked exactly like the old jsDelivr "image does not
+# load" problem. Now every push that touches an image runs the same script.
+#
+# sync-storage.js only uploads files whose md5 differs from the bucket copy and
+# never deletes anything, so re-running it is cheap and safe.
+#
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL               https://pxcjutulnutibtnjgwek.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY  the service-role key (server-side only)
+#
+# This does not replace sync-photos.yml: that one tells the backend which player
+# and team rows a new photo belongs to. This one only copies bytes.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**/*.png'
+      - '**/*.PNG'
+      - '**/*.jpg'
+      - '**/*.jpeg'
+      - '**/*.webp'
+      - '**/*.svg'
+      - '**/*.gif'
+      - 'sync-storage.js'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-storage
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check secrets are set
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_SERVICE_ROLE_KEY" ]; then
+            echo "::error::SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY repository secrets are missing — images were NOT copied to Storage."
+            exit 1
+          fi
+
+      - name: Copy changed images to Storage
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: node sync-storage.js
